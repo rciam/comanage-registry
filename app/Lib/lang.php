@@ -386,7 +386,8 @@ original notification at
                              IdentifierAssignmentEnum::Sequential => 'Sequential'),
 
   // Extended type, key must be en.model.attribute
-  'en.identifier.type' =>  array(IdentifierEnum::ePPN => 'ePPN',
+  'en.identifier.type' =>  array(IdentifierEnum::ePUID => 'ePUID',
+                                 IdentifierEnum::ePPN => 'ePPN',
                                  IdentifierEnum::ePTID => 'ePTID',
                                  IdentifierEnum::Mail => 'Mail',
                                  IdentifierEnum::OpenID => 'OpenID',

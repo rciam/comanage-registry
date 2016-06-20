@@ -198,6 +198,7 @@ class IdentifierAssignmentExclusionEnum
 
 class IdentifierEnum
 {
+  const ePUID   = 'epuid';
   const ePPN    = 'eppn';
   const ePTID   = 'eptid';
   const Mail    = 'mail';
@@ -541,6 +542,7 @@ $contact_ti = array(
 
 
 $identifier_t = array(
+  'epuid' => 'ePUID',
   'eppn' => 'ePPN',
   'eptid' => 'ePTID',
   'mail' => 'Mail',
@@ -549,6 +551,7 @@ $identifier_t = array(
 );
 
 $identifier_ti = array(
+  'ePUID' => 'epuid',
   'ePPN' => 'eppn',
   'ePTID' => 'eptid',
   'Mail' => 'mail',

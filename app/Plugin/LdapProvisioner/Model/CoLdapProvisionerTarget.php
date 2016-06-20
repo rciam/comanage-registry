@@ -1219,6 +1219,13 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
             'required'  => false,
             'multiple'  => true
           ),
+          'eduPersonUniqueId' => array(
+            'required'  => false,
+            'multiple'  => false,
+            'alloworgvalue' => true,
+            'extendedtype' => 'identifier_types',
+            'defaulttype' => IdentifierEnum::ePUID
+          ),
           'eduPersonPrincipalName' => array(
             'required'  => false,
             'multiple'  => false,

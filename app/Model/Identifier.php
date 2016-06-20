@@ -64,7 +64,8 @@ class Identifier extends AppModel {
       'content' => array(
         'rule' => array('validateExtendedType',
                         array('attribute' => 'Identifier.type',
-                              'default' => array(IdentifierEnum::ePPN,
+                              'default' => array(IdentifierEnum::ePUID,
+                                                 IdentifierEnum::ePPN,
                                                  IdentifierEnum::ePTID,
                                                  IdentifierEnum::Mail,
                                                  IdentifierEnum::OpenID,
