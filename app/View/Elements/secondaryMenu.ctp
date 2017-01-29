@@ -113,8 +113,8 @@
             <span id="comanage-gear"></span>
             <?php
               // Print the user's name
-              print generateCn($this->Session->read('Auth.User.name'));
-              print ' (' . $this->Session->read('Auth.User.username') . ')';
+              print filter_var(generateCn($this->Session->read('Auth.User.name')),FILTER_SANITIZE_SPECIAL_CHARS);
+              print ' (' . filter_var($this->Session->read('Auth.User.username'),FILTER_SANITIZE_SPECIAL_CHARS) . ')';
             ?>
           </a>
           <!-- Account Dropdown -->
@@ -134,6 +134,7 @@
                      && !empty($co['co_person']['CoPersonRole'])) {
                     print "<li>";
                     $args = array(
+                      'plugin' => '',
                       'controller' => 'co_people',
                       'action' => 'canvas',
                       $co['co_person_id']

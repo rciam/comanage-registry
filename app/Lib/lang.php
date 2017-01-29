@@ -690,6 +690,7 @@ original notification at
   'er.ia.none' =>     'No identifier assignments configured',
   'er.id.unk' =>      'Unknown Identifier',
   'er.id.unk-a' =>    'Unknown Identifier "%1$s"',
+  'er.input.invalid' => 'Invalid character found',
   'er.inv.exp' =>     'Invitation Expired',
   'er.inv.exp.use' => 'Processing of invitation failed due to invitation expiration',
   'er.inv.nf' =>      'Invitation Not Found',
@@ -945,6 +946,8 @@ original notification at
   'fd.ia.permitted.desc' => 'When substituting parameters in a format, only permit these characters to be used',
   'fd.ia.type.email' => 'Email Type',
   'fd.ia.type.email.desc' => 'For Identifier Assignments applied to Type <i>Mail</i>, an Email Address (instead of an Identifier) will be created with this type (if not blank)',
+  // fd.id.seq should be used only for database internal column IDs
+  'fd.id.seq' =>      'ID',
   // The next set must be named fd.model.validation-field
   'fd.identifier.identifier' => 'Identifier',
   'fd.identifier.login' => 'Login',
@@ -1424,6 +1427,7 @@ original notification at
   'sh.ug.target' =>       'Target version: %1$s',
   'sh.ug.094.address' =>  'Migrating address configurations',
   'sh.ug.100.cmpdefault' => 'Verifying default CMP Enrollment Configuration',
+  'sh.ug.105.attrdefault' => 'Clearing extraneous CO Enrollment Attribute defaults',
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

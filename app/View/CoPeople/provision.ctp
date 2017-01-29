@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person/CO Group Provision View
  *
- * Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2013-17 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2013-17 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -23,9 +23,9 @@
  */
 
   if(!empty($co_person)) {
-    $params = array('title' => _txt('fd.prov.status.for', array(generateCn($co_person['PrimaryName']))));
+    $params = array('title' => _txt('fd.prov.status.for', array(filter_var(generateCn($co_person['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS))));
   } elseif(!empty($co_group)) {
-    $params = array('title' => _txt('fd.prov.status.for', array($co_group['CoGroup']['name'])));
+    $params = array('title' => _txt('fd.prov.status.for', array(filter_var($co_group['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS))));
   }
   print $this->element("pageTitle", $params);
 
@@ -172,15 +172,15 @@
     <?php foreach ($co_provisioning_status as $c): ?>
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
-        <?php print Sanitize::html($c['CoProvisioningTarget']['description'])
-              . " (" . Sanitize::html($c['CoProvisioningTarget']['plugin']) . ")"; ?>
+        <?php print filter_var($c['CoProvisioningTarget']['description'],FILTER_SANITIZE_SPECIAL_CHARS)
+              . " (" . filter_var($c['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS) . ")"; ?>
       </td>
       <td>
         <?php
           print _txt('en.status.prov.target', null, ($c['status']['status']));
           
           if(!empty($c['status']['comment'])) {
-            print ": " . Sanitize::html($c['status']['comment']);
+            print ": " . filter_var($c['status']['comment'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
         ?>
       </td>

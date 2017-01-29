@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Email Address Fields
  *
- * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-17 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-17 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -37,17 +37,17 @@
   
   // Migrate the target person from a named argument to a form field
   if(isset($this->request->params['named']['copersonid'])) {
-    print $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->params['named']['copersonid']))) . "\n";
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonid']);
+    print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
   } elseif(isset($this->request->data['EmailAddress']['co_person_id'])) {
-    print $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->data['EmailAddress']['co_person_id']))) . "\n";
-    $idForBreadcrumbs = Sanitize::html($this->request->data['EmailAddress']['co_person_id']);
+    print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->data['EmailAddress']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->data['EmailAddress']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS);
   } elseif(isset($this->request->params['named']['orgidentityid'])) {
-    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))) . "\n";
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
+    print $this->Form->hidden('org_identity_id', array('default' => filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS);
   } elseif(isset($this->request->data['EmailAddress']['org_identity_id'])) {
-    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->data['EmailAddress']['org_identity_id']))) . "\n";
-    $idForBreadcrumbs = Sanitize::html($this->request->data['EmailAddress']['org_identity_id']);
+    print $this->Form->hidden('org_identity_id', array('default' => filter_var($this->request->data['EmailAddress']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->data['EmailAddress']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
   }
 
   if(isset($cur_co))
@@ -103,7 +103,7 @@
         <?php print _txt('fd.email_address.mail'); ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('mail', array('class' => 'focusFirst')) : Sanitize::html($email_addresses[0]['EmailAddress']['mail'])); ?>
+        <?php print ($e ? $this->Form->input('mail', array('class' => 'focusFirst')) : filter_var($email_addresses[0]['EmailAddress']['mail'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
       <?php if($e && $isVerified): ?>
       <td>
@@ -130,7 +130,7 @@
               print $this->Form->error('type');
             }
           } else {
-            print Sanitize::html(_txt('en.email_address.type', null, $email_addresses[0]['EmailAddress']['type']));
+            print _txt('en.email_address.type', null, filter_var($email_addresses[0]['EmailAddress']['type'],FILTER_SANITIZE_SPECIAL_CHARS));
           }
         ?>
       </td>
@@ -150,10 +150,6 @@
               'action' => 'verifyEmailAddress',
               'email_address_id' => $email_addresses[0]['EmailAddress']['id']
             );
-            
-            if(!empty($cur_co['Co']['id'])) {
-              $url['co'] = $cur_co['Co']['id'];
-            }
           }
           
           print ($isVerified ? _txt('fd.yes') : _txt('fd.no')) . "\n";

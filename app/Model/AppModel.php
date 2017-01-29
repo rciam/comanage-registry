@@ -819,6 +819,62 @@ class AppModel extends Model {
   }
   
   /**
+   * Determine if a string is a valid input.
+   *
+   * @since  COmanage Registry v1.0.6
+   * @param  array Array of fields to validate
+   * @param  array Array with up to two keys: 'filter' and 'flags', corresponding to filter_var options
+   * @return mixed True if all field strings validate, an error message otherwise
+   */
+  
+  public function validateInput($a, $d) {
+    // By default, we'll accept anything except < and >. Arguably, we should accept
+    // anything at all for input (and filter only on output), but this was agreed to
+    // as an extra "line of defense" against unsanitized HTML output, since there are
+    // currently no known cases where user-entered input should permit angle brackets.
+    
+    if(!empty($d['filter']) || !empty($d['flags'])) {
+      // If requested, we'll use PHP's filter_var() (to match output filters).
+      // eg: Used by Email Address to match email format.
+      
+      $filter = FILTER_SANITIZE_SPECIAL_CHARS;
+      $flags = null;
+      
+      if(!empty($d['filter'])) {
+        // Use the requested filter instead
+        $filter = $d['filter'];
+      }
+      
+      if(!empty($d['flags'])) {
+        $flags = $d['flags'];
+      }
+      
+      foreach($a as $k => $v) {
+        // We use filter_var for consistency with the views, and simply check
+        // that we end up with the same string we started with.
+        
+        $filtered = filter_var($v, $filter, $flags);
+        
+        if($v != $filtered) {
+          // Mismatch, implying bad input
+          return _txt('er.input.invalid');
+        }
+      }
+    } else {
+      // Perform a basic string search.
+      
+      foreach($a as $k => $v) {
+        if(strlen($v) != strcspn($v, "<>")) {
+          // Mismatch, implying bad input
+          return _txt('er.input.invalid');
+        }
+      }
+    }
+    
+    return true;
+  }
+  
+  /**
    * Determine if a string represents a defined/supported language. This function
    * is intended to be used as a validation rule.
    *

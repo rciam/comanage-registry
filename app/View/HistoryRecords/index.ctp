@@ -36,7 +36,7 @@
     $args = array(
       'controller' => 'co_people',
       'action' => 'canvas',
-      Sanitize::html($this->request->params['named']['copersonid']));
+      filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS));
     if (isset($display_name)) {
       $this->Html->addCrumb($display_name, $args);
     } else {
@@ -57,7 +57,7 @@
     $args = array(
       'controller' => 'orgIdentities',
       'action' => 'edit',
-      Sanitize::html($this->request->params['named']['orgidentityid']));
+      filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS));
     $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
   }
   $this->Html->addCrumb(_txt('ct.history_records.pl'));
@@ -75,9 +75,9 @@
     $args['action'] = 'add';
 
     if(isset($this->request->params['named']['copersonid'])) {
-      $args['copersonid'] = Sanitize::html($this->request->params['named']['copersonid']);
+      $args['copersonid'] = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
     } elseif(isset($this->request->params['named']['orgidentityid'])) {
-      $args['orgidentityid'] = Sanitize::html($this->request->params['named']['orgidentityid']);
+      $args['orgidentityid'] = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS);
     }
 
     $params['topLinks'][] = $this->Html->link(
@@ -94,6 +94,7 @@
 <table id="org_identities" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
+      <th><?php print $this->Paginator->sort('id', _txt('fd.id.seq')); ?></th>
       <th><?php print $this->Paginator->sort('created', _txt('fd.created.tz', array($vv_tz))); ?></th>
       <th><?php print $this->Paginator->sort('comment', _txt('fd.comment')); ?></th>
       <th><?php print $this->Paginator->sort('Actor.PrimaryName.family', _txt('fd.actor')); ?></th>
@@ -107,8 +108,9 @@
     <?php $i = 0; ?>
     <?php foreach ($history_records as $h): ?>
     <tr class="line<?php print ($i % 2)+1; ?>">
+      <td><?php print $h['HistoryRecord']['id']; ?></td>
       <td><?php print $this->Time->niceShort($h['HistoryRecord']['created'], $vv_tz); ?></td>
-      <td><?php print Sanitize::html($h['HistoryRecord']['comment']) . "\n";?></td>
+      <td><?php print filter_var($h['HistoryRecord']['comment'],FILTER_SANITIZE_SPECIAL_CHARS) . "\n";?></td>
       <td>
         <?php
           if(!empty($h['ActorCoPerson']['id'])) {
@@ -173,7 +175,7 @@
   
   <tfoot>
     <tr class="ui-widget-header">
-      <th colspan="6">
+      <th colspan="7">
         <?php print $this->element("pagination"); ?>
       </th>
     </tr>

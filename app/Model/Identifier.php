@@ -57,7 +57,14 @@ class Identifier extends AppModel {
         // errors (eg: with provisioning ldap)
         'rule' => 'notBlank',
         'required' => false,
-        'allowEmpty' => true
+        'allowEmpty' => false
+      ),
+      // We perform basic input validation because end users can input identifiers
+      // via Enrollment Flows. This could cause problems with identifiers of very
+      // specific formats, but for now we don't have any use cases.
+      // See also Identifier Self Service (CO-1255).
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'type' => array(
