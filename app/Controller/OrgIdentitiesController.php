@@ -53,7 +53,8 @@ class OrgIdentitiesController extends StandardController {
     'Identifier',
     'Name',
     'PrimaryName',
-    'TelephoneNumber'
+    'TelephoneNumber',
+    'Certificate'
   );
   
   public $view_contains = array(
@@ -64,7 +65,8 @@ class OrgIdentitiesController extends StandardController {
     'Identifier',
     'Name',
     'PrimaryName',
-    'TelephoneNumber'
+    'TelephoneNumber',
+    'Certificate'
   );
   
   function addvialdap()

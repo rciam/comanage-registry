@@ -32,7 +32,8 @@ $(function() {
   tabid["email"] = 2;
   tabid["phone"] = 3;
   tabid["address"]  = 4;
-  tabid["copeople"] = 5;
+  tabid["certificate"]  = 5;
+  tabid["copeople"] = 6;
 
   // Turn on Tabs
   var $tabs = $( "#tabs" ).tabs();
@@ -124,6 +125,11 @@ $(function() {
         <li>
           <a href="#tabs-address">
             <?php print _txt('fd.address'); ?>
+          </a>
+        </li>
+        <li>
+          <a href="#tabs-certificate">
+            <?php print _txt('ct.certificates.pl'); ?>
           </a>
         </li>
         <li>
@@ -690,6 +696,81 @@ $(function() {
         <br>
       </div>
       
+      <div id="tabs-certificate" class="additionalinfo">
+        <?php
+          if($e)
+          {
+            if(isset($org_identities[0]['Certificate']))
+            {
+              foreach($org_identities[0]['Certificate'] as $c)
+              {
+                print '<div>';
+                  print '<div>';
+
+                    print $this->Html->link($c['subject'], array('controller' => 'certificates',
+                                                               'action' => 'edit',
+                                                               $c['id'],
+                                                               'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])));
+                    print "&nbsp;(" . _txt('en.certificate.type', null, $c['type']) . ")";
+                  print '</div>';
+                  print '<div>';
+                  // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
+                  print '<a class="deletebutton" title="' . _txt('op.delete')
+                    . '" onclick="javascript:js_confirm_generic(\''
+                    . _txt('js.remove') . '\',\''    // dialog body text
+                    . $this->Html->url(              // dialog confirm URL
+                      array(
+                        'controller' => 'certificates',
+                        'action' => 'delete',
+                        $c['id'],
+                        'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
+                      )
+                    ) . '\',\''
+                    . _txt('op.remove') . '\',\''    // dialog confirm button
+                    . _txt('op.cancel') . '\',\''    // dialog cancel button
+                    . _txt('op.remove') . '\',[\''   // dialog title
+                    . filter_var(_jtxt($c['subject']),FILTER_SANITIZE_EMAIL)  // dialog body text replacement strings
+                    . '\']);">'
+                    . _txt('op.delete')
+                    . '</a>';
+                  print $this->Html->link(_txt('op.edit'),
+                                          array('controller' => 'certificates',
+                                                'action' => 'edit',
+                                                $c['id'],
+                                                'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
+                                          array('class' => 'editbutton')) . "\n";
+                  print '</div>';
+                print '</div>';
+              }
+            }
+
+            $linktarget = array('controller'    => 'certificates',
+                                'action'        => 'add',
+                                'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
+                                'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])
+                               );
+            $linkparams = array('class'  => 'addbutton');
+
+            print $this->Html->link(_txt('op.add'),
+                                    $linktarget,
+                                    $linkparams
+                                   );
+          }
+          else
+          {
+            if(isset($org_identities[0]['Certificate']))
+              foreach($org_identities[0]['Certificate'] as $c)
+              {
+                print '<div>';
+                  print filter_var($c['subject'],FILTER_SANITIZE_SPECIAL_CHARS) . " (" . _txt('en.certificate.type', null, $c['type']) . ")<br />\n";
+                print '</div>';
+              }
+
+          }
+        ?>
+        <br>
+      </div>
+
       <div id="tabs-copeople" class="additionalinfo">
         <?php
           if($e) {

@@ -68,7 +68,8 @@ class OrgIdentity extends AppModel {
     "Identifier" => array('dependent' => true),
     "Name" => array('dependent' => true),
     // A person can have one or more telephone numbers
-    "TelephoneNumber" => array('dependent' => true)
+    "TelephoneNumber" => array('dependent' => true),
+    "Certificate" => array('dependent' => true)
   );
 
   public $belongsTo = array(
@@ -443,6 +444,7 @@ class OrgIdentity extends AppModel {
       $args['contain']['EmailAddress']['conditions']['EmailAddress.type ='] = EmailAddressEnum::Official;
       $args['contain']['Name']['conditions']['Name.type ='] = NameEnum::Official;
       $args['contain']['TelephoneNumber']['conditions']['TelephoneNumber.type ='] = ContactEnum::Office;
+      $args['contain']['Certificate']['conditions']['Certificate.type ='] = CertificateEnum::X509;
       
       $curOrgIdentity = $this->find('first', $args);
       
@@ -474,13 +476,14 @@ class OrgIdentity extends AppModel {
         }
       }
       
+
       // We don't want to save models which have no associated env data, so iterate
       // through the models defined by the contain and check.
       
       // Note that EmailAddress::beforeSave() will correctly decide what to do about verified.
       // Similarly, Name::beforeSave() will determine what to do about primary_name.
       
-      foreach(array('Address', 'EmailAddress', 'Name', 'TelephoneNumber') as $m) {
+      foreach(array('Address', 'EmailAddress', 'Name', 'TelephoneNumber', 'Certificate') as $m) {
         if(!empty($envOrgIdentity[$m][0])) {
           $newModels[] = $m;
           
@@ -492,6 +495,9 @@ class OrgIdentity extends AppModel {
               
               $newOrgIdentity[$m][$instance] = $envOrgIdentity[$m][0];
               $newOrgIdentity[$m][$instance]['id'] = $id;
+              if (isset($curOrgIdentity[$m][$instance]['type'])) {
+                $newOrgIdentity[$m][$instance]['type'] = $curOrgIdentity[$m][$instance]['type'];
+              }
             }
           } else {
             // Create a new instance... simple copy
@@ -527,7 +533,9 @@ class OrgIdentity extends AppModel {
             }
           }
           
-          $this->saveAssociated($newOrgIdentity);
+          if (!$this->saveAssociated($newOrgIdentity)) {
+            $this->log('Failed to update changed enrollment attributes from env: validationErrors='.var_export($this->validationErrors, true), 'error');
+          }
           
           $this->HistoryRecord->record(null,
                                        null,

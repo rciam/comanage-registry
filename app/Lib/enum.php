@@ -130,6 +130,11 @@ class ContactEnum
   const Forwarding  = 'forwarding';
 }
 
+class CertificateEnum
+{
+  const X509         = 'X.509';
+}
+
 class EmailAddressEnum {
   const Delivery      = 'delivery';
   const Forwarding    = 'forwarding';

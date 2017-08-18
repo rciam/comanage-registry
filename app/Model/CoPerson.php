@@ -119,7 +119,8 @@ class CoPerson extends AppModel {
     // Make this last so it doesn't get recreated by ProvisionerBehavior when
     // deleting a CO person
     "CoProvisioningExport" => array('dependent' => true),
-    "SshKey" => array('dependent' => true)
+    "SshKey" => array('dependent' => true),
+    "Certificate" => array('dependent' => true)
   );
 
   // Default display field for cake generated views

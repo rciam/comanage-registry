@@ -213,6 +213,9 @@ class CoEnrollmentAttribute extends AppModel {
         
       foreach(array_keys($cm_texts[ $cm_lang ]['en.telephone_number.type']) as $k)
         $ret['i:telephone_number:'.$k] = _txt('fd.telephone_number.number') . " (" . $cm_texts[ $cm_lang ]['en.telephone_number.type'][$k] . ", " . _txt('ct.org_identities.1') . ")";
+
+      foreach(array_keys($cm_texts[ $cm_lang ]['en.certificate.type']) as $k)
+        $ret['i:certificate:'.$k] = _txt('fd.certificate.subject') . " (" . $cm_texts[ $cm_lang ]['en.certificate.type'][$k] . ", " . _txt('ct.certificates.1') . ")";
     }
     
     // (7) Enrollment Flow specific attributes -- these don't get copied out of the petition (code=e)
