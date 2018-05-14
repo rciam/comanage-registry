@@ -1517,6 +1517,7 @@ original notification at
   'fd.yes' =>         'Yes',
 
   // Informational messages
+  'in.email.multi'     => 'Choose your contact email address',
   'in.groupmember.select' => 'This change will not take effect until the person becomes active.',
   'in.id.prov'         => 'This identifier was created by the %1$s Provisioning Target. Editing it may cause operational inconsistencies if the change is not coordinated with the target.',
   'in.idval.plugins'   => 'There are no Identifier Validator plugins currently installed.',

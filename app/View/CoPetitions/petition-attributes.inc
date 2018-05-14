@@ -220,6 +220,13 @@
           $descriptions = array();
           
           foreach($coe_attributes as $ea) {
+            if ($ea['validate']['content']['rule'][0] == 'email') {
+              $emailValues = explode(";", $ea['default']);
+
+              if (count($emailValues) > 1) {
+                $coe_attributes[0]['description'] = _txt('in.email.multi');
+              }
+            }
             if(!empty($ea['description'])) {
               $descriptions[] = $ea['description'];
             }
@@ -256,6 +263,17 @@
 
         // Output the fields
         foreach ($coe_attributes as $ea):
+          if ($ea['validate']['content']['rule'][0] == 'email') {
+            // Get defaul values and make separate options for select
+            $emailValues = explode(";", $ea['default']);
+            foreach ($emailValues as $email) {
+              $ea['select'][$email] = $email;
+            }
+            if (count($emailValues) > 1) {
+              $ea['validate']['content']['rule'][0] = inList;
+              $ea['modifiable'] = true;
+            }
+          }
 
           // Output disabled fields
           if(!$ea['hidden'] && isset($ea['default']) && !$ea['modifiable']) {
