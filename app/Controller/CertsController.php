@@ -24,9 +24,9 @@
 
 App::uses("MVPAController", "Controller");
 
-class CertificatesController extends MVPAController {
+class CertsController extends MVPAController {
   // Class name, used by Cake
-  public $name = "Certificates";
+  public $name = "Certs";
   
   // Establish pagination parameters for HTML views
   public $paginate = array(
@@ -46,7 +46,7 @@ class CertificatesController extends MVPAController {
    */
 
   function beforeFilter() {
-    $this->redirectTab = 'certificate';
+    $this->redirectTab = 'cert';
 
     parent::beforeFilter();
   }
@@ -70,7 +70,7 @@ class CertificatesController extends MVPAController {
     
     $managed = false;
     $self = false;
-    $certificate = null;
+    $cert = null;
     
     if(!empty($roles['copersonid'])) {
       switch($this->action) {
@@ -94,21 +94,21 @@ class CertificatesController extends MVPAController {
           // look up $this->request->params['pass'][0] and find the appropriate co person id or org identity id
           // then pass that to $this->Role->isXXX
           $args = array();
-          $args['conditions']['Certificate.id'] = $this->request->params['pass'][0];
+          $args['conditions']['Cert.id'] = $this->request->params['pass'][0];
           $args['contain'] = false;
           
-          $certificate = $this->Certificate->find('first', $args);
+          $cert = $this->Cert->find('first', $args);
           
-          if(!empty($certificate['Certificate']['co_person_id'])) {
+          if(!empty($cert['Cert']['co_person_id'])) {
             $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
-                                                              $certificate['Certificate']['co_person_id']);
+                                                              $cert['Cert']['co_person_id']);
             
-            if($certificate['Certificate']['co_person_id'] == $roles['copersonid']) {
+            if($cert['Cert']['co_person_id'] == $roles['copersonid']) {
               $self = true;
             }
-          } elseif(!empty($certificate['Certificate']['org_identity_id'])) {
+          } elseif(!empty($cert['Cert']['org_identity_id'])) {
             $managed = $this->Role->isCoOrCouAdminForOrgidentity($roles['copersonid'],
-                                                                 $certificate['Certificate']['org_identity_id']);
+                                                                 $cert['Cert']['org_identity_id']);
           }
         }
         break;
@@ -130,15 +130,15 @@ class CertificatesController extends MVPAController {
     
     if($self) {
       foreach(array_keys($selfperms) as $a) {
-        $selfperms[$a] = $this->Certificate
+        $selfperms[$a] = $this->Cert
                               ->CoPerson
                               ->Co
                               ->CoSelfServicePermission
                               ->calculatePermission($this->cur_co['Co']['id'],
-                                                    'Certificate',
+                                                    'Cert',
                                                     $a,
-                                                    ($a != 'add' && !empty($certificate['Certificate']['type']))
-                                                     ? $certificate['Certificate']['type'] : null);
+                                                    ($a != 'add' && !empty($cert['Cert']['type']))
+                                                     ? $cert['Cert']['type'] : null);
       }
       
       $p['selfsvc'] = $this->Co->CoSelfServicePermission->findPermissions($this->cur_co['Co']['id']);

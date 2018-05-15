@@ -573,7 +573,7 @@
           
           print $this->element('mvpa', $args);
           
-          $args['mvpa_model'] = 'Certificate';
+          $args['mvpa_model'] = 'Cert';
           $args['mvpa_field'] = 'subject';
 
           print $this->element('mvpa', $args);

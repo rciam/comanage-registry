@@ -169,7 +169,7 @@ class AuthenticatorStatusEnum
   const NotSet                 = 'NS';
 }
 
-class CertificateEnum
+class CertEnum
 {
   const X509    = 'X.509';
 }

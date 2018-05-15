@@ -22,9 +22,9 @@
  * @version       $Id$
  */
 
-class Certificate extends AppModel {
+class Cert extends AppModel {
     // Define class name for cake
-    public $name = "Certificate";
+    public $name = "Cert";
 
     // Current schema version for API
     public $version = "1.0";
@@ -44,10 +44,10 @@ class Certificate extends AppModel {
     );
 
     // Default display field for cake generated views
-    public $displayField = "Certificate.subject";
+    public $displayField = "Cert.subject";
 
     // Default ordering for find operations
-    public $order = array("Certificate.subject");
+    public $order = array("Cert.subject");
 
     // Validation rules for table elements
     // Validation rules must be named 'content' for petition dynamic rule adjustment
@@ -57,7 +57,7 @@ class Certificate extends AppModel {
                 'rule' => array('maxLength', 256),
                 'required' => false,
                 'allowEmpty' => false,
-                'message' => 'Please enter a valid certificate subject DN',
+                'message' => 'Please enter a valid cert subject DN',
             ),
             'filter' => array(
                 'rule' => array('validateInput'),
@@ -68,7 +68,7 @@ class Certificate extends AppModel {
                 'rule' => array('maxLength', 256),
                 'required' => false,
                 'allowEmpty' => false,
-                'message' => 'Please enter a valid certificate issuer DN',
+                'message' => 'Please enter a valid cert issuer DN',
             ),
             'filter' => array(
                 'rule' => array('validateInput'),
@@ -77,8 +77,8 @@ class Certificate extends AppModel {
         'type' => array(
             'content' => array(
                 'rule' => array('validateExtendedType',
-                    array('attribute' => 'Certificate.type',
-                        'default' => array(CertificateEnum::X509))),
+                    array('attribute' => 'Cert.type',
+                        'default' => array(CertEnum::X509))),
                 'required' => false,
                 'allowEmpty' => false,
             ),

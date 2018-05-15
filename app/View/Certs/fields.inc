@@ -48,23 +48,23 @@
     print $this->Form->hidden('co_id', array('default' => filter_var($this->params['named']['co'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
 
   // Add breadcrumbs
-  print $this->element("coCrumb", array('mvpa' => 'certificates'));
+  print $this->element("coCrumb", array('mvpa' => 'certs'));
 ?>
-<ul id="<?php print $this->action; ?>_certificate" class="fields form-list">
+<ul id="<?php print $this->action; ?>_cert" class="fields form-list">
     <li>
         <div class="field-name">
-            <?php print _txt('fd.certificate.subject'); ?><span class="required">*</span>
+            <?php print _txt('fd.cert.subject'); ?><span class="required">*</span>
         </div>
         <div class="field-info">
-        <?php print ($e ? $this->Form->input('subject', array('class' => 'focusFirst')) : filter_var($certificates[0]['Certificate']['subject'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('subject', array('class' => 'focusFirst')) : filter_var($certs[0]['Cert']['subject'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </div>
     </li>
     <li>
         <div class="field-name">
-            <?php print _txt('fd.certificate.issuer'); ?>
+            <?php print _txt('fd.cert.issuer'); ?>
         </div>
         <div class="field-info">
-            <?php print ($e ? $this->Form->input('issuer') : filter_var($certificates[0]['Certificate']['issuer'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+            <?php print ($e ? $this->Form->input('issuer') : filter_var($certs[0]['Cert']['issuer'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </div>
     </li>
     <li>
@@ -73,7 +73,7 @@
         </div>
         <div class="field-info">
         <?php
-            $attrs['value'] = (isset($certificates) ? $certificates[0]['Certificate']['type'] : "");
+            $attrs['value'] = (isset($certs) ? $certs[0]['Cert']['type'] : "");
             $attrs['empty'] = false;
 
             if($e) {
@@ -85,7 +85,7 @@
                 print $this->Form->error('type');
             }
             } else {
-            print _txt('en.certificate.type', null, filter_var($certificates[0]['Certificate']['type'],FILTER_SANITIZE_SPECIAL_CHARS));
+            print _txt('en.cert.type', null, filter_var($certs[0]['Cert']['type'],FILTER_SANITIZE_SPECIAL_CHARS));
             }
         ?>
         </div>

@@ -25,15 +25,15 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-  $params = array('title' => _txt('ct.certificates.pl'));
+  $params = array('title' => _txt('ct.certs.pl'));
   print $this->element("pageTitle", $params);
 ?>
 
 <div class="table-container">
-  <table id="certificates">
+  <table id="certs">
     <thead>
       <tr>
-        <th><?php print $this->Paginator->sort('subject', _txt('fd.certificate.subject')); ?></th>
+        <th><?php print $this->Paginator->sort('subject', _txt('fd.cert.subject')); ?></th>
         <!-- XXX Following needs to be I18N'd, and also render a full name, if index view sticks around -->
         <th><?php print $this->Paginator->sort('OrgIdentity.PrimaryName.family', 'Org Identity'); ?></th>
         <th><?php print $this->Paginator->sort('CoPerson.PrimaryName.family', 'CO Person'); ?></th>
@@ -43,18 +43,18 @@
 
     <tbody>
     <?php $i = 0; ?>
-    <?php foreach ($certificates as $c): ?>
+    <?php foreach ($certs as $c): ?>
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          print $this->Html->link($c['Certificate']['subject'],
-                                 array('controller' => 'certificates',
-                                       'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $c['Certificate']['id']));
+          print $this->Html->link($c['Cert']['subject'],
+                                 array('controller' => 'certs',
+                                       'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $c['Cert']['id']));
         ?>
       </td>
       <td>
         <?php
-          if(!empty($c['Certificate']['org_identity_id']))
+          if(!empty($c['Cert']['org_identity_id']))
           {
             // Generally, someone who has view permission on a certificate can also see a person
             if($permissions['view'])
@@ -65,7 +65,7 @@
       </td>
       <td>
         <?php
-          if(!empty($c['Certificate']['co_person_id']))
+          if(!empty($c['Cert']['co_person_id']))
           {
             // Generally, someone who has view permission on a telephone number can also see a person
             if($permissions['view'])
@@ -78,7 +78,7 @@
         <?php
           if($permissions['edit']) {
             print $this->Html->link('Edit',
-                array('controller' => 'certificates', 'action' => 'edit', $c['Certificate']['id']),
+                array('controller' => 'certs', 'action' => 'edit', $c['Cert']['id']),
                 array('class' => 'editbutton')) . "\n";
           }
 
@@ -88,15 +88,15 @@
               . _txt('js.remove') . '\',\''    // dialog body text
               . $this->Html->url(              // dialog confirm URL
                 array(
-                  'controller' => 'certificates',
+                  'controller' => 'certs',
                   'action' => 'delete',
-                  $c['Certificate']['id']
+                  $c['Cert']['id']
                 )
               ) . '\',\''
               . _txt('op.remove') . '\',\''    // dialog confirm button
               . _txt('op.cancel') . '\',\''    // dialog cancel button
               . _txt('op.remove') . '\',[\''   // dialog title
-              . filter_var(_jtxt($c['Certificate']['subject']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+              . filter_var(_jtxt($c['Cert']['subject']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
               . '\']);">'
               . _txt('op.delete')
               . '</button>';

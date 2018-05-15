@@ -2284,7 +2284,7 @@
     </index>
   </table>
 
-  <table name="certificates">
+  <table name="certs">
     <field name="id" type="I">
       <key />
       <autoincrement />
@@ -2301,23 +2301,23 @@
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
-    <field name="certificate_id" type="I">
-      <constraint>REFERENCES cm_certificates(id)</constraint>
+    <field name="cert_id" type="I">
+      <constraint>REFERENCES cm_certs(id)</constraint>
     </field>
     <field name="revision" type="I" />
     <field name="deleted" type="L" />
     <field name="actor_identifier" type="C" size="256" />
     
-    <index name="certificates_i1">
+    <index name="certs_i1">
       <col>co_person_id</col>
     </index>
-    <index name="certificates_i2">
+    <index name="certs_i2">
       <col>org_identity_id</col>
     </index>
-    <index name="certificates_i3">
-      <col>certificate_id</col>
+    <index name="certs_i3">
+      <col>cert_id</col>
     </index>
-    <index name="certificates_i4">
+    <index name="certs_i4">
       <col>subject</col>
     </index>
   </table>
