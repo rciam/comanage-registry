@@ -181,6 +181,8 @@ $cm_texts['en_US'] = array(
   'ct.telephone_numbers.pl' =>  'Telephone Numbers',
   'ct.urls.1' =>                'URL',
   'ct.urls.pl' =>               'URLs',
+  'ct.certificates.1' =>        'Certificate',
+  'ct.certificates.pl' =>       'Certificates',
   
   // Embedded Discovery Service
   
@@ -364,6 +366,10 @@ original notification at
   'en.auth.event' => array(
     AuthenticationEventEnum::ApiLogin      => 'API Login',
     AuthenticationEventEnum::RegistryLogin => 'Registry Login'
+  ),
+  
+  'en.certificate.type' => array(
+    CertificateEnum::X509 => 'X.509',
   ),
   
   'en.chars.permitted' => array(
@@ -1441,6 +1447,8 @@ original notification at
   'fd.telephone_number.description' => 'Description',
   // This one is for rendering into a telephone number string (eg: 555 1212 x279)
   'fd.telephone.ext' => 'x',
+  'fd.certificate.subject' => 'Subject',
+  'fd.certificate.issuer' => 'Issuer',
   'fd.text' =>        'Text',
   'fd.text.original' => 'Original Translation',
   'fd.th.css' =>      'CSS',

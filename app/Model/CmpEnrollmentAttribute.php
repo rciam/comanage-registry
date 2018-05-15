@@ -207,6 +207,14 @@ class CmpEnrollmentAttribute extends AppModel {
         'required'  => RequiredEnum::Optional,
         'ldap_name' => 'c',
         'saml_name' => ''
+      ),
+      'certificates:subject' => array(
+        'type'      => CertificateEnum::X509,
+        'label'     => _txt('fd.certificate.subject') . " (" . _txt('en.certificate.type', null, CertificateEnum::X509) . ")",
+        'required'  => RequiredEnum::Optional,
+        'env_name'  => 'CMP_EF_SUBJECTDN',
+        'ldap_name' => '',
+        'saml_name' => 'distinguishedName'
       )
     );
     

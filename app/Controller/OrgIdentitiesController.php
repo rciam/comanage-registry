@@ -61,7 +61,8 @@ class OrgIdentitiesController extends StandardController {
     'OrgIdentitySourceRecord' => array('OrgIdentitySource'),
     'PrimaryName',
     'TelephoneNumber',
-    'Url'
+    'Url',
+    'Certificate'
   );
   
   public $view_contains = array(
@@ -77,7 +78,8 @@ class OrgIdentitiesController extends StandardController {
     'PipelineCoGroupMember' => array('CoGroup'),
     'PrimaryName',
     'TelephoneNumber',
-    'Url'
+    'Url',
+    'Certificate'
   );
   
   /**

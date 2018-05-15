@@ -573,6 +573,11 @@
           
           print $this->element('mvpa', $args);
           
+          $args['mvpa_model'] = 'Certificate';
+          $args['mvpa_field'] = 'subject';
+
+          print $this->element('mvpa', $args);
+
           $args['mvpa_model'] = 'TelephoneNumber';
           $args['mvpa_field'] = null;
           $args['mvpa_format'] = 'formatTelephone';
