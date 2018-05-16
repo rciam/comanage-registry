@@ -169,6 +169,11 @@ class AuthenticatorStatusEnum
   const NotSet                 = 'NS';
 }
 
+class CertEnum
+{
+  const X509    = 'X.509';
+}
+
 class ComparisonEnum
 {
   const Contains               = 'CTS'; // Substr

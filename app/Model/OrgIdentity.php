@@ -86,7 +86,8 @@ class OrgIdentity extends AppModel {
     // A person can have one or more telephone numbers
     "TelephoneNumber" => array('dependent' => true),
     // A person can have one or more URL
-    "Url" => array('dependent' => true)
+    "Url" => array('dependent' => true),
+    "Cert" => array('dependent' => true)
   );
 
   public $belongsTo = array(
@@ -577,6 +578,7 @@ class OrgIdentity extends AppModel {
       $args['contain']['EmailAddress']['conditions']['EmailAddress.type ='] = EmailAddressEnum::Official;
       $args['contain']['Name']['conditions']['Name.type ='] = NameEnum::Official;
       $args['contain']['TelephoneNumber']['conditions']['TelephoneNumber.type ='] = ContactEnum::Office;
+      $args['contain']['Cert']['conditions']['Cert.type ='] = CertEnum::X509;
       
       $curOrgIdentity = $this->find('first', $args);
       
@@ -614,7 +616,7 @@ class OrgIdentity extends AppModel {
       // Note that EmailAddress::beforeSave() will correctly decide what to do about verified.
       // Similarly, Name::beforeSave() will determine what to do about primary_name.
       
-      foreach(array('Address', 'EmailAddress', 'Name', 'TelephoneNumber') as $m) {
+      foreach(array('Address', 'EmailAddress', 'Name', 'TelephoneNumber', 'Cert') as $m) {
         if(!empty($envOrgIdentity[$m][0])) {
           $newModels[] = $m;
           
@@ -626,6 +628,9 @@ class OrgIdentity extends AppModel {
               
               $newOrgIdentity[$m][$instance] = $envOrgIdentity[$m][0];
               $newOrgIdentity[$m][$instance]['id'] = $id;
+              if (isset($curOrgIdentity[$m][$instance]['type'])) {
+                $newOrgIdentity[$m][$instance]['type'] = $curOrgIdentity[$m][$instance]['type'];
+              }
             }
           } else {
             // Create a new instance... simple copy
