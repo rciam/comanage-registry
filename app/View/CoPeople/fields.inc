@@ -623,6 +623,11 @@
           $args['mvpa_field']   = 'mail';
           
           print $this->element('mvpa', $args);
+
+          $args['mvpa_model']   = 'Cert';
+          $args['mvpa_field']   = 'subject';
+
+          print $this->element('mvpa', $args);
           
           $args['edit']         = $e;
           $args['self_service'] = true;

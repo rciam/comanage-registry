@@ -63,6 +63,30 @@ class CertsController extends MVPAController {
   function isAuthorized() {
     $roles = $this->Role->calculateCMRoles();
     $pids = $this->parsePersonID($this->request->data);
+
+    // Is this a read only record? True if it belongs to an Org Identity that has
+    // an OrgIdentity Source Record. As of the initial implementation, not even
+    // CMP admins can edit such a record.
+    
+    if($this->action == 'edit' && !empty($this->request->params['pass'][0])) {
+      $orgIdentityId = $this->Cert->field('org_identity_id', array('id' => $this->request->params['pass'][0]));
+      
+      if($orgIdentityId) {
+        $readOnly = $this->Cert->OrgIdentity->readOnly($orgIdentityId);
+        
+        if($readOnly) {
+          // Proactively redirect to view. This will also prevent (eg) the REST API
+          // from editing a read only record.
+          $args = array(
+            'controller' => 'certs',
+            'action'     => 'view',
+            filter_var($this->request->params['pass'][0],FILTER_SANITIZE_SPECIAL_CHARS)
+          );
+          
+          $this->redirect($args);
+        }
+      }
+    }
     
     // In order to manipulate a certificate, the authenticated user must have permission
     // over the associated Org Identity or CO Person. For add action, we accept

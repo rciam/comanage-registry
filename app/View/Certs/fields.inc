@@ -37,7 +37,6 @@
     return(false);
 
   // We can emit all attributes because the ones we don't want should be null
-  print $this->Form->hidden('co_department_id', array('default' => $vv_pid['codeptid'])) . "\n";
   print $this->Form->hidden('org_identity_id', array('default' => $vv_pid['orgidentityid'])) . "\n";
   print $this->Form->hidden('co_person_id', array('default' => $vv_pid['copersonid'])) . "\n";
 
@@ -52,56 +51,69 @@
 ?>
 <ul id="<?php print $this->action; ?>_cert" class="fields form-list">
     <li>
-        <div class="field-name">
-            <?php print _txt('fd.cert.subject'); ?><span class="required">*</span>
-        </div>
-        <div class="field-info">
-        <?php print ($e ? $this->Form->input('subject', array('class' => 'focusFirst')) : filter_var($certs[0]['Cert']['subject'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-        </div>
+        <span class="field-name">
+            <?php
+            if($e) {
+                print $this->Form->label('subject', _txt('fd.cert.subject'));
+            } else {
+                print _txt('fd.cert.subject');
+            }
+        ?>
+        </span>
+        <span class="field-info">
+            <?php print ($e ? $this->Form->input('subject', array('class' => 'focusFirst')) : filter_var($certs[0]['Cert']['subject'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+        </span>
     </li>
     <li>
-        <div class="field-name">
-            <?php print _txt('fd.cert.issuer'); ?>
-        </div>
-        <div class="field-info">
+        <span class="field-name">
+            <?php print $this->Form->label('issuer',_txt('fd.cert.issuer')); ?>
+        </span>
+        <span class="field-info">
             <?php print ($e ? $this->Form->input('issuer') : filter_var($certs[0]['Cert']['issuer'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-        </div>
+        </span>
     </li>
     <li>
-        <div class="field-name">
-        <?php print _txt('fd.type'); ?>
-        </div>
-        <div class="field-info">
+        <span class="field-name">
         <?php
+            if($e) {
+                print $this->Form->label('type', _txt('fd.type'));
+            } else {
+                print _txt('fd.type');
+            }
+        ?>
+        </span>
+        <span class="field-info">
+        <?php
+            global $cm_lang, $cm_texts;
+
+            $attrs = array();
             $attrs['value'] = (isset($certs) ? $certs[0]['Cert']['type'] : "");
             $attrs['empty'] = false;
 
             if($e) {
-            print $this->Form->select('type',
-                                        $vv_available_types,
-                                        $attrs);
+                print $this->Form->select('type',
+                                                $cm_texts[ $cm_lang ]['en.cert.type'],
+                                                $attrs);
 
-            if($this->Form->isFieldError('type')) {
-                print $this->Form->error('type');
-            }
+                if($this->Form->isFieldError('type')) {
+                    print $this->Form->error('type');
+                }
             } else {
-            print _txt('en.cert.type', null, filter_var($certs[0]['Cert']['type'],FILTER_SANITIZE_SPECIAL_CHARS));
+                print _txt('en.cert.type', null, filter_var($certs[0]['Cert']['type'],FILTER_SANITIZE_SPECIAL_CHARS));
             }
         ?>
-        </div>
+        </span>
     </li>
-    <li class="fields-submit">
-        <div class="field-name">
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-        </div>
-        <div class="field-info">
-        <?php
-            if($e) {
-	            print $this->Form->submit($submit_label);
-            }
-        ?>
-        </div>
-    </li>
+    <?php if($e): ?>
+        <li class="fields-submit">
+            <span class="field-name">
+                <span class="required"><?php print _txt('fd.req'); ?></span>
+            </span>
+            <span class="field-info">
+                <?php print $this->Form->submit($submit_label); ?>
+            </span>
+        </li>
+    <?php endif; ?>
 </ul>
 <?php
   print $this->element("changelog");
