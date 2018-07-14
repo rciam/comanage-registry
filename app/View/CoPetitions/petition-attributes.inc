@@ -193,6 +193,10 @@
       continue;
     }
 
+    if($coe_attributes[0]['attribute'] == 'i:cert:X.509' && !$coe_attributes[0]['default']) {
+      continue;
+    }
+
     $mvpa = (count($coe_attributes) > 1);
   ?>
     <div class="modelbox">
@@ -221,8 +225,11 @@
           
           foreach($coe_attributes as $ea) {
             if ($ea['attribute'] == 'i:cert:X.509') {
+              $certValues = array();
               // Get defaul values and make separate options for select
-              $certValues = explode(";", $ea['default']);
+              if (!empty($ea['default'])) {
+                $certValues = explode(";", $ea['default']);
+              }
 
               if (count($certValues) > 1) {
                 $coe_attributes[0]['description'] = _txt('in.cert.multi');
@@ -245,6 +252,7 @@
              // There's not a good way to figure out which from the configuration, so we
              // just hardcode a list here.
              && ($coe_attributes[0]['attribute'] != 'g:co_group_member'
+             && $coe_attributes[0]['attribute'] != 'i:cert:X.509'
              && strncmp($coe_attributes[0]['attribute'], 'i:identifier:', 13))) {
             print "<br /><span class=\"required\">" . _txt('fd.pt.required') . "</span>\n";
           }
@@ -264,6 +272,10 @@
 
         // Output the fields
         foreach ($coe_attributes as $ea):
+          // Skip certificate issuer attribute
+          if (strncmp($ea['field'], 'issuer', 6) === 0) {
+            continue;
+          }
           if ($ea['attribute'] == 'i:cert:X.509') {
             // Get defaul values and make separate options for select
             $certValues = explode(";", $ea['default']);
@@ -274,6 +286,9 @@
               $ea['validate']['content']['rule'][0] = inList;
               $ea['modifiable'] = true;
               $ea['required'] = true;
+            } else {
+              $ea['modifiable'] = false;
+              $ea['hidden'] = true;
             }
           }
 
