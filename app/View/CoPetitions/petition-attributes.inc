@@ -221,7 +221,11 @@
           
           foreach($coe_attributes as $ea) {
             if ($ea['validate']['content']['rule'][0] == 'email') {
-              $emailValues = explode(";", $ea['default']);
+              $emailValues = array();
+              // Get defaul values and make separate options for select
+              if(!empty($ea['default'])) {
+                $emailValues = explode(";", $ea['default']);
+              }
 
               if (count($emailValues) > 1) {
                 $coe_attributes[0]['description'] = _txt('in.email.multi');
