@@ -62,7 +62,8 @@ class OrgIdentitiesController extends StandardController {
     'PrimaryName',
     'TelephoneNumber',
     'Url',
-    'Cert'
+    'Cert',
+    'Vo'
   );
   
   public $view_contains = array(
@@ -79,7 +80,8 @@ class OrgIdentitiesController extends StandardController {
     'PrimaryName',
     'TelephoneNumber',
     'Url',
-    'Cert'
+    'Cert',
+    'Vo'
   );
   
   /**

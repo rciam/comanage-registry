@@ -87,7 +87,11 @@ class OrgIdentity extends AppModel {
     "TelephoneNumber" => array('dependent' => true),
     // A person can have one or more URL
     "Url" => array('dependent' => true),
-    "Cert" => array('dependent' => true)
+    "Cert" => array('dependent' => true),
+    "Vo" => array(
+      'className' => 'Vo',
+      'dependent' => true,
+      'foreignKey' => 'co_person_id')
   );
 
   public $belongsTo = array(
