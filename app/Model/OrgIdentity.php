@@ -86,7 +86,8 @@ class OrgIdentity extends AppModel {
     // A person can have one or more telephone numbers
     "TelephoneNumber" => array('dependent' => true),
     // A person can have one or more URL
-    "Url" => array('dependent' => true)
+    "Url" => array('dependent' => true),
+    "Cert" => array('dependent' => true)
   );
 
   public $belongsTo = array(
@@ -536,6 +537,7 @@ class OrgIdentity extends AppModel {
     $envOrgIdentity = null;  // What we got from the IdP
     $newOrgIdentity = null;  // What we decided to save as the updated record (or portion thereof)
     $newModels = array();    // List of associated models we decided to save
+    $deleteCert = array();   // List of certificates that are going to be deleted
     
     foreach($envAttrs as $ea) {
       // First see if there is an env variable identified, and if so if it's populated
@@ -577,6 +579,7 @@ class OrgIdentity extends AppModel {
       $args['contain']['EmailAddress']['conditions']['EmailAddress.type ='] = EmailAddressEnum::Official;
       $args['contain']['Name']['conditions']['Name.type ='] = NameEnum::Official;
       $args['contain']['TelephoneNumber']['conditions']['TelephoneNumber.type ='] = ContactEnum::Office;
+      $args['contain']['Cert']['conditions']['Cert.type ='] = CertEnum::X509;
       
       $curOrgIdentity = $this->find('first', $args);
       
@@ -614,20 +617,75 @@ class OrgIdentity extends AppModel {
       // Note that EmailAddress::beforeSave() will correctly decide what to do about verified.
       // Similarly, Name::beforeSave() will determine what to do about primary_name.
       
-      foreach(array('Address', 'EmailAddress', 'Name', 'TelephoneNumber') as $m) {
+      foreach(array('Address', 'EmailAddress', 'Name', 'TelephoneNumber', 'Cert') as $m) {
         if(!empty($envOrgIdentity[$m][0])) {
-          $newModels[] = $m;
-          
           if(!empty($curOrgIdentity[$m])) {
             // Update any record we find, but we need to preserve id
             
             foreach(array_keys($curOrgIdentity[$m]) as $instance) {
-              $id = $curOrgIdentity[$m][$instance]['id'];
-              
-              $newOrgIdentity[$m][$instance] = $envOrgIdentity[$m][0];
-              $newOrgIdentity[$m][$instance]['id'] = $id;
+              switch ($m){
+                // If $m = 'Cert' count the existing instances and the environment variables.
+                case 'Cert':
+                  $value = explode(';', $envOrgIdentity[$m][0]['subject']);
+                  // If the total of current instances is the same with the new, check if 
+                  // the values are the same, else update.
+                  if(count($curOrgIdentity[$m]) == count($value)) {
+                    $isInArray = true;
+                    foreach($value as $index => $val) {
+                      $isInArray = ($isInArray && (in_array($curOrgIdentity[$m][$instance]['subject'], $value)) ? true : false );
+                    }
+                    $update = !$isInArray;
+                  } else {
+                    $update = true;
+                  }
+                  break;
+                default:
+                  $value = [];
+                  $update = true;
+                  break;
+              }
+              if($update) {
+                $newModels[] = $m;
+                $id = $curOrgIdentity[$m][$instance]['id'];
+
+                // Specific process for updating certificates.
+                if($m == 'Cert') {
+                  $type = $envOrgIdentity[$m][0]['type'];
+                  // Check if a new instanse containes a current instance.
+                  foreach($curOrgIdentity[$m] as $index => $val) {
+                    $currentValues[] = $val['subject'];
+                    if(!(in_array($val['subject'], $value))) {
+                      $temp[0]['id'] = $val['id'];
+                      $temp[0]['subject'] = $val['subject'];
+                      $temp[0]['type'] = $type;
+                      $deleteCerts[] = $temp[0];
+                      // Change subject to null to determine that the instanse is changed (at least by force 
+                      // and not from the environment).
+                      $temp[0]['subject'] = "";
+                      $newOrgIdentity[$m][] = $temp[0];
+                    }
+                  }
+                  // Check if a new instanse already existes, else add new instanse.
+                  foreach($value as $index => $val) {
+                    if(!(in_array($val, $currentValues))) {
+                      $envOrgIdentity[$m][$index]['subject'] = $val;
+                      $envOrgIdentity[$m][$index]['type'] = $type;
+                      $newOrgIdentity[$m][$index] = $envOrgIdentity[$m][$index];
+                    }
+                  }
+                  // Break to check next model
+                  break;
+                }
+
+                $newOrgIdentity[$m][$instance] = $envOrgIdentity[$m][0];
+                $newOrgIdentity[$m][$instance]['id'] = $id;
+                if (isset($curOrgIdentity[$m][$instance]['type'])) {
+                  $newOrgIdentity[$m][$instance]['type'] = $curOrgIdentity[$m][$instance]['type'];
+                }
+              }
             }
           } else {
+            $newModels[] = $m;
             // Create a new instance... simple copy
             $newOrgIdentity[$m] = $envOrgIdentity[$m];
           }
@@ -658,6 +716,13 @@ class OrgIdentity extends AppModel {
             if($mchanges == "") {
               // No changes, so don't try to save this model
               unset($newOrgIdentity[$m]);
+            }
+          }
+
+          // Delete old certificates
+          if(!(empty($deleteCerts))) {
+            foreach($deleteCerts as $del) {
+              $this->Cert->delete($del['id']);
             }
           }
           

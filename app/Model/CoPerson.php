@@ -125,6 +125,7 @@ class CoPerson extends AppModel {
     "SshKey" => array('dependent' => true),
     // A person can have one or more URL
     "Url" => array('dependent' => true),
+    "Cert" => array('dependent' => true),
   );
 
   // Default display field for cake generated views
