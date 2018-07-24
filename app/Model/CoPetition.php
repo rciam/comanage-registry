@@ -2662,13 +2662,13 @@ class CoPetition extends AppModel {
         $dbc = $this->getDataSource();
         $dbc->begin();
         
-        // For now, we assume the identifier type is ePPN. This probably isn't right,
+        // For now, we assume the identifier type is ePUID (was ePPN). This probably isn't right,
         // and should be customizable. (CO-460)
         
         $args = array();
         $args['conditions']['Identifier.identifier'] = $loginIdentifier;
         $args['conditions']['Identifier.org_identity_id'] = $orgId;
-        $args['conditions']['Identifier.type'] = IdentifierEnum::ePPN;
+        $args['conditions']['Identifier.type'] = IdentifierEnum::ePUID;
         
         $identifier = $this->EnrolleeOrgIdentity->Identifier->findForUpdate($args['conditions'],
                                                                             array('Identifier.login',
@@ -2709,7 +2709,7 @@ class CoPetition extends AppModel {
           $args = array();
           $args['conditions'][] = 'Identifier.org_identity_id IS NOT NULL';
           $args['conditions']['Identifier.identifier'] = $loginIdentifier;
-          $args['conditions']['Identifier.type'] = IdentifierEnum::ePPN;
+          $args['conditions']['Identifier.type'] = IdentifierEnum::ePUID;
           $args['conditions']['Identifier.status'] = StatusEnum::Active;
           $args['joins'] = array();
           
@@ -2854,7 +2854,7 @@ class CoPetition extends AppModel {
             $identifier3 = array();
             $identifier3['Identifier']['identifier'] = $loginIdentifier;
             $identifier3['Identifier']['org_identity_id'] = $orgId;
-            $identifier3['Identifier']['type'] = IdentifierEnum::ePPN;
+            $identifier3['Identifier']['type'] = IdentifierEnum::ePUID;
             $identifier3['Identifier']['login'] = true;
             $identifier3['Identifier']['status'] = StatusEnum::Active;
             
