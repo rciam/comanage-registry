@@ -578,6 +578,11 @@
 
           print $this->element('mvpa', $args);
 
+          $args['mvpa_model'] = 'Vo';
+          $args['mvpa_field'] = 'vo_targets_id';
+
+          print $this->element('mvpa', $args);
+
           $args['mvpa_model'] = 'TelephoneNumber';
           $args['mvpa_field'] = null;
           $args['mvpa_format'] = 'formatTelephone';

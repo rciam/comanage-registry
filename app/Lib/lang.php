@@ -183,6 +183,10 @@ $cm_texts['en_US'] = array(
   'ct.urls.pl' =>               'URLs',
   'ct.certs.1' =>        'Certificate',
   'ct.certs.pl' =>       'Certificates',
+  'ct.vos.1' =>                 'Virtual Organization (Vo)',
+  'ct.vos.pl' =>                'Virtual Organizations (VOs)',
+  'ct.voms_provisioners.1' =>   'Virtual Organization (Vo)',
+  'ct.voms_provisioners.pl' =>  'Virtual Organizations (VOs)',
   
   // Embedded Discovery Service
   
@@ -371,6 +375,10 @@ original notification at
   'en.cert.type' => array(
     CertEnum::X509 => 'X.509',
   ),
+
+	'en.vos.type' => array(
+		VOsEnum::VO => 'VO'
+	),
   
   'en.chars.permitted' => array(
     PermittedCharacterEnum::AlphaNumeric      => 'AlphaNumeric Only',
@@ -1150,11 +1158,11 @@ original notification at
   'fd.ef.nogr.desc' => 'Group to notify on new petitions and changes of petition status. (This is an informational notification. Separate notifications will be sent to approvers and enrollees, as appropriate.)',
   'fd.ef.orgid' =>    'Org Identity Mode',
   'fd.ef.orgid.desc' => 'Org Identity mode for this enrollment flow, see <a href="https://spaces.internet2.edu/display/COmanage/Registry+Enrollment+Flow+Configuration#RegistryEnrollmentFlowConfiguration-OrganizationalIdentitySources">Organizational Identity Sources</a> for details',
-  'fd.ef.pool' =>     'Pool Organizational Identities',
-  'fd.ef.pool.desc' => 'If <a href="https://spaces.internet2.edu/display/COmanage/Organizational+Identity+Pooling">pooling is enabled</a>, organizational identities -- as well as any attributes released by IdPs -- will be made available to all COs, regardless of which CO enrollment flows added them (This setting can no longer be changed)',
-  'fd.ef.pool.on.warn' => 'Enabling pooling will delete any existing links between organizational identities and the COs which created them (when you click Save). This operation cannot be undone.',
-  'fd.ef.pool.off.warn' => 'Disabling pooling will duplicate any organizational identities used by more than one CO (when you click Save). This operation cannot be undone.',
-  'fd.ef.px' =>       'Provisioning Executable',
+    'fd.ef.pool' =>     'Pool Organizational Identities',
+    'fd.ef.pool.desc' => 'If <a href="https://spaces.internet2.edu/display/COmanage/Organizational+Identity+Pooling">pooling is enabled</a>, organizational identities -- as well as any attributes released by IdPs -- will be made available to all COs, regardless of which CO enrollment flows added them (This setting can no longer be changed)',
+    'fd.ef.pool.on.warn' => 'Enabling pooling will delete any existing links between organizational identities and the COs which created them (when you click Save). This operation cannot be undone.',
+    'fd.ef.pool.off.warn' => 'Disabling pooling will duplicate any organizational identities used by more than one CO (when you click Save). This operation cannot be undone.',
+    'fd.ef.px' =>       'Provisioning Executable',
   'fd.ef.px.desc' =>  'Executable to call to initiate user provisioning',
   'fd.ef.rd.confirm' => 'Confirmation Redirect URL',
   'fd.ef.rd.confirm.desc' => 'URL to redirect to after the email address associated with the Petition is confirmed. Leave blank for account linking enrollment.',
@@ -1449,6 +1457,10 @@ original notification at
   'fd.telephone.ext' => 'x',
   'fd.cert.subject' => 'Subject',
   'fd.cert.issuer' => 'Issuer',
+  'fd.vos.vo_name' => 'VO Name',
+  'fd.vos.vo_domain' => 'VO Domain',
+  'fd.vos.vo_entity' => 'Entity Type',
+  'fd.vos.vo_status' => 'Status',
   'fd.text' =>        'Text',
   'fd.text.original' => 'Original Translation',
   'fd.th.css' =>      'CSS',

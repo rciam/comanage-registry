@@ -628,6 +628,14 @@
           $args['mvpa_field']   = 'subject';
 
           print $this->element('mvpa', $args);
+
+          // use the field of the linked table
+          $args['edit']         = false;
+          $args['self_service'] = true;
+          $args['mvpa_model'] = 'Vo';
+          $args['mvpa_field'] = 'CoVomsProvisionerTarget';
+
+          print $this->element('mvpa', $args);
           
           $args['edit']         = $e;
           $args['self_service'] = true;
