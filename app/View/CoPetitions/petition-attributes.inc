@@ -235,6 +235,18 @@
                 $coe_attributes[0]['description'] = _txt('in.cert.multi');
               }
             }
+
+            if ($ea['validate']['content']['rule'][0] == 'email') {
+              $emailValues = array();
+              // Get defaul values and make separate options for select
+              if(!empty($ea['default'])) {
+                $emailValues = explode(";", $ea['default']);
+              }
+
+              if (count($emailValues) > 1) {
+                $coe_attributes[0]['description'] = _txt('in.email.multi');
+              }
+            }
             if(!empty($ea['description'])) {
               $descriptions[] = $ea['description'];
             }
@@ -289,6 +301,18 @@
             } else {
               $ea['modifiable'] = false;
               $ea['hidden'] = true;
+            }
+          }
+
+          if ($ea['validate']['content']['rule'][0] == 'email') {
+            // Get defaul values and make separate options for select
+            $emailValues = explode(";", $ea['default']);
+            foreach ($emailValues as $email) {
+              $ea['select'][$email] = $email;
+            }
+            if (count($emailValues) > 1) {
+              $ea['validate']['content']['rule'][0] = inList;
+              $ea['modifiable'] = true;
             }
           }
 
