@@ -754,6 +754,7 @@ $contact_ti = array(
 
 
 $identifier_t = array(
+  'epuid' => 'ePUID',
   'eppn' => 'ePPN',
   'eptid' => 'ePTID',
   'mail' => 'Mail',
@@ -762,6 +763,7 @@ $identifier_t = array(
 );
 
 $identifier_ti = array(
+  'ePUID' => 'epuid',
   'ePPN' => 'eppn',
   'ePTID' => 'eptid',
   'Mail' => 'mail',
