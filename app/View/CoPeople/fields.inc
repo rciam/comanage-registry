@@ -1099,6 +1099,25 @@
                                       $linkparams);
               print '</div>';
             }
+            if ($cur_co['Co']['id'] === 2 || $cur_co['Co']['id'] === 3) {
+              print '<div class="coAddEditButtons">';
+              if ($cur_co['Co']['id'] === 2) {
+                $coef = 3;
+              } else /* if ($cur_co['Co']['id'] === 3)*/ {
+                $coef = 6;
+              }
+              $linktarget = array(
+                'controller' => 'co_petitions',
+                'action'     => 'start',
+                'coef'       => $coef, 
+              );
+              $linkparams = array('class' => 'addbutton');
+              
+              print $this->Html->link(_txt('op.link.new.orgid'),
+                                      $linktarget,
+                                      $linkparams);
+              print '</div>';
+            }
           ?>
           <a href="#tabs-orgid" class="fieldGroupName">
             <em class="material-icons">indeterminate_check_box</em>
@@ -1112,7 +1131,6 @@
                 <tr class="line<?php print ($l % 2); $l++; ?>">
                   <th><?php print _txt('fd.name'); ?></th>
                   <th><?php print _txt('fd.source'); ?></th>
-                  <th><?php print _txt('fd.o'); ?></th>
                   <th><?php print _txt('fd.valid_from.tz', array($vv_tz)); ?></th>
                   <th><?php print _txt('fd.valid_through.tz', array($vv_tz)); ?></th>
                   <th><?php print _txt('fd.identifier.ids.login'); ?></th>
@@ -1135,13 +1153,6 @@
                         if(!empty($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'])) {
                           print filter_var($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'] ,FILTER_SANITIZE_SPECIAL_CHARS);
                         }
-                      ?>
-                    </td>
-                    <td>
-                      <?php
-                        if(!empty($link['OrgIdentity']['o'])) {
-                          print filter_var($link['OrgIdentity']['o'], FILTER_SANITIZE_SPECIAL_CHARS);
-                        }  
                       ?>
                     </td>
                     <td>

@@ -208,6 +208,14 @@ class CmpEnrollmentAttribute extends AppModel {
         'ldap_name' => 'c',
         'saml_name' => ''
       ),
+      'identifiers:identifier' => array(
+        'type'      => IdentifierEnum::ePUID,
+        'label'     => _txt('fd.identifier.identifier') . " (" . _txt('en.identifier.type', null, IdentifierEnum::ePUID) . ")",
+        'required'  => RequiredEnum::Required,
+        'env_name'  => 'CMP_EF_EPUID',
+        'ldap_name' => 'eduPersonUniqueId',
+        'saml_name' => 'eduPersonUniqueId'
+      ),
       'certs:subject' => array(
         'type'      => CertEnum::X509,
         'label'     => _txt('fd.cert.subject') . " (" . _txt('en.cert.type', null, CertEnum::X509) . ")",
