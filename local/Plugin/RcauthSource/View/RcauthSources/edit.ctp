@@ -1,1 +1,1 @@
-../../../../View/Standard/edit.ctp
+../../../../../app/View/Standard/edit.ctp

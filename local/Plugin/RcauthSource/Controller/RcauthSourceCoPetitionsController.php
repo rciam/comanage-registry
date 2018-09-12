@@ -149,10 +149,11 @@ class RcauthSourceCoPetitionsController extends CoPetitionsController {
 			$query_str = "select co_person_id ".
 						 "from public.cm_identifiers ".
 						 "where identifier='{$ePUID}' ".
-						 "and co_person_id is not null;";
+						 "and co_person_id is not null ".
+						 "and not deleted;";
 			$resQuery = $this->Identifier->query($query_str);
 			$cur_co_person_id = $resQuery[0][0]['co_person_id'];
-
+			
 			try {
 				/*
 				 * Rules/ Constraints followed by RCAuth plugin
@@ -202,7 +203,7 @@ class RcauthSourceCoPetitionsController extends CoPetitionsController {
 				$args['conditions'][] = 'OrgIdentitySourceRecord.org_identity_source_record_id IS NULL';
 				$record = $this->OrgIdentitySourceRecord->OrgIdentity->find('first', $args);
 				$org_identity_id = $record['OrgIdentity']['id'];
-				$this->log("org identity id => ".$org_identity_id,LOG_DEBUG);
+				$this->log("org identity id(catch) => ".$org_identity_id,LOG_DEBUG);
 				unset($args);
 				// retrieve org identity entry from CERTS table
 				$args = array();
@@ -220,6 +221,7 @@ class RcauthSourceCoPetitionsController extends CoPetitionsController {
 				$args['conditions']['Cert.deleted'] = false;
 				$args['fields'] = array('Cert.*');
 				$cur_co_person_entry = $this->Cert->find('first',$args);
+				$this->log("cur co person entry => ".print_r($cur_co_person_entry,true),LOG_DEBUG);
 
 				// Update the certificate entry for the org_identity retrieved and for the current co person
 				$this->certEntryUpdate($org_identity_entry, $cur_co_person_entry, $user_data_obj->cert_subject_dn, $cfg['RcauthSource']['issuer']);
