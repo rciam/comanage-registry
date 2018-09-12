@@ -54,7 +54,7 @@ class Cert extends AppModel {
     public $validate = array(
         'subject' => array(
             'content' => array(
-                'rule' => array('maxLength', 256),
+                'rule' => array('maxLength', 512),
                 'required' => false,
                 'allowEmpty' => false,
                 'message' => 'Please enter a valid cert subject DN',
@@ -65,7 +65,7 @@ class Cert extends AppModel {
         ),
         'issuer' => array(
             'content' => array(
-                'rule' => array('maxLength', 256),
+                'rule' => array('maxLength', 512),
                 'required' => false,
                 'allowEmpty' => false,
                 'message' => 'Please enter a valid cert issuer DN',
@@ -98,4 +98,15 @@ class Cert extends AppModel {
             ),
         ),
     );
+
+	// Check if the field passed is empty and fill in with the default value
+	public function beforeSave($options = array())
+	{
+		$this->log("@beforeSave Cert", LOG_DEBUG);
+		if ( empty($this->data['Cert']['type']) ) {
+			// Assign the default value
+			$this->data['Cert']['type'] = CertEnum::X509;
+		}
+		return true;
+	}
 }

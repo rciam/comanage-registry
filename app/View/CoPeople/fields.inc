@@ -603,7 +603,7 @@
           <?php endif; // invite ?>
         </ul><!-- tabs-name -->
       </li><!-- fields-name -->
-
+      
       <?php
         if($this->action != "invite") {
           $args = array(
@@ -624,8 +624,10 @@
           
           print $this->element('mvpa', $args);
 
-          $args['mvpa_model']   = 'Cert';
-          $args['mvpa_field']   = 'subject';
+          $args['edit']         = false;
+          $args['self_service'] = true;
+          $args['mvpa_model'] = 'Cert';
+          $args['mvpa_field'] = 'subject';
 
           print $this->element('mvpa', $args);
 

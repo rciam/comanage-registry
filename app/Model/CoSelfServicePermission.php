@@ -211,6 +211,7 @@ class CoSelfServicePermission extends AppModel {
       'Name'            => _txt('ct.names.1'),
       'TelephoneNumber' => _txt('ct.telephone_numbers.1'),
       'Url'             => _txt('ct.urls.1'),
+      'Cert'            => _txt('ct.certs.1'),
       'Vo'              => _txt('ct.vos.1')
     );
     
