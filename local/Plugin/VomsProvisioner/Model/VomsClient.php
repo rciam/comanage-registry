@@ -4,6 +4,7 @@ class VomsClient
 	// server url of the vo of interest
 	private $host;
 	private $vo_name;
+	private $voms_admin_path = "/opt/voms-admin-client/.venv/bin/python /opt/voms-admin-client/src/voms-admin";
 
 	public function __construct($host, $vo_name)
 	{
@@ -46,7 +47,7 @@ class VomsClient
 	public function vo_memberships()
 	{
 		// Return array with all memberships of the specified Vo
-		$cmd = "voms-admin --vo {$this->vo_name} --host {$this->host} list-users 2>&1";
+		$cmd = "{$this->voms_admin_path} --vo {$this->vo_name} --host {$this->host} list-users 2>&1";
 		exec($cmd, $subscriptions);
 		$members = array();
 		foreach ($subscriptions as $memberData)
@@ -70,8 +71,8 @@ class VomsClient
 	 */
 	public function register_user($dn, $ca, $cn, $email)
 	{
-		$cmd = "voms-admin --nousercert --vo {$this->vo_name} --host {$this->host} create-user '{$dn}' '{$ca}' '{$cn}' '{$email}' 2>&1";
-		//CakeLog::write('debug', "cmd: ".$cmd);
+		$cmd = "{$this->voms_admin_path} --nousercert --vo {$this->vo_name} --host {$this->host} create-user '{$dn}' '{$ca}' '{$cn}' '{$email}' 2>&1";
+		CakeLog::write('debug', "cmd: ".$cmd);
 		exec($cmd, $data, $var);
 		if(is_array($data)){
 			$data = implode($data," ");
@@ -90,7 +91,7 @@ class VomsClient
 	 */
 	public function unregister_user($dn, $ca)
 	{
-		$cmd = "voms-admin --nousercert --vo {$this->vo_name} --host {$this->host} delete-user '{$dn}' '{$ca}' 2>&1";
+		$cmd = "{$this->voms_admin_path} --nousercert --vo {$this->vo_name} --host {$this->host} delete-user '{$dn}' '{$ca}' 2>&1";
 		exec($cmd, $data);
 		if(is_array($data)){
 			$data = implode($data," ");
@@ -124,9 +125,10 @@ class VomsClient
 	 */
 	public function register_user_complete($dn, $ca, $cn, $name, $surname, $institution, $email)
 	{
-		$cmd = "voms-admin --nousercert --vo {$this->vo_name} --host {$this->host}".
+		$cmd = "{$this->voms_admin_path} --nousercert --vo {$this->vo_name} --host {$this->host}".
 			"--name {$name} --surname {$surname} --institution {$institution} --address unknown --phonenumber 5555555".
 			"create-user '{$dn}' '{$ca}' '{$cn}' '{$email}' 2>&1";
+		CakeLog::write('debug', "cmd: ".$cmd);
 		exec($cmd, $data);
 		if(is_array($data)){
 			$data = implode($data," ");

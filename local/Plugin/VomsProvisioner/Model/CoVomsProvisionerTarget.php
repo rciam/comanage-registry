@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry CO Homedir Provisioner Target Model
+ * COmanage Registry CO Voms Provisioner Target Model
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -79,7 +79,7 @@ class CoVomsProvisionerTarget extends CoProvisionerPluginTarget {
 
 	public function provision($coProvisioningTargetData, $op, $provisioningData)
 	{
-		$this->log("provision op => ".$op, LOG_DEBUG);
+		$fn = "@provision";
 		$dn = $ca = $cn = null;
 		// Retrieve vo server data for the case of voms plugin
 		$vo_name = trim($coProvisioningTargetData['CoVomsProvisionerTarget']['vo_name']);
@@ -88,6 +88,7 @@ class CoVomsProvisionerTarget extends CoProvisionerPluginTarget {
 
 		// Intantiate voms client object
 		$vomscli = new VomsClient($server_url, $vo_name);
+		$this->log("{$fn}::action => ".$op, LOG_DEBUG);
 		switch ($op) {
 			// the whole provisioning happens during provisioning, either we are talking
 			// about CO or COU. At the end of petition, provisioning process takes place and
@@ -101,18 +102,15 @@ class CoVomsProvisionerTarget extends CoProvisionerPluginTarget {
 				if( $this->VoOnCOURoleAvailable($provisioningData, $vo_name) != -1
 				|| $this->VoOnGroupMemberAvailable($provisioningData, $vo_name) != -1){
 					// Check if the user is already provisioned, check VO array
-				$co_person_id = $provisioningData['CoPerson']['id'];
-					if($this->provisionExistCheck($co_person_id, $vo_targets_id)){
-						$this->log("User already provisioned", LOG_DEBUG);
-					} else {
-						$this->log("time to subscribe!!!", LOG_DEBUG);
-						$this->voProvision($co_person_id, $vomscli, $vo_targets_id);
-					}
+					$co_person_id = $provisioningData['CoPerson']['id'];
+					$vo_entry = $this->provisionExistCheck($co_person_id, $vo_targets_id);
+					$this->voProvision($co_person_id, $vomscli, $vo_targets_id, $vo_entry, $op);
 					break;
 				}
 			case ProvisioningActionEnum::CoGroupUpdated:
 				break;
-			case ProvisioningActionEnum::CoPersonUpdated :
+			case ProvisioningActionEnum::CoPersonUpdated:
+				$this->log("Person Update", LOG_DEBUG);
 //				$this->log("target data person => ".print_r($coProvisioningTargetData,true),LOG_DEBUG);
 //				$this->log("provision data person => ".print_r($provisioningData,true),LOG_DEBUG);
 				// Check if the user belongs to any group containing the VO of interest
@@ -123,21 +121,30 @@ class CoVomsProvisionerTarget extends CoProvisionerPluginTarget {
 				if(!$couVoMember && !$groupVoMember){
 					// Retrieve co_person_id
 					$co_person_id = $provisioningData['CoPerson']['id'];
-					if($this->provisionExistCheck($co_person_id, $vo_targets_id)) {
+					if($this->provisionExistCheck($co_person_id, $vo_targets_id) != null) {
 						// Unsubscribe user and remove reference from his profile
-						$this->log("time to un subscribe!!!");
 						$this->voUnSubscribe($co_person_id, $vomscli, $vo_targets_id);
 					}
 				}else{
-					$this->log("User belongs in CO:COU:{$vo_name} group.");
+					$this->log("User belongs in CO:COU:{$vo_name} group.", LOG_DEBUG);
 				}
 				break;
 			case ProvisioningActionEnum::CoPersonReprovisionRequested:
-				$this->log("Reprovision", LOG_DEBUG);
+				break;
+			case ProvisioningActionEnum::CoPersonDeleted:
+				$this->log("{$fn}::action Person Delete/Expunge", LOG_DEBUG);
+				// Retrieve co_person_id
+				$co_person_id = $provisioningData['CoPerson']['id'];
+				// Deprovision co person from VOMS
+				$this->log("{$fn}::co person id => ".$co_person_id,LOG_DEBUG);
+				// Unsubscribe user and remove reference from his profile
+				$this->voUnSubscribe($co_person_id, $vomscli, $vo_targets_id, $op);
+				// Soft delete the certificate
+				//$this->cert_expunge($co_person_id, $provisioningData['CoOrgIdentityLink']);
 				break;
 			default:
 				// Log noop and fall through.
-				$this->log("Voms provisioning action $op not allowed/implemented");
+				$this->log("{$fn}::Provisioning action $op not allowed/implemented", LOG_DEBUG);
 			}
 
 		return true;
@@ -154,43 +161,79 @@ class CoVomsProvisionerTarget extends CoProvisionerPluginTarget {
 	 * @param co_person_id $id
 	 * @return Generator
 	 */
-	private function cert_retrieve($id)
+	private function cert_retrieve($id, $op)
 	{
-		$query_str = "select ce.subject, ce.issuer, em.mail ".
-			"from cm_certs as ce, cm_email_addresses as em ".
-			"where ce.co_person_id={$id} and ce.co_person_id = em.co_person_id";
-		// Regex
-		$regex = '/^CN=(.*?)$/m';
-		// Retrieve the model and run the query
+		// The fn variable is used for debugging purposes
+		$fn = "@cert_retrieve";
+
+		$this->log("{$fn}::action => ".$op,LOG_DEBUG);
+		switch ($op) {
+			// PD action - Person Delete action
+			case ProvisioningActionEnum::CoPersonDeleted:
+				$query_str = "select ce.subject, ce.issuer, em.mail ".
+					"from cm_certs as ce, cm_email_addresses as em ".
+					"where ce.co_person_id={$id} ".
+					"and ce.co_person_id = em.co_person_id ".
+					"and ce.modified < (NOW() at time zone ('utc') + '2 minute'::interval) ".
+					"and ce.cert_id is null";
+				break;
+			default:
+				$query_str = "select ce.subject, ce.issuer, em.mail ".
+					"from cm_certs as ce, cm_email_addresses as em ".
+					"where ce.co_person_id={$id} ".
+					"and ce.co_person_id = em.co_person_id ".
+					"and not ce.deleted ".
+					"and ce.cert_id is null ".
+					"and ce.deleted is false ".
+					"and em.deleted is false";
+				break;
+		}
+
+
+		$query_str_cn = "select concat_ws(' ',given,family) as cn from cm_names where co_person_id={$id} and type='official' and deleted is false;";
+		// Retrieve Cert model and run the query
 		$this->Cert = ClassRegistry::init('Cert');
-		$res = $this->Cert->query($query_str);
+		$res_cert = $this->Cert->query($query_str);
+		$this->log("{$fn}::cert query => ".print_r($query_str,true),LOG_DEBUG);
+		$this->log("{$fn}::cert dataset => ".print_r($res_cert,true),LOG_DEBUG);
+		// Retrieve Name model and run the query
+		$this->Name = ClassRegistry::init('Name');
+		$res_name = $this->Name->query($query_str_cn);
+		$this->log("{$fn}::name query => ".print_r($query_str_cn,true),LOG_DEBUG);
+		$this->log("{$fn}::name dataset => ".print_r($res_name,true),LOG_DEBUG);
 		// If multiple certs for a co_person_id are available, we should retrieve data for each one
 		// then yield the result
-		foreach($res as $cert){
+		foreach($res_cert as $cert){
 			$cert_attr["dn"] = trim($cert[0]['subject']);
 			$cert_attr["ca"] = trim($cert[0]['issuer']);
 			$cert_attr["email"] = trim($cert[0]['mail']);
-			$this->log("Provisioning user for dn: {$cert_attr["dn"]}.",LOG_DEBUG);
-			$dn_parts = explode(",", $cert[0]['subject']);
+			// Retrieve canonical name
 			// if the subject dn is wrong just continue to the next one
-			if(isset($dn_parts) && count($dn_parts) < 2) continue;
-			foreach($dn_parts as $attribute){
-				if (preg_match($regex, $attribute, $match)) {
-					$cert_attr["cn"] = trim($attribute);
+			if(isset($res_name[0][0]) && $res_name[0][0]['cn'] != ""){
+				$cert_attr["cn"] = $res_name[0][0]['cn'];
+			} else {
+				$dn_parts = explode(",", $cert_attr["dn"]);
+				// Regex
+				$regex = '/^CN=(.*?)$/m';
+				if (isset($dn_parts) && count($dn_parts) < 2) continue;
+				foreach ($dn_parts as $attribute) {
+					if (preg_match($regex, $attribute, $match)) {
+						$cert_attr["cn"] = trim($attribute);
+					}
 				}
 			}
+			$this->log("{$fn}::cn for user($id) => ".$cert_attr["cn"],LOG_DEBUG);
 			// Yield the array back to the caller
-			$this->log("array => ".print_r($cert_attr,true),LOG_DEBUG);
-
 			yield $cert_attr;
 		}
 	}
+
 
 	/**
 	 * @param $group_id     the group id for which we are trying to provision
 	 * @return Generator    certificate attributes for each co person belonging in the group
 	 */
-	private function cert_retrieve_GR($group_id){
+	private function cert_retrieve_GR($group_id, $op){
 		// Load the model
 		$cert = array();
 		$this->Cert = ClassRegistry::init('Cert');
@@ -201,7 +244,7 @@ class CoVomsProvisionerTarget extends CoProvisionerPluginTarget {
 		$res = $this->Cert->query($query_str);
 
 		foreach ($res as $co_person) {
-			foreach ($this->cert_retrieve($co_person[0]['co_person_id']) as $co_cert){
+			foreach ($this->cert_retrieve($co_person[0]['co_person_id'], $op) as $co_cert){
 				$cert[0] =  $co_cert;
 			}
 			yield $cert;
@@ -212,24 +255,28 @@ class CoVomsProvisionerTarget extends CoProvisionerPluginTarget {
 	/**
 	 * @param $co_person_id    the co person we want to check
 	 * @param $vo_targets_id   the vo we want to check
-	 * @return bool            if true we must abort. co person has already been provisioned
+	 * @return object          if null the user have never been provisioned before. Otherwise,
+	 *                         returning the the Vo object
 	 */
 	private function provisionExistCheck($co_person_id, $vo_targets_id){
-		$query_str = "select * ".
-					"from cm_vos ".
-					"where co_person_id={$co_person_id} ".
-					"and vo_targets_id={$vo_targets_id}";
-		$this->log("query => ".$query_str,LOG_DEBUG);
+		$fn = "provisionExistCheck";
+		// retrieve the vo table entry that contains the current co person id
+		$args = array();
+		$args['conditions']['Vo.vo_id'] = null;
+		$args['conditions']['Vo.co_person_id'] = $co_person_id;
+		$args['conditions']['Vo.vo_targets_id'] = $vo_targets_id;
+		$args['conditions']['Vo.deleted'] = false;
+		$args['fields'] = array('Vo.*');
+		// Load the model
+		//$this->log("provisionExistCheck::query args => ".print_r($args,true),LOG_DEBUG);
 		$this->Vo = ClassRegistry::init('Vo');
-		$res = $this->Vo->query($query_str);
-		$this->log("res => ".print_r($res,true),LOG_DEBUG);
-		$this->log("isset => ".isset($res),LOG_DEBUG);
-		$this->log("count => ".count($res),LOG_DEBUG);
-		if(isset($res) && count($res) > 0){
-			$this->log("res => ".print_r($res,true),LOG_DEBUG);
-			return true;
+		$cur_co_person_entry = $this->Vo->find('first',$args);
+		//$cur_co_person_entry = $this->Vo->query($query_str);
+		// $this->log("provisionExistCheck::cur co person entry => ".print_r($cur_co_person_entry,true),LOG_DEBUG);
+		if(isset($cur_co_person_entry) && count($cur_co_person_entry) > 0){
+			return $cur_co_person_entry;
 		} else {
-			return false;
+			return null;
 		}
 	}
 
@@ -306,6 +353,7 @@ class CoVomsProvisionerTarget extends CoProvisionerPluginTarget {
 	 * @return int                    co_person_id, on failure or no result -1
 	 */
 	private function VoOnCOURoleAvailable($provisioningData, $vo_name){
+		$fn = "VoOnCOURoleAvailable";
 		$re = "/^C?O?:?C?O?U?:?{$vo_name}/m";
 		if(!isset($provisioningData['CoPersonRole'])) return -1;
 
@@ -359,20 +407,23 @@ class CoVomsProvisionerTarget extends CoProvisionerPluginTarget {
 	 *                              this field is part of $coProvisioningTargetData array
 	 */
 	// Create the vo client object and register the co person
-	private function voProvision($co_person_id, $vomscli, $vo_targets_id){
-		foreach ($this->cert_retrieve($co_person_id) as $co_cert) {
+	private function voProvision($co_person_id, $vomscli, $vo_targets_id, $vo_entry, $op){
+		$fn = "voProvision";
+		foreach ($this->cert_retrieve($co_person_id, $op) as $co_cert) {
 			if (isset($co_cert['dn']) && isset($co_cert['ca'])) {
-				$this->log("co_cert => ".print_r($co_cert,true),LOG_DEBUG);
 				$dn = trim($co_cert['dn']);
 				$cn = trim($co_cert['cn']);
 				$ca = trim($co_cert['ca']);
 				$email = trim($co_cert['email']);
 				$outmsg = $vomscli->register_user($dn, $ca, $cn, $email);
-				$this->log($outmsg, LOG_DEBUG);
-				$re = '/fail/m';
-				preg_match_all($re, $outmsg, $matches, PREG_SET_ORDER, 0);
-				if(!isset($matches[0])) {
-					$this->log("Adding to cm_vos table",LOG_DEBUG);
+				$this->log("{$fn}::vomsclient::output => ".$outmsg,LOG_DEBUG);
+				$re_fail = '/fail/m';
+				preg_match_all($re_fail, $outmsg, $matches_fail, PREG_SET_ORDER, 0);
+				$re_exists = '/org.glite.security.voms.admin.persistence.error.UserAlreadyExistsException/m';
+				preg_match_all($re_exists, $outmsg, $matches_exists, PREG_SET_ORDER, 0);
+
+				if((!isset($matches_fail[0]) && !isset($matches_exists[0])) || ($vo_entry == null && isset($matches_exists[0]))) {
+					$this->log("{$fn}::adding new entry into cm_vos table",LOG_DEBUG);
 					$save_data = array(
 						'Vo' => array(
 							'co_person_id'    => $co_person_id,
@@ -383,9 +434,22 @@ class CoVomsProvisionerTarget extends CoProvisionerPluginTarget {
 					);
 					$this->Vo = ClassRegistry::init('Vo');
 					if(!$this->Vo->save($save_data)){
-						$this->log("VO data failed to validate", LOG_DEBUG);
+						$this->log("{$fn}::VO data failed to validate", LOG_DEBUG);
 						throw new RuntimeException(_txt('er.db.save'));
 					}
+				} else if($vo_entry != null && isset($matches_exists[0])){
+					$this->log("Updating existing entry into cm_vos table",LOG_DEBUG);
+					$this->Vo = ClassRegistry::init('Vo');
+					// Create new entry with updated provision
+					$vo_entry['Vo']['modified'] = date('Y-m-d H:i:s');
+					$this->Vo->create(); // Create a new record
+					if(!$this->Vo->save($vo_entry)){
+						$this->log("{$fn}::VO data(increment revision) failed to validate", LOG_DEBUG);
+						throw new RuntimeException(_txt('er.db.save'));
+					}
+					// Update the old field
+					$this->Vo->id = $vo_entry['Vo']['id'];
+					$this->Vo->saveField('vo_targets_id', $vo_targets_id);
 				}
 			}
 		}
@@ -397,29 +461,61 @@ class CoVomsProvisionerTarget extends CoProvisionerPluginTarget {
 	 * @param $vo_targets_id        the id field of cm_co_voms_provisioner_targets for the specified vo, entry
 	 *                              this field is part of $coProvisioningTargetData array
 	 */
-	private function voUnSubscribe($co_person_id, $vomscli, $vo_targets_id){
-		foreach ($this->cert_retrieve($co_person_id) as $co_cert) {
+	private function voUnSubscribe($co_person_id, $vomscli, $vo_targets_id, $op){
+		$fn = "@voUnSubscribe";
+
+		// Retrieve the certificates related to the co person we are investigating
+		foreach ($this->cert_retrieve($co_person_id, $op) as $co_cert) {
 			if (isset($co_cert['dn']) && isset($co_cert['ca'])) {
 				//$this->log("co_cert => ".print_r($co_cert,true),LOG_DEBUG);
 				$dn = $co_cert['dn'];
 				$ca = $co_cert['ca'];
 				$outmsg = $vomscli->unregister_user($dn, $ca);
-				$this->log($outmsg, LOG_DEBUG);
+				$this->log("{$fn}::voms client raw output => ".$outmsg,LOG_DEBUG);
 				$re = '/fail/m';
 				preg_match_all($re, $outmsg, $matches, PREG_SET_ORDER, 0);
 				if(!isset($matches[0])) {
 					$this->log("Co person({$co_person_id}) removed from {$vomscli->getVoName()}", LOG_DEBUG);
-
-					$query_str = "delete " .
-						"from public.cm_vos ".
+					// Soft delete the vo from the user
+					$query_str = "update public.cm_vos set deleted='true' " .
 						"where vo_targets_id='{$vo_targets_id}' ".
 						"and co_person_id='$co_person_id'";
 					$this->Vo = ClassRegistry::init('Vo');
 					$resQuery = $this->Vo->query($query_str);
-					$this->log("res query => ".print_r($resQuery,true),LOG_DEBUG);
 					$this->log("Removed VO from profile.",LOG_DEBUG);
 				}
 			}
 		}
 	}
+
+	/**
+	 * Soft delete all entries in cert table that are associated with the co_person and its org_identity
+	 *
+	 * @param $co_person_id
+	 * @param $org_identity_id
+	 * @return mixed							status of query execution
+	 */
+	private function cert_expunge($co_person_id, $co_org_identity_link)
+	{
+		// Retrieve the org_identity_ids
+		$org_identity_ids = "";
+		foreach($co_org_identity_link as $org_identity ){
+			$org_identity_ids .= $org_identity['org_identity_id'];
+			$org_identity_ids .= ",";
+		}
+		// Remove the trailing commas
+		$org_identity_ids = rtrim($org_identity_ids, ",");
+		// Create the query
+		$query_str = "update cm_certs ".
+			"set deleted='true' ".
+			"where co_person_id={$co_person_id} ".
+			"or org_identity_id in ({$org_identity_ids});";
+		$this->log("cert_expunge:query => ".$query_str, LOG_DEBUG);
+		$this->Cert = ClassRegistry::init('Cert');
+		// Soft delete all the entries from the Cert table
+		$ret = $this->Cert->query($query_str);
+		$this->log("cert_expunge:query result = ".print_r($ret,true), LOG_DEBUG);
+		return $ret;
+	}
+
 }
