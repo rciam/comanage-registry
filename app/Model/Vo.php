@@ -42,7 +42,7 @@ class Vo extends AppModel
 		// A Vo may be attached to an Org Identity
 		'OrgIdentity',
 		// A Vo will be attached to a CO Voms Provisioner Targets
-		'CoVomsProvisionerTarget' => array(
+		'VomsProvisioner.CoVomsProvisionerTarget' => array(
 			'foreignKey' => 'vo_targets_id',
 			'conditions' => 'Vo.vo_targets_id = CoVomsProvisionerTarget.id',
 			'joinType'   => 'INNER'
@@ -103,10 +103,6 @@ class Vo extends AppModel
 	public function beforeSave($options = array())
 	{
 		$this->log("@beforeSave Vo", LOG_DEBUG);
-		// TODO: IMPORTANT TIP FOR FUTURE USE
-		// This kind of schemas should have a certain architecture. This is why
-		// cert table has the fields it has. So, the i am not getting wrong data back
-		// I am getting the ones the framework is programmed to create!!!
 
 		//$this->log("data => ".print_r($this->data,true),LOG_DEBUG);
 		if(!(isset($this->data['Vo']['co_person_id']) && isset($this->data['Vo']['vo_targets_id']))){
