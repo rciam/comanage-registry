@@ -139,6 +139,12 @@
     if($this->action == 'add' && !empty($vv_introduction_text)) {
       print '<div class="modelbox">' . $vv_introduction_text . "</div>";
     }
+
+    if(!empty($co_enrollment_flow_id) && ($co_enrollment_flow_id === 2)) {
+        print '<div class="ui-widget modelbox">'
+            . '<p>Complete the sign-up form by entering all the required fields </p>'
+            . '</div>';
+    }
     
     // If a token was passed in, submit it as part of the form
     if(!empty($vv_petition_token)) {
@@ -193,7 +199,7 @@
       continue;
     }
 
-    if($coe_attributes[0]['attribute'] == 'i:cert:X.509' && !$coe_attributes[0]['default']) {
+    if($coe_attributes[0]['attribute'] == 'i:cert:X.509' && (array_key_exists('default', $coe_attributes[0]) && !$coe_attributes[0]['default'])) {
       continue;
     }
 
@@ -264,7 +270,6 @@
              // There's not a good way to figure out which from the configuration, so we
              // just hardcode a list here.
              && ($coe_attributes[0]['attribute'] != 'g:co_group_member'
-             && $coe_attributes[0]['attribute'] != 'i:cert:X.509'
              && strncmp($coe_attributes[0]['attribute'], 'i:identifier:', 13))) {
             print "<br /><span class=\"required\">" . _txt('fd.pt.required') . "</span>\n";
           }
@@ -284,31 +289,32 @@
 
         // Output the fields
         foreach ($coe_attributes as $ea):
-          // Skip certificate issuer attribute
-          if (strncmp($ea['field'], 'issuer', 6) === 0) {
+          // Skip login and certificate issuer attribute
+          if (strncmp($ea['field'], 'login', 5) === 0 || strncmp($ea['field'], 'issuer', 6) === 0) {
             continue;
           }
           if ($ea['attribute'] == 'i:cert:X.509') {
             // Get defaul values and make separate options for select
-            $certValues = explode(";", $ea['default']);
-            foreach ($certValues as $cert) {
-              $ea['select'][$cert] = $cert;
+            if (!empty($ea['default'])) {
+              foreach ($certValues as $cert) {
+                $ea['select'][$cert] = $cert;
+              }
             }
-            if (count($ea['select']) > 1) {
+            if (count($certValues) > 1) {
               $ea['validate']['content']['rule'][0] = inList;
               $ea['modifiable'] = true;
               $ea['required'] = true;
             } else {
               $ea['modifiable'] = false;
-              $ea['hidden'] = true;
             }
           }
 
           if ($ea['validate']['content']['rule'][0] == 'email') {
             // Get defaul values and make separate options for select
-            $emailValues = explode(";", $ea['default']);
-            foreach ($emailValues as $email) {
-              $ea['select'][$email] = $email;
+            if (!empty($ea['default'])) {
+              foreach ($emailValues as $email) {
+                $ea['select'][$email] = $email;
+              }
             }
             if (count($emailValues) > 1) {
               $ea['validate']['content']['rule'][0] = inList;
@@ -639,6 +645,12 @@
     // Render conclusion text for new petitions
     if(!empty($vv_conclusion_text)) {
       print '<div class="modelbox">' . $vv_conclusion_text . "</div>";
+    }
+    if(!empty($co_enrollment_flow_id) && ($co_enrollment_flow_id === 1 || $co_enrollment_flow_id === 2)) {
+      print '<div class="ui-widget modelbox">'
+        . '<p>After you click Submit, we’ll send you an email and you simply click on a link to confirm your email address.</p>'
+        . '<p><i>Important: If you do not find the email in your Inbox, please check your Spam or Junk folder for an email from "EGI AAI Notifications". If you do find the email in these folders, mark the email as "safe" or "not spam" to ensure that you receive any future notifications about your EGI ID.</i></p>'
+        . '</div>';
     }
   ?>
 
