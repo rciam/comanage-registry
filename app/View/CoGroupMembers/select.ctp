@@ -67,6 +67,7 @@
 
 <div class="table-container">
   <table id="co_people">
+  <?php if(!empty($co_people)) { ?>
     <thead>
       <tr>
         <th><?php print _txt('fd.name'); ?></th>
@@ -84,6 +85,7 @@
         print $this->Form->hidden('CoGroupMember.co_group_id', array('default' => $co_group['CoGroup']['id'])) . "\n";
       ?>
     </thead>
+  <?php } ?>
 
     <tbody>
       <?php $i = 0; ?>
@@ -94,8 +96,7 @@
             print $this->Html->link(generateCn($p['PrimaryName']),
                                     array('controller' => 'co_people',
                                           'action' => 'canvas',
-                                          $p['CoPerson']['id'],
-                                          'co' => $cur_co['Co']['id']));
+                                          $p['CoPerson']['id']));
           ?>
         </td>
         <td class = "<?php print _txt('en.status', null, $p['CoPerson']['status']); ?>">
@@ -138,7 +139,8 @@
 
     <tfoot>
       <tr>
-        <th colspan="3">
+        <th colspan="5">
+          <?php print $this->element("pagination"); ?>
         </th>
       </tr>
       <tr>
