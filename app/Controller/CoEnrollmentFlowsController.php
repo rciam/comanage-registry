@@ -24,6 +24,7 @@
  * @since         COmanage Registry v0.3
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
+
 App::uses("StandardController", "Controller");
   
 class CoEnrollmentFlowsController extends StandardController {
@@ -247,6 +248,7 @@ class CoEnrollmentFlowsController extends StandardController {
     // Any logged in person can get to this page, however which enrollment flows they
     // see will be determined dynamically.
     $p['select'] = $roles['user'];
+    $p['search'] = $roles['user'];
     
     // View an existing CO Enrollment Flow?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
@@ -305,25 +307,24 @@ class CoEnrollmentFlowsController extends StandardController {
     $this->log(get_class($this)."::{$fn}::@", LOG_DEBUG);
     // Set page title
     $this->set('title_for_layout', _txt('ct.co_enrollment_flows.pl'));
-    
+
+    // Check if we have been redirected by search
+    //$this->log(get_class($this)."::{$fn}::request => " . print_r($this->request, true), LOG_DEBUG);
+    $enrollmentFlowName = isset($this->request->params['named']['Search.name']) ? $this->request->params['named']['Search.name'] : "";
     // Start with a list of enrollment flows
-    
-//    $args = array();
-//    $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
-//    $args['conditions']['CoEnrollmentFlow.status'] = EnrollmentFlowStatusEnum::Active;
-//    $args['order']['CoEnrollmentFlow.name'] = 'asc';
-//    $args['contain'][] = false;
-//
-//    $flows = $this->CoEnrollmentFlow->find('all', $args);
     // Use server side pagination
-    $this->paginate['conditions'] = array(
-      'CoEnrollmentFlow.co_id' => $this->cur_co['Co']['id'],
-      'CoEnrollmentFlow.status' => EnrollmentFlowStatusEnum::Active
-    );
+    $this->paginate['conditions'] = array();
+    $this->paginate['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
+    $this->paginate['conditions']['CoEnrollmentFlow.status'] = EnrollmentFlowStatusEnum::Active;
+    if($enrollmentFlowName != ""){
+      // TODO have in mind that the following condition is postgresql specific since it is using iLIKE
+      $this->paginate['conditions']['CoEnrollmentFlow.name iLIKE'] = "%{$enrollmentFlowName}%";
+    }
     $this->paginate['contain'] = false;
+
+    $this->log(get_class($this)."::{$fn}::paginate => " . print_r($this->paginate, true), LOG_DEBUG);
     $this->Paginator->settings = $this->paginate;
     $flows =  $this->Paginator->paginate('CoEnrollmentFlow');
-    //$this->log(get_class($this)."::{$fn}::flows => ".print_r($flows,true), LOG_DEBUG);
     // Walk through the list of flows and see which ones this user is authorized to run
     
     $authedFlows = array();
@@ -342,5 +343,35 @@ class CoEnrollmentFlowsController extends StandardController {
     }
     
     $this->set('co_enrollment_flows', $authedFlows);
+
+  }
+
+  /**
+   * Insert search parameters into URL for index.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v0.8
+   */
+
+  public function search() {
+    $fn = "search";
+    $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
+    $url['action'] = 'select';
+
+    // build a URL will all the search elements in it
+    // the resulting URL will be
+    // example.com/registry/co_people/select/co:2?Search.givenName:albert/Search.familyName:einstein
+    $this->log(get_class($this)."::{$fn}::data => " . print_r($this->data, true), LOG_DEBUG);
+    foreach($this->data['Search'] as $field=>$value){
+      if(!empty($value)) {
+        $url['Search.'.$field] = trim($value);
+      }
+    }
+
+     $url['co'] = $this->cur_co['Co']['id'];
+
+    $this->log(get_class($this)."::{$fn}::url" . $url, LOG_DEBUG);
+    // redirect the user to the url
+    $this->redirect($url, null, true);
   }
 }
