@@ -66,7 +66,7 @@
                 'escape' => false
               )
             ) . "\n";
-
+            
             // QR code button - requires GD2 library
             if (extension_loaded ("gd")) {
               print $this->Html->link(
@@ -107,3 +107,10 @@
   <?php endforeach; ?>
   <div class="clearfix"></div>
 </div>
+
+<?php
+  print $this->element("pagination");
+  if($this->action == 'select') {
+    print $this->Form->end();
+  }
+?>

@@ -24,7 +24,6 @@
  * @since         COmanage Registry v0.3
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
-
 App::uses("StandardController", "Controller");
   
 class CoEnrollmentFlowsController extends StandardController {
@@ -302,19 +301,29 @@ class CoEnrollmentFlowsController extends StandardController {
    */
   
   function select() {
+    $fn = "select";
+    $this->log(get_class($this)."::{$fn}::@", LOG_DEBUG);
     // Set page title
     $this->set('title_for_layout', _txt('ct.co_enrollment_flows.pl'));
     
     // Start with a list of enrollment flows
     
-    $args = array();
-    $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
-    $args['conditions']['CoEnrollmentFlow.status'] = EnrollmentFlowStatusEnum::Active;
-    $args['order']['CoEnrollmentFlow.name'] = 'asc';
-    $args['contain'][] = false;
-    
-    $flows = $this->CoEnrollmentFlow->find('all', $args);
-    
+//    $args = array();
+//    $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
+//    $args['conditions']['CoEnrollmentFlow.status'] = EnrollmentFlowStatusEnum::Active;
+//    $args['order']['CoEnrollmentFlow.name'] = 'asc';
+//    $args['contain'][] = false;
+//
+//    $flows = $this->CoEnrollmentFlow->find('all', $args);
+    // Use server side pagination
+    $this->paginate['conditions'] = array(
+      'CoEnrollmentFlow.co_id' => $this->cur_co['Co']['id'],
+      'CoEnrollmentFlow.status' => EnrollmentFlowStatusEnum::Active
+    );
+    $this->paginate['contain'] = false;
+    $this->Paginator->settings = $this->paginate;
+    $flows =  $this->Paginator->paginate('CoEnrollmentFlow');
+    //$this->log(get_class($this)."::{$fn}::flows => ".print_r($flows,true), LOG_DEBUG);
     // Walk through the list of flows and see which ones this user is authorized to run
     
     $authedFlows = array();
