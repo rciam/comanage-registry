@@ -51,11 +51,11 @@
   }
 ?>
 
-<div id="co_enrollment_flows" class="co-grid co-grid-with-header">
-  <div class="mdl-grid co-grid-header" style="background-color: #186696 !important;color: white !important;">
-    <div class="mdl-cell mdl-cell--9-col" style="background-color: #186696;color: white;"><?php print _txt('fd.name'); ?></div>
-    <div class="mdl-cell mdl-cell--2-col actions" style="background-color: #186696;color: white;"><?php print _txt('fd.actions'); ?></div>
-  </div>
+  <div id="co_enrollment_flows" class="co-grid co-grid-with-header">
+    <div class="mdl-grid co-grid-header">
+      <div class="mdl-cell mdl-cell--9-col"><?php print _txt('fd.name'); ?></div>
+      <div class="mdl-cell mdl-cell--2-col actions"><?php print _txt('fd.actions'); ?></div>
+    </div>
 
   <?php $i = 0; ?>
   <?php foreach ($co_enrollment_flows as $c): ?>

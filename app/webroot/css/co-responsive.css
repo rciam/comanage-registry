@@ -338,11 +338,14 @@
   .co-grid .mdl-cell {
     margin: 8px;
   }
-  .co-grid .co-grid-header {
+  .co-grid .co-grid-header { /*ioigoume: for co enrollment filtering*/
     display: flex;
-    background-color: #e5e5e5 !important;
+    background-color: #186696 !important;
+    /*background-color: #e5e5e5 !important;*/
+    color: #ffffff;
     font-weight: bold;
   }
+
   .side-search {
     margin: 2em 1em;
   }
