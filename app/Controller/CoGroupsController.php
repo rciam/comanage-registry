@@ -716,7 +716,7 @@ class CoGroupsController extends StandardController {
    * Insert search parameters into URL for index.
    * - postcondition: Redirect generated
    *
-   * @since  COmanage Registry v0.8
+   * @since  COmanage Registry RCIAM v3.1.1
    */
   
   public function search() {
