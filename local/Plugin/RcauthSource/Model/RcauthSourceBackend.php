@@ -208,13 +208,13 @@ class RcauthSourceBackend extends OrgIdentitySourceBackend {
 
 		// The request will return a json with the following format and fields
 		//	  {
-		//	  	   "sub":"025659b401b45793253dbe525111c8e54145569de85e544dd557ef6825d3814c@egi.eu",
-		//		   "idp":"https://aai-dev.egi.eu/proxy/saml2/idp/metadata.php",
-		//		   "eduPersonTargetedID":"https://aai-dev.egi.eu/proxy/saml2/idp/metadata.php!7c066f48d4b19621a3c5bd4c7afd5882b20ab30d",
-		//		   "cert_subject_dn":"CN=John Doe yCKcijJUgi9e8Y4s,O=EGI Foundation,OU=AAI-Pilot,O=EGI",
-		//		   "idp_display_name":"EGI Foundation",
+		//	  	   "sub":"025659b401b45793253dbe525111c8e54145569de85e544dd557ef6825d3814c@example.org",
+		//		   "idp":"https://aai.example.org/proxy/saml2/idp/metadata.php",
+		//		   "eduPersonTargetedID":"https://aai.example.org/proxy/saml2/idp/metadata.php!7c066f48d4b19621a3c5bd4c7afd5882b20ab30d",
+		//		   "cert_subject_dn":"CN=John Doe yCKcijJUgi9e8Y4s,O=Example Org,OU=AAI,O=Example",
+		//		   "idp_display_name":"AAI Example",
 		//		   "name":"John Doe",
-		//		   "eduPersonUniqueId":"025659b401b45793253dbe525111c8e54145569de85e544dd557ef6825d3814c@egi.eu",
+		//		   "eduPersonUniqueId":"025659b401b45793253dbe525111c8e54145569de85e544dd557ef6825d3814c@example.org",
 		//		   "given_name":"John",
 		//		   "family_name":"Doe",
 		//		   "email":"jdoe@mail.com"

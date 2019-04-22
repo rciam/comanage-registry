@@ -29,7 +29,7 @@ class mpCfgUrl {
 
 	// parse json and fill the variables
 	function __construct(){
-		$url = "https://masterportal-pilot.aai.egi.eu/mp-oa2-server/.well-known/openid-configuration";
+		$url = "https://masterportal-pilot.aai.example.org/mp-oa2-server/.well-known/openid-configuration";
 		//  Initiate curl
 		$ch = curl_init();
 		// Disable SSL verification

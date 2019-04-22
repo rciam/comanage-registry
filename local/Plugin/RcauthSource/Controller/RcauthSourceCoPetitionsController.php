@@ -93,8 +93,8 @@ class RcauthSourceCoPetitionsController extends CoPetitionsController {
 
 			// Data we retrieved
 			//{
-			//   "access_token":"https://masterportal-pilot.aai.egi.eu/mp-oa2-server/accessToken/720a43b1d5b408f7fdfc6345faa2eca6/1525496398788",
-			//   "refresh_token":"https://masterportal-pilot.aai.egi.eu/mp-oa2-server/refreshToken/41c249bef6ce0b184855585c1b592bb7/1525496398788",
+			//   "access_token":"https://masterportal-pilot.aai.example.org/mp-oa2-server/accessToken/720a43b1d5b408f7fdfc6345faa2eca6/1525496398788",
+			//   "refresh_token":"https://masterportal-pilot.aai.example.org/mp-oa2-server/refreshToken/41c249bef6ce0b184855585c1b592bb7/1525496398788",
 			//   "id_token":"eyJ0eXAiOiJKV1QiLCJraWQiOiI5Mzk2ODI3QjExMDI0QzlBNDI1MDM2MDk3REU0MTJGMiIsImFsZyI6IlJTMjU2In0.eyJpc3MiOiJodHRwczovL21hc3RlcnBvcnRhbC1waWxvdC5hYWkuZWdpLmV1L21wLW9hMi1zZXJ2ZXIiLCJzdWIiOiIwMjU2NTliNDAxYjQ1NzkzMjUzZGJlNTI1MTExYzhlNTQxYzU1MTlkZTg1ZTU0NGRkNTU3ZWY2ODI1ZDM4MTRjQGVnaS5ldSIsImV4cCI6MTUyNTQ5NzI5OCwiYXVkIjoibXlwcm94eTpvYTRtcCwyMDEyOi9jbGllbnRfaWQvMWY2ZjY1NDk3ZmU3M2NlYjdiYzJjNDlmYTE2ZWNhMGIiLCJpYXQiOjE1MjU0OTYzOTgsImF1dGhfdGltZSI6IjE1MjU0OTYzOTYiLCJpZHAiOiJodHRwczovL2FhaS1kZXYuZWdpLmV1L3Byb3h5L3NhbWwyL2lkcC9tZXRhZGF0YS5waHAiLCJlZHVQZXJzb25UYXJnZXRlZElEIjoiaHR0cHM6Ly9hYWktZGV2LmVnaS5ldS9wcm94eS9zYW1sMi9pZHAvbWV0YWRhdGEucGhwITdjMDY2ZjQ4ZDRiMTk2MjFhM2M1YmQ0YzdhZmQ1ODgyYjIwYWIzMGQiLCJjZXJ0X3N1YmplY3RfZG4iOiJDTj1Jb2FubmlzIElnb3VtZW5vcyB5Q0tjaWpKVWdpOWU4WTRzLE89RUdJIEZvdW5kYXRpb24sT1U9QUFJLVBpbG90LE89RUdJIiwiaWRwX2Rpc3BsYXlfbmFtZSI6IkVHSSBGb3VuZGF0aW9uIiwibmFtZSI6IklvYW5uaXMgSWdvdW1lbm9zIiwiZWR1UGVyc29uVW5pcXVlSWQiOiIwMjU2NTliNDAxYjQ1NzkzMjUzZGJlNTI1MTExYzhlNTQxYzU1MTlkZTg1ZTU0NGRkNTU3ZWY2ODI1ZDM4MTRjQGVnaS5ldSIsImdpdmVuX25hbWUiOiJFZnRoaW1pb3MiLCJmYW1pbHlfbmFtZSI6Iklnb3VtZW5vcyIsImVtYWlsIjoiaW9pZ291bWVAZ21haWwuY29tIn0.FeyiV_czMqT9LlbHBC6qhUC8c6THW8DYQ8dupG5no9yGdBoquOq4YMdEtzX5BPH_ku9SJhGcrbfLo3HLKFrhaHeE7YSlnfjAC6-218kHd1Tcgm0qaR3ukvjGiB6uNczli5rPkJlCikt_zi3f6SRoXlnmm67MIx7hlUDzXV0invEr0SPMnaTw1Lb_0jNDgqjNndsSZG_loS7XXDJjFQNGtfzLYfPiAsFXCjMbuHN7Z-cKvzSthQF4KYANXSob2PeMFdJjAl2GAbyl-NJpB-9hAkz7jNoqvYvp3oXdU-KR_5yRSVY0v1yrgFvBJNPN9sAWY1VX_C0IgEyGjWpnC9WmWA",
 			//   "token_type":"Bearer",
 			//   "expires_in":1296000
@@ -153,7 +153,7 @@ class RcauthSourceCoPetitionsController extends CoPetitionsController {
 						 "and not deleted;";
 			$resQuery = $this->Identifier->query($query_str);
 			$cur_co_person_id = $resQuery[0][0]['co_person_id'];
-			
+
 			try {
 				/*
 				 * Rules/ Constraints followed by RCAuth plugin
