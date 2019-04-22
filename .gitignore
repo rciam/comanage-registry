@@ -13,5 +13,4 @@ tags
 .idea/
 comanage-registry.iml
 app/webroot/auth/login/.htaccess
-app/webroot/.htaccess
 *.orig
