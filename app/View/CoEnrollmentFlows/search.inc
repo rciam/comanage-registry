@@ -76,7 +76,7 @@ global $cm_lang, $cm_texts;
     </legend>
 
     <div id="top-search-fields">
-      <div class="search-field-subgroup">
+      <div>
       <?php
       $args = array();
       $args['label'] = _txt('fd.name');
