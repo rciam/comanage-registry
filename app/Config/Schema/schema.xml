@@ -2283,4 +2283,71 @@
       <col>authenticated_identifier</col>
     </index>
   </table>
+
+  <table name="certs">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="subject" type="C" size="330" />
+    <field name="issuer" type="C" size="330" />
+    <field name="type" type="C" size="32" />
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="org_identity_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="cert_id" type="I">
+      <constraint>REFERENCES cm_certs(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="certs_i1">
+      <col>co_person_id</col>
+    </index>
+    <index name="certs_i2">
+      <col>org_identity_id</col>
+    </index>
+    <index name="certs_i3">
+      <col>cert_id</col>
+    </index>
+    <index name="certs_i4">
+      <col>subject</col>
+    </index>
+  </table>
+
+  <table name="vos">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="vo_targets_id" type="I">
+      <constraint>REFERENCES cm_co_voms_provisioner_targets(id)</constraint>
+    </field>
+    <field name="org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="vo_id" type="I">
+      <constraint>REFERENCES cm_vos(id)</constraint>
+    </field>
+    <field name="status" type="C" size="2" />
+    <field name="type" type="C" size="10" />
+    <field name="actor_identifier" type="C" size="256" />
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <index name="vos_i1">
+      <col>co_person_id</col>
+    </index>
+  </table>
 </schema>

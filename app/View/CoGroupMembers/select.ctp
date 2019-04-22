@@ -65,8 +65,66 @@
 
 ?>
 
+<div id="peopleToggle" class="listControl">
+  <?php print _txt('fd.toggle.all'); ?>:
+  <ul>
+    <li><?php print $this->html->link(_txt('fd.open'),'javascript:togglePeople(\'open\');'); ?></li>
+    <li><?php print $this->html->link(_txt('fd.closed'),'javascript:togglePeople(\'closed\');'); ?></li>
+  </ul>
+</div>
+
+<?php // Load the top search bar
+if(isset($permissions['search']) && $permissions['search'] ) {
+  if(!empty($this->plugin)) {
+    $fileLocation = APP . "Plugin/" . $this->plugin . "/View/CoGroupMembers/search.inc";
+    if(file_exists($fileLocation))
+      include($fileLocation);
+  } else {
+    $fileLocation = APP . "View/CoGroupMembers/search.inc";
+    if(file_exists($fileLocation))
+      include($fileLocation);
+  }
+}
+?>
+
+<div id="peopleAlphabet" class="listControl" aria-label="<?php print _txt('me.alpha.label'); ?>">
+  <ul>
+    <?php
+      $args = array();
+      $args['controller'] = 'co_group_members';
+      $args['action'] = 'select';
+      $args['co'] = $cur_co['Co']['id'];
+      
+      // Merge (propagate) all prior search criteria, except familyNameStart and page
+      $args = array_merge($args, $this->request->params['named']);
+      unset($args['Search.familyNameStart']);
+      unset($args['page']);
+      
+      $alphaSearch = '';
+      if(!empty($this->request->params['named']['Search.familyNameStart'])) {
+        $alphaSearch = $this->request->params['named']['Search.familyNameStart'];
+      }
+      foreach(_txt('me.alpha') as $i) {
+        $args['Search.familyNameStart'] = $i;
+        $alphaStyle = ' class="spin"';
+        if ($alphaSearch == $i) {
+          $alphaStyle = ' class="selected spin"';
+        }
+        print '<li' . $alphaStyle . '>' . $this->html->link($i,$args) . '</li>';
+      }
+    ?>
+    <li class="spin">
+      <a href="javascript:clearSearch(document.getElementById('CoPersonSearchForm'));"
+         title="<?php print _txt('op.clear.search'); ?>">
+        <em class="material-icons">block</em>
+      </a>
+    </li>
+  </ul>
+</div>
+
 <div class="table-container">
   <table id="co_people">
+  <?php if(!empty($co_people)) { ?>
     <thead>
       <tr>
         <th><?php print _txt('fd.name'); ?></th>
@@ -84,6 +142,7 @@
         print $this->Form->hidden('CoGroupMember.co_group_id', array('default' => $co_group['CoGroup']['id'])) . "\n";
       ?>
     </thead>
+  <?php } ?>
 
     <tbody>
       <?php $i = 0; ?>
@@ -94,8 +153,7 @@
             print $this->Html->link(generateCn($p['PrimaryName']),
                                     array('controller' => 'co_people',
                                           'action' => 'canvas',
-                                          $p['CoPerson']['id'],
-                                          'co' => $cur_co['Co']['id']));
+                                          $p['CoPerson']['id']));
           ?>
         </td>
         <td class = "<?php print _txt('en.status', null, $p['CoPerson']['status']); ?>">
@@ -134,11 +192,27 @@
       </tr>
       <?php $i++; ?>
       <?php endforeach; ?>
+      <?php
+        if(empty($co_people)) {
+          // No search results, or there are no people in this CO
+          print('<div id="noResults">' . _txt('rs.search.none') . '</div>');
+          print('<div id="restoreLink">');
+          $args = array();
+          $args['plugin'] = null;
+          $args['controller'] = 'co_group_members';
+          $args['action'] = 'select';
+          $args['co'] = $cur_co['Co']['id'];
+          $args['cogroup'] = $co_group['CoGroup']['id'];
+          print $this->Html->link(_txt('op.search.restore'), $args);
+          print('</div>');
+        }
+      ?>
     </tbody>
 
     <tfoot>
       <tr>
-        <th colspan="3">
+        <th colspan="5">
+          <?php print $this->element("pagination"); ?>
         </th>
       </tr>
       <tr>

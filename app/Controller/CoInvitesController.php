@@ -569,6 +569,8 @@ class CoInvitesController extends AppController {
         $this->set('co_petition_attribute_values', $vAttrs);
         
         $this->set('co_enrollment_attributes', $enrollmentAttributes);
+        
+        $this->set('co_enrollment_flow_id', $invite['CoPetition']['co_enrollment_flow_id']);
       }
     }
   }

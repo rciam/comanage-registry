@@ -66,7 +66,9 @@ class CoPeopleController extends StandardController {
     'Name' => array('SourceName' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'PrimaryName',
     'SshKey',
+    'Cert',
     'Url' => array('SourceUrl' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
+    'Vo' => array('CoVomsProvisionerTarget'),
   );
   
   // We need various related models for index and search
@@ -77,6 +79,8 @@ class CoPeopleController extends StandardController {
     'Identifier',
     'Name',
     'PrimaryName',
+    'Cert',
+    'Vo' => array('CoVomsProvisionerTarget'),
     'Url'
   );
   

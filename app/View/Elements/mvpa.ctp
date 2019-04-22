@@ -160,6 +160,17 @@
             if($mvpa_model == 'EmailAddress' && isset($m['verified'])) {
               $typestr .= ", " . ($m['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified'));
             }
+
+            // If this is a VO linked with a VO Provisioner
+            // $this->log("ioigoume => data => ".print_r($m,true),LOG_DEBUG);
+            if($mvpa_model == 'Vo') {
+              //$this->log("ioigoume => model({$mvpa_model}) => ".print_r($m,true),LOG_DEBUG);
+              if(isset($m["{$mvpa_field}"])){
+                $displaystr = $m["{$mvpa_field}"]["vo_name"];
+              } else {
+                $displaystr = "unknown";
+              }
+            }
             
             // If $mvpa_format is a defined function, use that to render the display string
             if(!empty($mvpa_format) && function_exists($mvpa_format)) {

@@ -207,6 +207,30 @@ class CmpEnrollmentAttribute extends AppModel {
         'required'  => RequiredEnum::Optional,
         'ldap_name' => 'c',
         'saml_name' => ''
+      ),
+      'identifiers:identifier' => array(
+        'type'      => IdentifierEnum::ePUID,
+        'label'     => _txt('fd.identifier.identifier') . " (" . _txt('en.identifier.type', null, IdentifierEnum::ePUID) . ")",
+        'required'  => RequiredEnum::Required,
+        'env_name'  => 'CMP_EF_EPUID',
+        'ldap_name' => 'eduPersonUniqueId',
+        'saml_name' => 'eduPersonUniqueId'
+      ),
+      'certs:subject' => array(
+        'type'      => CertEnum::X509,
+        'label'     => _txt('fd.cert.subject') . " (" . _txt('en.cert.type', null, CertEnum::X509) . ")",
+        'required'  => RequiredEnum::Optional,
+        'env_name'  => 'CMP_EF_SUBJECTDN',
+        'ldap_name' => '',
+        'saml_name' => 'distinguishedName'
+      ),
+      'vos:vo_targets_id' => array(
+        'type'      => VOsEnum::VO,
+        'label'     => _txt('fd.vos.vo_name') . " (" . _txt('en.vos.type', null, VOsEnum::VO) . ")",
+        'required'  => RequiredEnum::Optional,
+        'env_name'  => 'CMP_EF_VONAME',
+        'ldap_name' => '',
+        'saml_name' => ''
       )
     );
     

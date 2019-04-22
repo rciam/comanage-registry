@@ -141,6 +141,16 @@ UNION SELECT i.identifier as username, '*' as password, null as api_user_id
 FROM cm_identifiers i
 WHERE i.login=true;
 ");
+      $this->out("- " . _txt('se.rcauth_unlink.function'));
+      $rcauth_unlink_query = "CREATE FUNCTION unlink_rcauth(_co_person_id integer, _org_identity_id integer) RETURNS void ".
+      "LANGUAGE plpgsql ".
+      "AS \$\$BEGIN ".
+      "update cm_names set deleted='true' where id in (select id from cm_names where type='alternate' and co_person_id=_co_person_id or org_identity_id=_org_identity_id) and deleted <> 'true'; ".
+      "update cm_org_identities set deleted='true' where org_identity_id=_org_identity_id and deleted <> 'true'; ".
+      "update cm_certs set deleted='true' where id in (select id from cm_certs where co_person_id=_co_person_id or org_identity_id=_org_identity_id) and deleted <> 'true'; ".
+      "update cm_org_identities set deleted='true' where id=_org_identity_id and deleted <> 'true'; ".
+      "END;\$\$;";
+      $this->Identifier->query($rcauth_unlink_query);
       
       // We need the following:
       // - The COmanage CO

@@ -169,6 +169,19 @@ class AuthenticatorStatusEnum
   const NotSet                 = 'NS';
 }
 
+class CertEnum
+{
+  const X509    = 'X.509';
+}
+
+class VOsEnum
+{
+	const VO = 'VO';
+	const vo_types = array(
+		'VO' => 'VO'
+	);
+}
+
 class ComparisonEnum
 {
   const Contains               = 'CTS'; // Substr
@@ -749,6 +762,7 @@ $contact_ti = array(
 
 
 $identifier_t = array(
+  'epuid' => 'ePUID',
   'eppn' => 'ePPN',
   'eptid' => 'ePTID',
   'mail' => 'Mail',
@@ -757,6 +771,7 @@ $identifier_t = array(
 );
 
 $identifier_ti = array(
+  'ePUID' => 'epuid',
   'ePPN' => 'eppn',
   'ePTID' => 'eptid',
   'Mail' => 'mail',

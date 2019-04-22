@@ -1497,8 +1497,9 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           'eduPersonUniqueId' => array(
             'required'  => false,
             'multiple'  => false,
+            'alloworgvalue' => true,
             'extendedtype' => 'identifier_types',
-            'defaulttype' => IdentifierEnum::Enterprise
+            'defaulttype' => IdentifierEnum::ePUID
           )
         )
       ),

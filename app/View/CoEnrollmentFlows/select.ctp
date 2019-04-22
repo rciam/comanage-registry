@@ -38,11 +38,24 @@
 
 ?>
 
-<div id="co_enrollment_flows" class="co-grid co-grid-with-header mdl-shadow--2dp">
-  <div class="mdl-grid co-grid-header">
-    <div class="mdl-cell mdl-cell--9-col"><?php print _txt('fd.name'); ?></div>
-    <div class="mdl-cell mdl-cell--2-col actions"><?php print _txt('fd.actions'); ?></div>
-  </div>
+<div class="listControl"></div>
+<?php // Load the top search bar
+  if(!empty($this->plugin)) {
+    $fileLocation = APP . "Plugin/" . $this->plugin . "/View/CoEnrollmentFlows/search.inc";
+    if(file_exists($fileLocation))
+      include($fileLocation);
+  } else {
+    $fileLocation = APP . "View/CoEnrollmentFlows/search.inc";
+    if(file_exists($fileLocation))
+      include($fileLocation);
+  }
+?>
+
+  <div id="co_enrollment_flows" class="co-grid co-grid-with-header">
+    <div class="mdl-grid co-grid-header">
+      <div class="mdl-cell mdl-cell--9-col"><?php print _txt('fd.name'); ?></div>
+      <div class="mdl-cell mdl-cell--2-col actions"><?php print _txt('fd.actions'); ?></div>
+    </div>
 
   <?php $i = 0; ?>
   <?php foreach ($co_enrollment_flows as $c): ?>
@@ -53,7 +66,7 @@
       <div class="mdl-cell mdl-cell--2-col actions">
         <?php
           if($permissions['select']) {
-
+            
             // begin button
             print $this->Html->link(_txt('op.begin') . ' <em class="material-icons" aria-hidden="true">forward</em>',
               array(
@@ -107,3 +120,10 @@
   <?php endforeach; ?>
   <div class="clearfix"></div>
 </div>
+
+<?php
+  print $this->element("pagination");
+  if($this->action == 'select') {
+    print $this->Form->end();
+  }
+?>

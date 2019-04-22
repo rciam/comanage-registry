@@ -131,7 +131,7 @@
 
                     if($e && !$es) {
                       print $this->Form->label('cou_id', $label);
-                      print ' <span class="required">*</span>';
+                      // print ' <span class="required">*</span>';
                     } else {
                       print $label;
                     }
@@ -142,7 +142,8 @@
                     $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['cou_id'])
                       ? $co_person_roles[0]['CoPersonRole']['cou_id']
                       : 0);
-                    $attrs['empty'] = false;
+                    // $attrs['empty'] = false;
+                    $attrs['empty'] = ($attrs['value'] == '') ? '-- Empty --' : false;
 
                     if($e && !$es) {
                       print $this->Form->select('cou_id',

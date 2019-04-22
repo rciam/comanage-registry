@@ -276,4 +276,33 @@ class CoOrgIdentityLinksController extends StandardController {
                             'co' => filter_var($this->cur_co['Co']['id'],FILTER_SANITIZE_SPECIAL_CHARS)));
     }
   }
+
+  /**
+	 * @param $id
+	 * @return bool|void
+	 */
+	public function delete($id) {
+		// Here call my procedure that will softly remove all the dependencies
+		// if the org identity link id belongs to RCAuth orgidentity
+		$ret = $this->CoOrgIdentityLink->find('first', array(
+			'conditions' => array('CoOrgIdentityLink.id' => $id)
+		));
+
+		$this->log("res => ".print_r($ret,true),LOG_DEBUG);
+		if(isset($ret['CoOrgIdentityLink']['co_person_id']) && isset($ret['CoOrgIdentityLink']['org_identity_id'])) {
+			#ioigoume
+			$this->log("Soft deleting RCAuth dependencies.");
+			$co_person_id = $ret['CoOrgIdentityLink']['co_person_id'];
+			$org_identity_id = $ret['CoOrgIdentityLink']['org_identity_id'];
+			// Call and execute the stored procedure
+			try {
+				$query = "select unlink_rcauth({$co_person_id},{$org_identity_id})";
+				$this->CoOrgIdentityLink->query($query);
+			} catch (Exception $e) {
+				$this->log("caught exception => " . $e, LOG_DEBUG);
+				return false;
+			}
+		}
+		parent::delete($id);
+	}
 }

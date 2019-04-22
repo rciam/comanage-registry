@@ -262,7 +262,9 @@ class OrgIdentitySource extends AppModel {
                                     $coId=null,
                                     $targetCoPersonId=null,
                                     $provision=true,
-                                    $coPetitionId=null) {
+                                    $coPetitionId=null,
+  	                                $retrieve=true,
+									                  $brec=null) {
     // Unlike CoPipeline::syncOrgIdentityToCoPerson, we have a separate call
     // for create vs update. This is because $Backend->retrieve() will return
     // data in a format that is more or less ready for a direct save.
@@ -283,8 +285,10 @@ class OrgIdentitySource extends AppModel {
       throw new OverflowException(_txt('er.ois.linked'));
     }
     
-    // Pull record from source
-    $brec = $this->retrieve($id, $sourceKey);
+    if ($retrieve) {
+	    // Pull record from source
+	    $brec = $this->retrieve($id, $sourceKey);
+    }
     
     // This will throw an exception if invalid
     $this->validateOISRecord($brec);

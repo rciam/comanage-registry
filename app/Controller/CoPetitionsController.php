@@ -2170,7 +2170,18 @@ class CoPetitionsController extends StandardController {
    * @return Integer CO Petition ID, or null
    */
 
-  protected function parseCoPetitionId() {
+  protected function parseCoPetitionId() {  // ADD configuration variable to differentiate from other plugins
+	  if(!empty($this->request->query['state'])) {
+	  	$state = json_decode(base64_decode($this->request->query['state']), true);
+
+		  if(!empty($state["pass"])) {
+			  $this->request->params['pass'][0] = $state["pass"];
+		  }
+		  if(!empty($state["named"])) {
+			  $this->request->params['named']['oisid'] = $state["named"];
+		  }
+    }
+    
     if(!empty($this->request->params['pass'][0])) {
       return $this->request->params['pass'][0];
     } elseif(!empty($this->request->data['CoPetition']['id'])) {

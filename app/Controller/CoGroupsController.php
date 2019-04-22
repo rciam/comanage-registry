@@ -65,6 +65,8 @@ class CoGroupsController extends StandardController {
    */
 
   function beforeFilter() {
+    $fn = "CoGroupsController";
+    $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     $this->redirectTab = 'group';
 
     parent::beforeFilter();
@@ -81,6 +83,8 @@ class CoGroupsController extends StandardController {
    */
   
   function checkDeleteDependencies($curdata) {
+    $fn = "CoGroupsController@checkDeleteDependencies";
+    $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     // It would be preferable to move this to beforeDelete, but ChangelogBehavior
     // prevents that since beforeDelete callbacks don't fire.
     
@@ -109,6 +113,8 @@ class CoGroupsController extends StandardController {
    */
   
   function checkWriteDependencies($reqdata, $curdata = null) {
+    $fn = "CoGroupsController@checkWriteDependencies";
+    $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     if(!isset($curdata) || ($curdata['CoGroup']['name'] != $reqdata['CoGroup']['name'])) {
       // Disallow names beginning with 'admin' if the current user is not an admin.
       
@@ -184,6 +190,8 @@ class CoGroupsController extends StandardController {
    */
   
   function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
+    $fn = "CoGroupsController@checkWriteFollowups";
+    $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     // Add the co person as owner/member of the new group, but only via HTTP
     
     if(!$this->request->is('restful') && $this->action == 'add') {
@@ -222,6 +230,8 @@ class CoGroupsController extends StandardController {
    */
   
   function edit($id) {
+    $fn = "CoGroupsController@edit";
+    $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     // Mostly, we want the standard behavior.  However, we need to retrieve the
     // set of members when rendering the edit form.
     
@@ -250,6 +260,8 @@ class CoGroupsController extends StandardController {
    */
   
   public function generateHistory($action, $newdata, $olddata) {
+    $fn = "CoGroupsController@generateHistory";
+    $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     switch($action) {
       case 'add':
         $this->CoGroup->HistoryRecord->record(null,
@@ -294,6 +306,8 @@ class CoGroupsController extends StandardController {
    */
   
   function index() {
+    $fn = "CoGroupsController@index";
+    $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     if($this->request->is('restful') && !empty($this->params['url']['copersonid'])) {
       // We need to retrieve via a join, which StandardController::index() doesn't
       // currently support.
@@ -327,6 +341,8 @@ class CoGroupsController extends StandardController {
    */
   
   function isAuthorized() {
+    $fn = "CoGroupsController@isAuthorized";
+    $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     $roles = $this->Role->calculateCMRoles();
     
     $own = array();
@@ -441,6 +457,8 @@ class CoGroupsController extends StandardController {
     // View an existing Group?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin'] || $managed);
     
+    $p['search'] = ($roles['cmadmin'] || $roles['coadmin'] || $managed);
+
     if($this->action == 'view'
        && isset($this->request->params['pass'][0])) {
       // Adjust permissions for members and open groups
@@ -473,6 +491,8 @@ class CoGroupsController extends StandardController {
    */
   
   public function parseCOID($data = null) {
+    $fn = "CoGroupsController@parseCOID";
+    $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     if($this->action == 'reconcile') {
       // CakePHP safely sets to null if not found in query string.
       $coId = $this->request->query('coid');
@@ -492,6 +512,8 @@ class CoGroupsController extends StandardController {
    */
   
   function provision($id) {
+    $fn = "CoGroupsController@provision";
+    $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     if(!$this->request->is('restful')) {
       // Pull some data for the view to be able to render
       $this->set('co_provisioning_status', $this->CoGroup->provisioningStatus($id));
@@ -517,6 +539,8 @@ class CoGroupsController extends StandardController {
    */
   
   function reconcile($id = null) {
+    $fn = "CoGroupsController@reconcile";
+    $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     if(!$this->request->is('restful')) {
       // Not currently supported
       $this->performRedirect();
@@ -599,6 +623,8 @@ class CoGroupsController extends StandardController {
    */
   
   function select() {
+    $fn = "select";
+    $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     // Lookup the person in question to find their name
     
     $args = array();
@@ -628,10 +654,29 @@ class CoGroupsController extends StandardController {
     // $this->set('co_groups', $model->find('all', $params));
 
     // Use server side pagination
-    $this->paginate['conditions'] = array(
-      'CoGroup.co_id' => $this->cur_co['Co']['id']
-    );
-    
+    $this->paginate['conditions'] = array();
+    $this->paginate['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
+    //$this->log(get_class($this)."::{$fn}::named => ".print_r($this->request->params['named'], true), LOG_DEBUG);
+    if(isset($this->request->params['named']['Search.name'])){
+      $this->paginate['conditions']['CoGroup.name iLIKE'] = "%{$this->request->params['named']['Search.name']}%";
+    }
+    if(isset($this->request->params['named']['Search.desc'])){
+      $this->paginate['conditions']['CoGroup.description iLIKE'] = "%{$this->request->params['named']['Search.desc']}%";
+    }
+
+    if(isset($this->request->params['named']['Search.category']) && count($this->request->params['named']['Search.category'])>0){
+      $categories = array_map(function($val){return "%{$val}%";}, $this->request->params['named']['Search.category']);
+      $this->paginate['conditions']['OR'] = array();
+      foreach($categories as $key=>$category){
+        //$this->log(get_class($this)."::{$fn}::category => ".$category, LOG_DEBUG);
+        $tmp = array();
+        $tmp['CoGroup.name LIKE'] = $category;
+        $this->paginate['conditions']['OR'][$key] = $tmp;
+        unset($tmp);
+      }
+    }
+
+    //$this->log(get_class($this)."::{$fn}::paginate args => ".print_r($this->paginate, true), LOG_DEBUG);
     $this->paginate['contain'] = array(
       'CoGroupMember' => array(
         'conditions' => array('CoGroupMember.co_person_id' => $coPerson['CoPerson']['id']),
@@ -640,7 +685,9 @@ class CoGroupsController extends StandardController {
     );
 
     $this->Paginator->settings = $this->paginate;
-    $this->set('co_groups', $this->Paginator->paginate('CoGroup'));
+    $paginated_data = $this->Paginator->paginate('CoGroup');
+    //$this->log(get_class($this)."::{$fn}::paginated data => ".print_r($paginated_data, true), LOG_DEBUG);
+    $this->set('co_groups', $paginated_data);
   }      
   
   /**
@@ -655,11 +702,111 @@ class CoGroupsController extends StandardController {
    */
   
   function view($id) {
+    $fn = "CoGroupsController@view";
+    $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     if(!$this->request->is('restful')) {
       $this->set('vv_co_group_members', $this->CoGroup->findSortedMembers($id));
     }
     
     // Invoke the StandardController view
     parent::view($id);
+  }
+
+  /**
+   * Insert search parameters into URL for index.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry RCIAM v3.1.1
+   */
+  
+  public function search() {
+    $fn = "search";
+    $this->log(get_class($this)."::{$fn}::@", LOG_DEBUG);
+    $url['action'] = 'select';
+    $url['controller'] = 'CoGroups';
+    
+    // build a URL will all the search elements in it
+    // the resulting URL will be
+    // example.com/registry/co_people/index/Search.givenName:albert/Search.familyName:einstein
+    //$this->log(get_class($this)."::{$fn}::data => " . var_export($this->data, true), LOG_DEBUG);
+    foreach($this->data['Search'] as $field=>$value){
+      if(!empty($value)) {
+        $url['Search.'.$field] = $value;
+      }
+    }
+    
+    $url['co'] = $this->cur_co['Co']['id'];
+    //$this->log(get_class($this)."::{$fn}::url => " . print_r($url,true), LOG_DEBUG);
+    // redirect the user to the url
+    $this->redirect($url, null, true);
+  }
+
+  /**
+   * Before Render
+   */
+  public function beforeRender()
+  {
+    $fn = "beforeRender";
+    $this->log(get_class($this)."::{$fn}::@", LOG_DEBUG);
+
+    $query_str =  "SELECT count(*)"
+      . " FROM cm_cos"
+      . " WHERE id = {$this->cur_co['Co']['id']}"
+      . " AND name iLIKE '%astron%'"
+      . " AND status='A'";
+
+    //$this->log(get_class($this)."::{$fn}::query_str => ".$query_str, LOG_DEBUG);
+    $resCO = $this->CoGroup->query($query_str);
+
+    //$this->log(get_class($this)."::{$fn}::resCo".print_r($resCO, true), LOG_DEBUG);
+    //$this->log(get_class($this)."::{$fn}::count => ".$resCO[0][0]['count'], LOG_DEBUG);
+    $this->set('astron_co', $resCO[0][0]['count']);
+    parent::beforeRender();
+  }
+
+  /**
+   * Determine the conditions for pagination of the index view, when rendered via the UI.
+   *
+   * @since  COmanage Registry v0.8
+   * @return Array An array suitable for use in $this->paginate
+   */
+  
+  public function paginationConditions() {
+    $fn = "CoGroupsController@paginationConditions";
+    $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
+    $pagcond = array();
+    
+    // Set page title
+    $this->set('title_for_layout', _txt('fd.co_people.search'));
+    // Use server side pagination
+    
+    if($this->requires_co) {
+      $pagcond['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
+    }
+    
+    // Filtering by name operates using any name, so preferred or other names
+    // can also be searched. However, filter by letter ("familyNameStart") only
+    // works on PrimaryName so that the results match the index list.
+    
+    // Filter by name
+    if(!empty($this->params['named']['Search.name'])) {
+      $searchterm = strtolower($this->params['named']['Search.name']);
+      // We set up LOWER() indices on these columns (CO-1006)
+      $pagcond['conditions']['LOWER(Name.given) LIKE'] = "%$searchterm%";
+    }
+    
+    // Filter by description
+    if(!empty($this->params['named']['Search.desc'])) {
+      $searchterm = strtolower($this->params['named']['Search.desc']);
+      $pagcond['conditions']['LOWER(Name.family) LIKE'] = "%$searchterm%";
+    }
+    
+    // Filter by category (ONLY for LOFAR)
+    if(!empty($this->params['named']['Search.category'])) {
+      $searchterm = strtolower($this->params['named']['Search.category']);
+      $pagcond['conditions']['LOWER(PrimaryName.family) LIKE'] = "$searchterm%";
+    }
+    
+    return $pagcond;
   }
 }
