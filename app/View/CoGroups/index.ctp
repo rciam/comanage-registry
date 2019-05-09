@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -111,13 +111,13 @@
 
 <script type="text/javascript">
   // This is based in large part on CoProvisioningTargets/index.ctp
-  
+
   // IDs of the members groups to be reconciled individually
   var ids = [ ];
-  
+
   // Have we been interrupted by the user?
   var canceled = 0;
-  
+
   function js_confirm_reconcile(targetUrl) {
     // Prep confirmation dialog
     $("#reconcile-dialog").dialog("option",
@@ -128,29 +128,29 @@
                                          js_request_reconcile(targetUrl);
                                        } }
                                      ] );
-    
+
     // Open the dialog to confirm autogenerate
     $("#reconcile-dialog").dialog("open");
   }
-  
+
   function js_execute_reconcile(index, baseUrl) {
     if(!canceled && index < ids.length) {
       var id = ids[index];
-      
+
       // Update the progress bar
       $("#reconcile-progressbar").progressbar("option", "value", index);
-      
+
       // Initiate the reconcile request
       var jqxhr = $.ajax({
         url: baseUrl + "/" + id + ".json",
         type: 'PUT'
         });
-      
+
       // On success, fire the next request
       jqxhr.done(function(data, textStatus, jqXHR) {
                   js_execute_reconcile(index+1, baseUrl);
                 });
-      
+
       jqxhr.fail(function(jqXHR, textStatus, errorThrown) {
                   if(jqXHR.status != "200") {
                     $("#progressbar-dialog").dialog("close");
@@ -185,17 +185,17 @@
         $("#result-dialog").html("<p><?php print _txt('rs.gr.reconcile.ok'); ?></p>");
         $("#result-dialog").dialog("open");
       }
-      
+
       // Reset in case user tries again
       canceled = 0;
       $("#reconcile-progressbar").progressbar("option", "value", 0);
     }
   }
-  
+
   function js_request_reconcile(targetUrl) {
     // Open the progress bar dialog
     $("#progressbar-dialog").dialog("open");
-    
+
     // Reconcile existence of members groups
     var jqxhr = $.ajax({
       url: targetUrl,
@@ -210,7 +210,7 @@
             }
           // Reset max on progress bar now that ids is updated
           $("#reconcile-progressbar").progressbar("option", "max", ids.length);
-          
+
           // Fire off the first group reconcile
           var baseUrl = targetUrl.split('?')[0];
           baseUrl = baseUrl.slice(0,-5);
@@ -228,14 +228,14 @@
                   $("#result-dialog").dialog("open");
                 });
   }
-  
+
   $(function() {
     // Define progressbar, note that ids.length is 0 initially
     $("#reconcile-progressbar").progressbar({
       value: 0,
       max: ids.length
     });
-    
+
     // Progress bar dialog
     $("#progressbar-dialog").dialog({
       create: function() {
@@ -257,7 +257,7 @@
         effect: "fade"
       }
     });
-    
+
     // Autogenerate dialog
     $("#reconcile-dialog").dialog({
       autoOpen: false,
@@ -278,7 +278,7 @@
         effect: "fade"
       }
     });
-    
+
     // Result dialog
     $("#result-dialog").dialog({
       autoOpen: false,
@@ -301,8 +301,8 @@
 <!-- Added this dummy div in order to force a consistent layout. Do not remove -->
 <div class="table-container"></div>
 
-<?php // Load the top search bar with its own form
-  //if(isset($permissions['search']) && $permissions['search'] ) {
+<?php //// Load the top search bar with its own form
+if(isset($permissions['search']) && $permissions['search'] && ($this->action == 'select' || $this->action='index')) {
   if(!empty($this->plugin)) {
     $fileLocation = APP . "Plugin/" . $this->plugin . "/View/CoGroups/search.inc";
     if(file_exists($fileLocation))
@@ -312,7 +312,7 @@
     if(file_exists($fileLocation))
       include($fileLocation);
   }
-  //}
+}
 ?>
 
 <?php // Load the form that will handle the save events

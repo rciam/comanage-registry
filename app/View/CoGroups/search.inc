@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.3
@@ -66,10 +66,19 @@ global $cm_lang, $cm_texts;
 
 <div id="coGroupsSearch" class="top-search">
   <?php
-    print $this->Form->create('CoGroup',
-                              array('url' => array('action'=>'search'),
-                                    'id'  => 'form_search'));
-    print $this->Form->hidden('CoGroup.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+  print $this->Form->create('CoGroup',
+                            array('url' => array('action'=>'search'),
+                                  'id'  => 'form_search'));
+  print $this->Form->hidden('CoGroup.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+
+  $args = array();
+  $args['label'] = _txt('fd.action');
+  $args['placeholder'] = _txt('fd.action');
+  //$args['class'] = 'mdl-textfield__input';
+  $args['aria-label'] = _txt('fd.action');
+  // XXX shouldn't these fields be sanitized?
+  $args['value'] = $this->action;
+  print $this->Form->hidden('Action.name', $args);
   ?>
   <fieldset>
     <legend>
@@ -82,54 +91,54 @@ global $cm_lang, $cm_texts;
 
     <div id="top-search-fields">
       <div class="search-field-subgroup">
-      <?php
-      $args = array();
-      $args['label'] = _txt('fd.name');
-      $args['placeholder'] = _txt('fd.name');
-      //$args['class'] = 'mdl-textfield__input';
-      $args['aria-label'] = _txt('fd.name');
-      // XXX shouldn't these fields be sanitized?
-      $args['value'] = !empty($this->request->params['named']['Search.name']) ? $this->request->params['named']['Search.name'] : '';
-      print $this->Form->input('Search.name',$args);
-      ?>
+        <?php
+        $args = array();
+        $args['label'] = _txt('fd.name');
+        $args['placeholder'] = _txt('fd.name');
+        //$args['class'] = 'mdl-textfield__input';
+        $args['aria-label'] = _txt('fd.name');
+        // XXX shouldn't these fields be sanitized?
+        $args['value'] = !empty($this->request->params['named']['Search.name']) ? $this->request->params['named']['Search.name'] : '';
+        print $this->Form->input('Search.name',$args);
+        ?>
       </div>
 
       <div class="search-field-subgroup">
-      <?php
-      $args = array();
-      $args['label'] = _txt('fd.desc');
-      $args['placeholder'] = _txt('fd.desc');
-      //$args['class'] = 'mdl-textfield__input';
-      $args['aria-label'] = _txt('fd.desc');
-      // XXX shouldn't these fields be sanitized?
-      $args['value'] = !empty($this->request->params['named']['Search.desc']) ? $this->request->params['named']['Search.desc'] : '';
-      print $this->Form->input('Search.desc',$args);
-      ?>
+        <?php
+        $args = array();
+        $args['label'] = _txt('fd.desc');
+        $args['placeholder'] = _txt('fd.desc');
+        //$args['class'] = 'mdl-textfield__input';
+        $args['aria-label'] = _txt('fd.desc');
+        // XXX shouldn't these fields be sanitized?
+        $args['value'] = !empty($this->request->params['named']['Search.desc']) ? $this->request->params['named']['Search.desc'] : '';
+        print $this->Form->input('Search.desc',$args);
+        ?>
       </div>
 
       <?php if ($astron_co >= 1) { ?>
-            <div id="groupTypes">
-              <legend>Proposal Category</legend>
-              <?php
-                // Build array of options based on model validation
-                $searchOptions = $cm_texts[ $cm_lang ]['en.lofar.group.category'];
+        <div id="groupTypes">
+          <legend>Proposal Category</legend>
+          <?php
+          // Build array of options based on model validation
+          $searchOptions = $cm_texts[ $cm_lang ]['en.lofar.group.category'];
 
-                // Build array to check off actively used filters on the page
-                $selected = array();
+          // Build array to check off actively used filters on the page
+          $selected = array();
 
-                if(isset($this->passedArgs['Search.category'])) {
-                  $selected = $this->passedArgs['Search.category'];
-                }
+          if(isset($this->passedArgs['Search.category'])) {
+            $selected = $this->passedArgs['Search.category'];
+          }
 
-                // Collect parameters and print checkboxes
-                $formParams = array('options'  => $searchOptions,
-                  'multiple' => 'checkbox',
-                  'label'    => false,
-                  'selected' => $selected);
+          // Collect parameters and print checkboxes
+          $formParams = array('options'  => $searchOptions,
+            'multiple' => 'checkbox',
+            'label'    => false,
+            'selected' => $selected);
 
-                print $this->Form->input('Search.category', $formParams);
-              ?>
-            </div>
+          print $this->Form->input('Search.category', $formParams);
+          ?>
+        </div>
       <?php } ?>
 
       <div class="topSearchSubmit">
