@@ -1332,6 +1332,7 @@
     <field name="redirect_on_finalize" type="C" size="1024" />
     <field name="return_url_whitelist" type="X" size="4000" />
     <field name="ignore_authoritative" type="L" />
+    <field name="hide" type="L" />
     <field name="duplicate_mode" type="C" size="2" />
     <field name="co_theme_id" type="I">
       <constraint>REFERENCES cm_co_themes(id)</constraint>

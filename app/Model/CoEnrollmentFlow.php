@@ -261,6 +261,11 @@ class CoEnrollmentFlow extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'hide' => array(
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'duplicate_mode' => array(
       'rule' => array('inList',
                       array(EnrollmentDupeModeEnum::Duplicate,

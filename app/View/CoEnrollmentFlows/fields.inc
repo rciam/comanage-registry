@@ -834,6 +834,23 @@
                    : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['return_url_whitelist'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
+    <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('hide', _txt('fd.ea.hide')) : _txt('fd.ea.hide')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ea.hide.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        print ($e
+               ? $this->Form->input('hide',
+                                    array('default' => false))
+               : ($co_enrollment_flows[0]['CoEnrollmentFlow']['hide']
+                  ? _txt('fd.yes') : _txt('fd.no')));
+      ?>
+    </div>
+  </li>
   <?php if(isset($vv_attributes_from_env) && $vv_attributes_from_env): ?>
   <li>
     <div class="field-name">
