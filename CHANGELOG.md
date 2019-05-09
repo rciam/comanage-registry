@@ -26,7 +26,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
   - by Name
   - by Description
 - Add search functionality to enrollments flow page. Enrollments can be filtered/sorted by Name
-
+- Add `hidden` functionality to Enroll page. The Admin can enable the functionality by changing the value of `Hide Enrollment Flow` field to true, in the config page of an Enrollment flow. By default the value is false/empty and all the configured Enrolment Flows will be displayed in `People->Enroll` page.
+- Add global scope for `Localization` variables of the default CO, COManage. This CO is only accessible by the platform administors.
 ### Changed
 - Update email and subject DN when the user logs into registry
 - Use new [EGI theme](https://github.com/EGI-Foundation/comanage-registry-themeegi)
