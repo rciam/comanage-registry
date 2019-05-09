@@ -411,6 +411,9 @@ class CoGroupMembersController extends StandardController {
       $this->gid = $this->CoGroupMember->field('co_group_id', array('CoGroupMember.id' => $this->request->params['pass'][0]));
     elseif($this->action == 'select' && isset($this->request->params['named']['cogroup']))
       $this->gid = filter_var($this->request->params['named']['cogroup'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
+    elseif($this->action == 'search'
+           && isset($this->request->data['CoGroupMember']['cο_group_id']))
+      $this->gid = filter_var($this->request->data['CoGroupMember']['cο_group_id'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
     
     $managed = false;
     $owner = false;
@@ -462,7 +465,7 @@ class CoGroupMembersController extends StandardController {
     // View members of a group?
     $p['view'] = ($roles['cmadmin'] || $managed || $member);
 
-    $p['search'] = !$readOnly && ($roles['cmadmin'] || $roles['coadmin'] || $managed);
+    $p['search'] = !$readOnly && ($roles['cmadmin'] || $managed);
     
     $this->set('permissions', $p);
     return $p[$this->action];
