@@ -83,7 +83,7 @@ class CoGroupsController extends StandardController {
    */
   
   function checkDeleteDependencies($curdata) {
-    $fn = "CoGroupsController@checkDeleteDependencies";
+    $fn = "checkDeleteDependencies";
     $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     // It would be preferable to move this to beforeDelete, but ChangelogBehavior
     // prevents that since beforeDelete callbacks don't fire.
@@ -113,7 +113,7 @@ class CoGroupsController extends StandardController {
    */
   
   function checkWriteDependencies($reqdata, $curdata = null) {
-    $fn = "CoGroupsController@checkWriteDependencies";
+    $fn = "checkWriteDependencies";
     $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     if(!isset($curdata) || ($curdata['CoGroup']['name'] != $reqdata['CoGroup']['name'])) {
       // Disallow names beginning with 'admin' if the current user is not an admin.
@@ -190,7 +190,7 @@ class CoGroupsController extends StandardController {
    */
   
   function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
-    $fn = "CoGroupsController@checkWriteFollowups";
+    $fn = "checkWriteFollowups";
     $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     // Add the co person as owner/member of the new group, but only via HTTP
     
@@ -230,7 +230,7 @@ class CoGroupsController extends StandardController {
    */
   
   function edit($id) {
-    $fn = "CoGroupsController@edit";
+    $fn = "edit";
     $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     // Mostly, we want the standard behavior.  However, we need to retrieve the
     // set of members when rendering the edit form.
@@ -260,7 +260,7 @@ class CoGroupsController extends StandardController {
    */
   
   public function generateHistory($action, $newdata, $olddata) {
-    $fn = "CoGroupsController@generateHistory";
+    $fn = "generateHistory";
     $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     switch($action) {
       case 'add':
@@ -306,7 +306,7 @@ class CoGroupsController extends StandardController {
    */
   
   function index() {
-    $fn = "CoGroupsController@index";
+    $fn = "index";
     $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     if($this->request->is('restful') && !empty($this->params['url']['copersonid'])) {
       // We need to retrieve via a join, which StandardController::index() doesn't
@@ -341,7 +341,7 @@ class CoGroupsController extends StandardController {
    */
   
   function isAuthorized() {
-    $fn = "CoGroupsController@isAuthorized";
+    $fn = "isAuthorized";
     $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     $roles = $this->Role->calculateCMRoles();
     
@@ -457,7 +457,10 @@ class CoGroupsController extends StandardController {
     // View an existing Group?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin'] || $managed);
     
-    $p['search'] = ($roles['cmadmin'] || $roles['coadmin'] || $managed);
+    // Search from a list of potential Groups to join?
+    $p['search'] = ($roles['cmadmin']
+                    || ($managedp && ($roles['coadmin'] || $roles['couadmin']))
+                    || $self);
 
     if($this->action == 'view'
        && isset($this->request->params['pass'][0])) {
@@ -491,7 +494,7 @@ class CoGroupsController extends StandardController {
    */
   
   public function parseCOID($data = null) {
-    $fn = "CoGroupsController@parseCOID";
+    $fn = "parseCOID";
     $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     if($this->action == 'reconcile') {
       // CakePHP safely sets to null if not found in query string.
@@ -512,7 +515,7 @@ class CoGroupsController extends StandardController {
    */
   
   function provision($id) {
-    $fn = "CoGroupsController@provision";
+    $fn = "provision";
     $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     if(!$this->request->is('restful')) {
       // Pull some data for the view to be able to render
@@ -539,7 +542,7 @@ class CoGroupsController extends StandardController {
    */
   
   function reconcile($id = null) {
-    $fn = "CoGroupsController@reconcile";
+    $fn = "reconcile";
     $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     if(!$this->request->is('restful')) {
       // Not currently supported
@@ -651,12 +654,10 @@ class CoGroupsController extends StandardController {
     
     // XXX Don't use server side pagination
     // $params['conditions'] = array($req.'.co_id' => $this->params['named']['co']); or ['url']['coid'] for REST
-    // $this->set('co_groups', $model->find('all', $params));
 
     // Use server side pagination
     $this->paginate['conditions'] = array();
     $this->paginate['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
-    //$this->log(get_class($this)."::{$fn}::named => ".print_r($this->request->params['named'], true), LOG_DEBUG);
     if(isset($this->request->params['named']['Search.name'])){
       $this->paginate['conditions']['CoGroup.name iLIKE'] = "%{$this->request->params['named']['Search.name']}%";
     }
@@ -668,7 +669,6 @@ class CoGroupsController extends StandardController {
       $categories = array_map(function($val){return "%{$val}%";}, $this->request->params['named']['Search.category']);
       $this->paginate['conditions']['OR'] = array();
       foreach($categories as $key=>$category){
-        //$this->log(get_class($this)."::{$fn}::category => ".$category, LOG_DEBUG);
         $tmp = array();
         $tmp['CoGroup.name LIKE'] = $category;
         $this->paginate['conditions']['OR'][$key] = $tmp;
@@ -676,7 +676,6 @@ class CoGroupsController extends StandardController {
       }
     }
 
-    //$this->log(get_class($this)."::{$fn}::paginate args => ".print_r($this->paginate, true), LOG_DEBUG);
     $this->paginate['contain'] = array(
       'CoGroupMember' => array(
         'conditions' => array('CoGroupMember.co_person_id' => $coPerson['CoPerson']['id']),
@@ -686,7 +685,6 @@ class CoGroupsController extends StandardController {
 
     $this->Paginator->settings = $this->paginate;
     $paginated_data = $this->Paginator->paginate('CoGroup');
-    //$this->log(get_class($this)."::{$fn}::paginated data => ".print_r($paginated_data, true), LOG_DEBUG);
     $this->set('co_groups', $paginated_data);
   }      
   
@@ -702,7 +700,7 @@ class CoGroupsController extends StandardController {
    */
   
   function view($id) {
-    $fn = "CoGroupsController@view";
+    $fn = "view";
     $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     if(!$this->request->is('restful')) {
       $this->set('vv_co_group_members', $this->CoGroup->findSortedMembers($id));
@@ -728,7 +726,6 @@ class CoGroupsController extends StandardController {
     // build a URL will all the search elements in it
     // the resulting URL will be
     // example.com/registry/co_people/index/Search.givenName:albert/Search.familyName:einstein
-    //$this->log(get_class($this)."::{$fn}::data => " . var_export($this->data, true), LOG_DEBUG);
     foreach($this->data['Search'] as $field=>$value){
       if(!empty($value)) {
         $url['Search.'.$field] = $value;
@@ -736,7 +733,6 @@ class CoGroupsController extends StandardController {
     }
     
     $url['co'] = $this->cur_co['Co']['id'];
-    //$this->log(get_class($this)."::{$fn}::url => " . print_r($url,true), LOG_DEBUG);
     // redirect the user to the url
     $this->redirect($url, null, true);
   }
@@ -755,11 +751,8 @@ class CoGroupsController extends StandardController {
       . " AND name iLIKE '%astron%'"
       . " AND status='A'";
 
-    //$this->log(get_class($this)."::{$fn}::query_str => ".$query_str, LOG_DEBUG);
     $resCO = $this->CoGroup->query($query_str);
 
-    //$this->log(get_class($this)."::{$fn}::resCo".print_r($resCO, true), LOG_DEBUG);
-    //$this->log(get_class($this)."::{$fn}::count => ".$resCO[0][0]['count'], LOG_DEBUG);
     $this->set('astron_co', $resCO[0][0]['count']);
     parent::beforeRender();
   }
@@ -772,7 +765,7 @@ class CoGroupsController extends StandardController {
    */
   
   public function paginationConditions() {
-    $fn = "CoGroupsController@paginationConditions";
+    $fn = "paginationConditions";
     $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     $pagcond = array();
     
@@ -784,27 +777,30 @@ class CoGroupsController extends StandardController {
       $pagcond['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
     }
     
-    // Filtering by name operates using any name, so preferred or other names
-    // can also be searched. However, filter by letter ("familyNameStart") only
-    // works on PrimaryName so that the results match the index list.
-    
     // Filter by name
     if(!empty($this->params['named']['Search.name'])) {
       $searchterm = strtolower($this->params['named']['Search.name']);
       // We set up LOWER() indices on these columns (CO-1006)
-      $pagcond['conditions']['LOWER(Name.given) LIKE'] = "%$searchterm%";
+      $pagcond['conditions']['LOWER(CoGroup.name) LIKE'] = "%$searchterm%";
     }
-    
+
     // Filter by description
     if(!empty($this->params['named']['Search.desc'])) {
       $searchterm = strtolower($this->params['named']['Search.desc']);
-      $pagcond['conditions']['LOWER(Name.family) LIKE'] = "%$searchterm%";
+      $pagcond['conditions']['LOWER(CoGroup.description) LIKE'] = "%$searchterm%";
     }
-    
-    // Filter by category (ONLY for LOFAR)
-    if(!empty($this->params['named']['Search.category'])) {
-      $searchterm = strtolower($this->params['named']['Search.category']);
-      $pagcond['conditions']['LOWER(PrimaryName.family) LIKE'] = "$searchterm%";
+
+    // Filter by category (Only for Lofar)
+    if(isset($this->request->params['named']['Search.category']) && count($this->request->params['named']['Search.category'])>0){
+      $categories = array_map(function($val){return "%{$val}%";}, $this->request->params['named']['Search.category']);
+      $pagcond['conditions']['OR'] = array();
+      foreach($categories as $key=>$category){
+        //$this->log(get_class($this)."::{$fn}::category => ".$category, LOG_DEBUG);
+        $tmp = array();
+        $tmp['CoGroup.name LIKE'] = $category;
+        $pagcond['conditions']['OR'][$key] = $tmp;
+        unset($tmp);
+      }
     }
     
     return $pagcond;
