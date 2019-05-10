@@ -302,17 +302,17 @@
 <div class="table-container"></div>
 
 <?php // Load the top search bar with its own form
-  //if(isset($permissions['search']) && $permissions['search'] ) {
-  if(!empty($this->plugin)) {
-    $fileLocation = APP . "Plugin/" . $this->plugin . "/View/CoGroups/search.inc";
-    if(file_exists($fileLocation))
-      include($fileLocation);
-  } else {
-    $fileLocation = APP . "View/CoGroups/search.inc";
-    if(file_exists($fileLocation))
-      include($fileLocation);
+  if(isset($permissions['search']) && $permissions['search'] && ($this->action == 'select' || $this->action='index')) {
+    if(!empty($this->plugin)) {
+      $fileLocation = APP . "Plugin/" . $this->plugin . "/View/CoGroups/search.inc";
+      if(file_exists($fileLocation))
+        include($fileLocation);
+    } else {
+      $fileLocation = APP . "View/CoGroups/search.inc";
+      if(file_exists($fileLocation))
+        include($fileLocation);
+    }
   }
-  //}
 ?>
 
 <?php // Load the form that will handle the save events
