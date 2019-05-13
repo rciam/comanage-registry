@@ -36,3 +36,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Handle multiple attribute values for email and subject DN on registration
 - Pagination functionality added in order to handle any error(s) occurred while managing large group memberships
 - Update default CO Person Role entries without linking to a COU if not applicable
+- CO Person's email gets verified during the registration process
