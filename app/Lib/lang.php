@@ -1078,6 +1078,8 @@ original notification at
   'fd.domain' =>      'Domain',
   // Enrollment configuration fields
   'fd.ea.attr.copy2cop' => 'Copy this attribute to the CO Person record',
+  'fd.ea.hidden' =>  'Hide Enrollment Flow',
+  'fd.ea.hidden.desc' =>  'Choose whether the Enrollment Flow will be visible to users',
   'fd.ea.ignauth' =>  'Ignore Authoritative Values',
   'fd.ea.ignauth.flow.desc' => 'Ignore authoritative values for attributes attached to this flow, such as those provided via environment variables, SAML, or LDAP (CMP Enrollment Attributes only, setting does not apply to Enrollment Sources)',
   'fd.ea.ignauth.desc' => 'Ignore authoritative values for this attribute, such as those provided via environment variables, SAML, or LDAP',
