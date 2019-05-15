@@ -217,6 +217,29 @@ class AppController extends Controller {
         $this->set('vv_tz', date_default_timezone_get());
       }
 
+      // Apply platform localization variables. These are the ones in COManage CO
+      // Load dynamic texts. We do this here because lang.php doesn't have access to models yet.
+      global $cm_texts;
+      global $cm_lang;
+
+      $args = array();
+      $args['joins'][0]['table'] = 'cos';
+      $args['joins'][0]['alias'] = 'Co';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoLocalization.co_id=Co.id';
+      $args['conditions']['Co.name'] = 'COmanage';
+      $args['conditions']['Co.status'] = StatusEnum::Active;
+      $args['conditions']['CoLocalization.language'] = $cm_lang;
+      $args['fields'] = array('CoLocalization.lkey', 'CoLocalization.text');
+      $args['contain'] = false;
+
+      $this->loadModel('CoLocalization');
+      $ls = $this->CoLocalization->find('list', $args);
+
+      if(!empty($ls)) {
+        $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], $ls);
+      }
+
       // Before we do anything else, check to see if a CO was provided.
       // (It might impact our authz decisions.) Note that some models (eg: MVPAs)
       // might specify a CO, but might not. As of v0.6, we no longer redirect to
