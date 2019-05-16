@@ -368,9 +368,7 @@ class CoEnrollmentFlowsController extends StandardController {
       }
     }
 
-     $url['co'] = $this->cur_co['Co']['id'];
-
-    $this->log(get_class($this)."::{$fn}::url" . $url, LOG_DEBUG);
+    $url['co'] = $this->cur_co['Co']['id'];
     // redirect the user to the url
     $this->redirect($url, null, true);
   }

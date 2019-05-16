@@ -208,11 +208,11 @@ class AppController extends Controller {
       // See if we've collected it from the browser in a previous page load. Otherwise
       // use the system default. If the user set a preferred timezone, we'll catch that below.
       
-      if(!empty($_COOKIE['cm_registry_tz_auto'])) {
+      if(!empty($_COOKIE[Configure::read('cookie_name')])) {
         // We have an auto-detected timezone from a previous page render from the browser.
         // Adjust the default timezone. Actually, don't we want to always record times in UTC.
         //        date_default_timezone_set($_COOKIE['cm_registry_tz_auto']);
-        $this->set('vv_tz', $_COOKIE['cm_registry_tz_auto']);
+        $this->set('vv_tz', $_COOKIE[Configure::read('cookie_name')]);
       } else {
         $this->set('vv_tz', date_default_timezone_get());
       }

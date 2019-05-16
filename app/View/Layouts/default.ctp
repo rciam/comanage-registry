@@ -290,7 +290,8 @@
       var tz = jstz.determine();
       // This won't be available for the first delivered page, but after that the
       // server side should see it and process it
-      document.cookie = "cm_registry_tz_auto=" + tz.name() + "; path=/";
+      cookie_name = "<?php echo(Configure::read('cookie_name')); ?>";
+      document.cookie = cookie_name + "=" + tz.name() + "; path=/";
     </script>
 
 

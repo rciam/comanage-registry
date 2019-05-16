@@ -121,3 +121,7 @@ CakeLog::config('error', array(
 	'types' => array('warning', 'error', 'critical', 'alert', 'emergency'),
 	'file' => 'error',
 ));
+
+// Change the filename so as to much the file that contains the configuration variables of
+// this deployment
+Configure::load('<deployment>_config.php', 'default');

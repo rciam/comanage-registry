@@ -31,7 +31,13 @@
 // Since this page isn't part of the framework, we need to reconfigure
 // to access the Cake session.
 
-session_name("CAKEPHP");
+$sid = "";
+foreach ($_COOKIE as $key => $value){
+  if(strpos($key, "co_registry_sid") !== false){
+    $sid .= $key;
+  }
+}
+session_name($sid);
 session_start();
 
 // Set the user
