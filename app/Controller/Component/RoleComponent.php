@@ -402,29 +402,10 @@ class RoleComponent extends Component {
     $coId = null;     // CO ID as requested by user
     $coPersonId = null;
     $username = null;
+    $orgIdentitiesLinked = null;
     
     if($this->Session->check('Auth.User.username')) {
       $username = $this->Session->read('Auth.User.username');
-    }
-    
-    // API user or Org Person?
-    
-    if($this->Session->check('Auth.User.api_user_id')) {
-      $ret['apiuser'] = true;
-      $ret['cmadmin'] = true;  // API users are currently platform admins (CO-91)
-      
-      // Return here to avoid triggering a bunch of RoleComponent queries that
-      // may fail since api users are not currently enrolled in any CO.
-      
-      return $ret;
-    } elseif($this->Session->check('Auth.User.org_identities')) {
-      $ret['orgidentities'] = $this->Session->read('Auth.User.org_identities');
-    }
-    
-    // Is this user a CMP admin?
-    
-    if($username != null) {
-      $ret['cmadmin'] = $this->identifierIsCmpAdmin($username);
     }
     
     // Pull the current CO from our invoking controller
@@ -439,10 +420,31 @@ class RoleComponent extends Component {
     try {
       // XXX We should pass an identifier type that was somehow configured (see also CoRole->identifierIs*Admin)
       $coPersonId = $CoPerson->idForIdentifier($coId, $username, null, true);
+      $orgIdentitiesLinked = $CoPerson->orgIdLinksCoPerson($coPersonId);
     }
     catch(Exception $e) {
       // Not really clear that we should fail here
       //throw new InvalidArgumentException($e->getMessage());
+    }
+
+    // API user or Org Person?
+    if($this->Session->check('Auth.User.api_user_id')) {
+      $ret['apiuser'] = true;
+      $ret['cmadmin'] = true;  // API users are currently platform admins (CO-91)
+      
+      // Return here to avoid triggering a bunch of RoleComponent queries that
+      // may fail since api users are not currently enrolled in any CO.
+      
+      return $ret;
+    } elseif($this->Session->check('Auth.User.org_identities')) {
+      $ret['orgidentities'] = $orgIdentitiesLinked;
+      //$ret['orgidentities'] = $this->Session->read('Auth.User.org_identities');
+    }
+    
+    // Is this user a CMP admin?
+    
+    if($username != null) {
+      $ret['cmadmin'] = $this->identifierIsCmpAdmin($username);
     }
     
     // Is this user a member of the current CO?
