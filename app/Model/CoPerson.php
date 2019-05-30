@@ -696,6 +696,36 @@ class CoPerson extends AppModel {
   }
 
   /**
+   * Retrieve the org identities linked to a CO Person
+   *
+   * @since  COmanage Registry v3.x.x
+   * @param  integer CO Person Id
+   * @return list of linked org identities or an emtpy array
+   */
+
+  public function orgIdLinksCoPerson($coPersonId) {
+
+    $args['conditions']['CoOrgIdentityLink.co_person_id'] = $coPersonId;
+    $args['joins'][0]['table'] = 'org_identities';
+    $args['joins'][0]['alias'] = 'OrgIdentity';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'OrgIdentity.id=CoOrgIdentityLink.org_identity_id';
+    $args['fields'] = array('CoOrgIdentityLink.org_identity_id', 'OrgIdentity.co_id');
+    $args['contain'] = false;
+
+    $link = $this->CoOrgIdentityLink->find('all', $args);
+
+    $linkedOrgIds = array();
+    $tmpEntry = array();
+    foreach ($link as $orgIdentity){
+      $tmpEntry['org_id'] = $orgIdentity['CoOrgIdentityLink']['org_identity_id'];
+      $tmpEntry['co_id'] = $orgIdentity['OrgIdentity']['co_id'];
+      array_push($linkedOrgIds, $tmpEntry);
+    }
+    return $linkedOrgIds;
+  }
+
+  /**
    * Recalculate the status of a CO Person based on the attached CO Person Roles.
    *
    * @since  COmanage Registry v0.9.2
