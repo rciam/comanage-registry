@@ -145,6 +145,13 @@ class OrgIdentity extends AppModel {
         'allowEmpty' => true
       )
     ),
+    'authn_authority' => array(
+      'content' => array(
+        'rule' => array('validateInput'),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
 /*    'organization_id' => array(
       'content' => array(
         'rule' => 'numeric',
@@ -542,7 +549,8 @@ class OrgIdentity extends AppModel {
     $newOrgIdentity = null;  // What we decided to save as the updated record (or portion thereof)
     $newModels = array();    // List of associated models we decided to save
     $deleteCert = array();   // List of certificates that are going to be deleted
-    
+    $authnAuthority = isset($_SERVER['AuthenticatingAuthority']) ? $_SERVER['AuthenticatingAuthority'] : null;
+
     foreach($envAttrs as $ea) {
       // First see if there is an env variable identified, and if so if it's populated
       
@@ -593,6 +601,8 @@ class OrgIdentity extends AppModel {
       // in order for SaveAssociated to know what to do).
       
       $newOrgIdentity['OrgIdentity'] = $curOrgIdentity['OrgIdentity'];
+      // Assign the authn_authority value
+      $newOrgIdentity['OrgIdentity']['authn_authority'] = $authnAuthority;
       
       if(!empty($envOrgIdentity['OrgIdentity'])) {
         // Copy each defined field to the record to be saved

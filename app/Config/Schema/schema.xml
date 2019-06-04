@@ -131,6 +131,7 @@
     <field name="title" type="C" size="128" />
     <field name="o" type="C" size="128" />
     <field name="ou" type="C" size="128" />
+    <field name="authn_authority" type="C" size="1024" />
     <field name="co_id" type="I">
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>

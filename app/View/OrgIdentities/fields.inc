@@ -420,6 +420,20 @@
           </li>
           <li>
             <div class="field-name">
+              <?php print("Authenticating Authority (IdP)"); ?>
+            </div>
+            <div class="field-info">
+              <?php
+                if(!empty($org_identities[0]['OrgIdentity']['authn_authority'])) {
+                  print filter_var($org_identities[0]['OrgIdentity']['authn_authority'],FILTER_SANITIZE_SPECIAL_CHARS);
+                }else{
+                  print filter_var("UNKNOWN",FILTER_SANITIZE_SPECIAL_CHARS);
+                }
+              ?>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
               <?php print ($e ? $this->Form->label('ou', _txt('fd.ou')) : _txt('fd.ou')); ?>
             </div>
             <div class="field-info">
