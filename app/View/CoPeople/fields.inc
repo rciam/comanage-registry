@@ -1203,7 +1203,10 @@
                     <td>
                       <?php
                         if(!empty($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'])) {
-                          print filter_var($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'] ,FILTER_SANITIZE_SPECIAL_CHARS);
+                          print filter_var($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'] ,FILTER_SANITIZE_SPECIAL_CHARS). "<br>";
+                        }
+                        if(!empty($link['OrgIdentity']['authn_authority'])) {
+                            print filter_var($link['OrgIdentity']['authn_authority'] ,FILTER_SANITIZE_SPECIAL_CHARS). "<br>";
                         }
                       ?>
                     </td>
