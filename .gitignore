@@ -13,3 +13,11 @@ tags
 .idea/
 comanage-registry.iml
 app/webroot/auth/login/.htaccess
+# modified by RCIAM config
+/app/Controller/AppController.php
+/app/View/Layouts/default.ctp
+/app/View/Layouts/lightbox.ctp
+/app/webroot/.htaccess
+/app/webroot/auth/login/index.php
+/app/webroot/auth/logout/index.php
+/app/webroot/favicon.ico
