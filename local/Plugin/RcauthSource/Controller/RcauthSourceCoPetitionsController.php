@@ -50,12 +50,13 @@ class RcauthSourceCoPetitionsController extends CoPetitionsController {
 	 */
 	protected function execute_plugin_selectOrgIdentityAuthenticate($id, $oiscfg, $onFinish, $actorCoPersonId) {
 		// First pull our RCAUTH configuration
-		$this->log('@execute_plugin_selectOrgIdentityAuthenticate', LOG_DEBUG);
+		$fn = "execute_plugin_selectOrgIdentityAuthenticate";
+		$this->log(get_class($this)."::{$fn}::@", LOG_DEBUG);
 		$args = array();
-		$args['conditions']['RcauthSource.id'] = $oiscfg['OrgIdentitySource']['id'];
+		$args['conditions']['RcauthSource.org_identity_source_id'] = $oiscfg['OrgIdentitySource']['id'];
 		$args['contain'] = false;
 
-		$cfg = $this->RcauthSource->find('first', array('Rcauth'));
+		$cfg = $this->RcauthSource->find('first', $args);
 
 		if(empty($cfg)) {
 			throw new InvalidArgumentException(_txt('er.notfound',
@@ -84,6 +85,9 @@ class RcauthSourceCoPetitionsController extends CoPetitionsController {
 			$url .= "&client_id=" . $cfg['RcauthSource']['clientid'];
 			$url .= "&state=".base64_encode("{\"pass\" : {$id}, \"named\" : {$oiscfg['OrgIdentitySource']['id']} }");
 			$url .= "&redirect_uri=" . urlencode($redirectUri);
+			if($cfg['RcauthSource']['idphint'] != null){
+				$url .= "&idphint=" . urlencode(trim($cfg['RcauthSource']['idphint']));
+			}
 
 			$this->redirect($url);
 		}
@@ -115,14 +119,24 @@ class RcauthSourceCoPetitionsController extends CoPetitionsController {
 
 			// Save the data we retrieved above for the current client id
 			// Create th data structure
-			$save_data = array(
-				'RcauthSource' => array(
-					'access_token'  => $response->access_token,
-					'refresh_token' => $response->refresh_token,
-					'id_token'      => $response->id_token,
-					'token_type'    => $response->token_type
-				)
-			);
+			if(isset($response->refresh_token)) {
+				$save_data = array(
+					'RcauthSource' => array(
+						'access_token' => $response->access_token,
+						'refresh_token' => $response->refresh_token,
+						'id_token' => $response->id_token,
+						'token_type' => $response->token_type
+					)
+				);
+			}else{
+				$save_data = array(
+					'RcauthSource' => array(
+						'access_token' => $response->access_token,
+						'id_token' => $response->id_token,
+						'token_type' => $response->token_type
+					)
+				);
+			}
 			// Find the entry in the table we are interested in
 			// For our case we want to update the existing entry of the current petition
 			// We reach the table through our instance of the AppModel and the description
@@ -133,7 +147,7 @@ class RcauthSourceCoPetitionsController extends CoPetitionsController {
 			if($this->RcauthSource->validates()){
 				$this->RcauthSource->save($save_data);
 			} else {
-				$this->log("rcauthsource data failed to validate", LOG_DEBUG);
+				$this->log(get_class($this)."::{$fn}::Rcauthsource data failed to validate", LOG_DEBUG);
 				throw new RuntimeException(_txt('er.db.save'));
 			}
 
@@ -221,7 +235,7 @@ class RcauthSourceCoPetitionsController extends CoPetitionsController {
 				$args['conditions']['Cert.deleted'] = false;
 				$args['fields'] = array('Cert.*');
 				$cur_co_person_entry = $this->Cert->find('first',$args);
-				$this->log("cur co person entry => ".print_r($cur_co_person_entry,true),LOG_DEBUG);
+				$this->log(get_class($this)."::{$fn}::cur co person entry => ".print_r($cur_co_person_entry,true),LOG_DEBUG);
 
 				// Update the certificate entry for the org_identity retrieved and for the current co person
 				$this->certEntryUpdate($org_identity_entry, $cur_co_person_entry, $user_data_obj->cert_subject_dn, $cfg['RcauthSource']['issuer']);

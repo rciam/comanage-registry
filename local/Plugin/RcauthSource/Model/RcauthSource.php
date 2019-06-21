@@ -53,6 +53,11 @@ class RcauthSource extends AppModel {
 			'allowEmpty' => true,
 			'message' => 'Currently only Bearer token type is supported.'
 		),
+		'idphint' => array(
+			'rule' => array('url', true),
+			'required' => false,
+			'allowEmpty' => true
+		),
 		'issuer' => array(
 			'content' => array(
 				'rule' => array('maxLength', 400),

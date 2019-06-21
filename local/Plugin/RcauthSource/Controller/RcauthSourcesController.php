@@ -52,7 +52,7 @@ class RcauthSourcesController extends SOISController {
 		$this->set('vv_rcauth_redirect_url', $this->RcauthSourceBackend->callbackUrl());
 	}
 
-	function checkWriteFollowups() {
+	function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
 		$this->Flash->set(_txt('rs.updated-a3', array(_txt('ct.rcauth_sources.2'))), array('key' => 'success'));
 		return true;
 	}
