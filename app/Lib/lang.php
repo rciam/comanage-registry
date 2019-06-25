@@ -1695,6 +1695,7 @@ original notification at
   'op.manage.grm' =>  'Manage Group Memberships',
   'op.menu' =>        'Menu',
   'op.link' =>        'Link',
+  'op.link.new.orgid' => 'Link New Identity',
   'op.link.confirm' => 'Are you sure you wish to proceed?',
   'op.link.info' =>   'Linking will attach the Organizational Identity %1$s to the CO Person record for %2$s.',
   'op.link.petition' => 'There is a petition %1$s (%2$s) attached to the Organizational Identity. You may wish to approve or deny this petition before linking.',
