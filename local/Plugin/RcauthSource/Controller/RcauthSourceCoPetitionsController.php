@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v2.0.0
@@ -63,23 +63,36 @@ class RcauthSourceCoPetitionsController extends CoPetitionsController {
 				array(_txt('ct.rcauth_sources.1'),
 					$oiscfg['OrgIdentitySource']['id'])));
 		}
+		$this->log(get_class($this)."::{$fn}:: mp_oa2_server => ".$cfg['RcauthSource']['mp_oa2_server'], LOG_DEBUG);
+		try {
+			// Get the MP OA2 endpoints
+			$this->RcauthSourceBackend->getMPOPA2endpoints($cfg['RcauthSource']['mp_oa2_server']);
+			// Check if we have data
+			$authEndpoint = $this->RcauthSourceBackend->getMpOA2Server()->getAuthorizationEndpoint();
+			if (!isset( $authEndpoint )) {
+				throw new RuntimeException(_txt('er.rcauthsource.mp_oa2_server.none'));
+			}
+		}catch (Exception $e){
+			throw new RuntimeException(_txt('er.rcauthsource.mp_oa2_server.none'));
+		}
+
+
 		// Construct the callback URL, needed for both the initial query and
 		// exchanging the code for a response
-
 		$callback = $this->RcauthSourceBackend->callbackUrl();
 		$redirectUri = Router::url($callback, array('full' => true));
 
 		if(empty($this->request->query['code'])) {
 			// Retrieve all available scope from the official API web page
 			$scope = "";
-			foreach ($this->RcauthSourceBackend->rcauthUrl->getScopesSupported() as $key => $value) {
+			foreach ($this->RcauthSourceBackend->getMpOA2Server()->getScopesSupported() as $key => $value) {
 				$scope .= $value." ";
 			}
 			$scope = trim($scope);
 
 			// First time through, redirect to the authorize URL
 			// After we retrieve the code we are served by another function
-			$url = $this->RcauthSourceBackend->rcauthUrl->getAuthorizationEndpoint()."?";
+			$url = $this->RcauthSourceBackend->getMpOA2Server()->getAuthorizationEndpoint()."?";
 			$url .= "response_type=code";
 			$url .= "&scope=".urlencode($scope);
 			$url .= "&client_id=" . $cfg['RcauthSource']['clientid'];

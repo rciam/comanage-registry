@@ -28,56 +28,58 @@ class mpCfgUrl {
 	private $idTokenSigningAlgValuesSupported = array();
 
 	// parse json and fill the variables
-	function __construct(){
-		$url = "https://masterportal-pilot.aai.example.org/mp-oa2-server/.well-known/openid-configuration";
-		//  Initiate curl
-		$ch = curl_init();
-		// Disable SSL verification
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-		// Will return the response, if false it print the response
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		// Set the url
-		curl_setopt($ch, CURLOPT_URL,$url);
-		// Execute
-		$result=curl_exec($ch);
-		// Closing
-		curl_close($ch);
-		$openIdCfgJson = json_decode($result);
-		$this->authorizationEndpoint = $openIdCfgJson->{self::$AUTH_ENDPOINT};
-		$this->registrationEndpoint = $openIdCfgJson->{self::$REGISTER_ENDPOINT};
-		$this->jwksUri = $openIdCfgJson->{self::$JWKS_URI};
-		$this->issuer = $openIdCfgJson->{self::$ISSUER};
-		$this->tokenEndpoint = $openIdCfgJson->{self::$TOKEN_ENDPOINT};
-		$this->userinfoEndpoint = $openIdCfgJson->{self::$USERINFO_ENDPOINT};
+	function __construct($url){
+		// if the url variable has not been defined then do nothing
+		if(isset($url) and $url != "") {
+			//  Initiate curl
+			$ch = curl_init();
+			// Disable SSL verification
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+			// Will return the response, if false it print the response
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			// Set the url
+			curl_setopt($ch, CURLOPT_URL, $url);
+			// Execute
+			$result = curl_exec($ch);
+			// Closing
+			curl_close($ch);
+			$openIdCfgJson = json_decode($result);
+			$this->authorizationEndpoint = $openIdCfgJson->{self::$AUTH_ENDPOINT};
+			$this->registrationEndpoint = $openIdCfgJson->{self::$REGISTER_ENDPOINT};
+			$this->jwksUri = $openIdCfgJson->{self::$JWKS_URI};
+			$this->issuer = $openIdCfgJson->{self::$ISSUER};
+			$this->tokenEndpoint = $openIdCfgJson->{self::$TOKEN_ENDPOINT};
+			$this->userinfoEndpoint = $openIdCfgJson->{self::$USERINFO_ENDPOINT};
 
-		// token_endpoint_auth_methods_supported
-		foreach($openIdCfgJson->{self::$TOKEN_ENDPOINT_AM_SUP} as $data){
-			$this->tokenEndpointAuthMethodsSupported[] = $data;
-		}
+			// token_endpoint_auth_methods_supported
+			foreach ($openIdCfgJson->{self::$TOKEN_ENDPOINT_AM_SUP} as $data) {
+				$this->tokenEndpointAuthMethodsSupported[] = $data;
+			}
 
-		// subject_types_supported
-		foreach($openIdCfgJson->{self::$SUBJECT_TYP_SUP} as $data){
-			$this->subjectTypesSupported[] = $data;
-		}
+			// subject_types_supported
+			foreach ($openIdCfgJson->{self::$SUBJECT_TYP_SUP} as $data) {
+				$this->subjectTypesSupported[] = $data;
+			}
 
-		// scopes_supported
-		foreach($openIdCfgJson->{self::$SCOPES_SUP} as $data){
-			$this->scopesSupported[] = $data;
-		}
+			// scopes_supported
+			foreach ($openIdCfgJson->{self::$SCOPES_SUP} as $data) {
+				$this->scopesSupported[] = $data;
+			}
 
-		// response_types_supported
-		foreach($openIdCfgJson->{self::$RESPONSE_TYP_SUP} as $data){
-			$this->responseTypesSupported[] = $data;
-		}
+			// response_types_supported
+			foreach ($openIdCfgJson->{self::$RESPONSE_TYP_SUP} as $data) {
+				$this->responseTypesSupported[] = $data;
+			}
 
-		// claims_supported
-		foreach($openIdCfgJson->{self::$CLAIMS_SUP} as $data){
-			$this->claimsSupported[] = $data;
-		}
+			// claims_supported
+			foreach ($openIdCfgJson->{self::$CLAIMS_SUP} as $data) {
+				$this->claimsSupported[] = $data;
+			}
 
-		// id_token_signing_alg_values_supported
-		foreach($openIdCfgJson->{self::$ID_TOKEN_SIG_ALG_VAL_SUP} as $data){
-			$this->idTokenSigningAlgValuesSupported[] = $data;
+			// id_token_signing_alg_values_supported
+			foreach ($openIdCfgJson->{self::$ID_TOKEN_SIG_ALG_VAL_SUP} as $data) {
+				$this->idTokenSigningAlgValuesSupported[] = $data;
+			}
 		}
 	}
 

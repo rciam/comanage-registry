@@ -58,6 +58,11 @@ class RcauthSource extends AppModel {
 			'required' => false,
 			'allowEmpty' => true
 		),
+		'mp_oa2_server' => array(
+			'rule' => array('url', true),
+			'required' => false,
+			'allowEmpty' => true
+		),
 		'issuer' => array(
 			'content' => array(
 				'rule' => array('maxLength', 400),
