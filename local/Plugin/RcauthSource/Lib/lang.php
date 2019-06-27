@@ -51,5 +51,7 @@ $cm_rcauth_source_texts['en_US'] = array(
 	'pl.rcauthsource.secret'         => 'Client Secret',
 	'pl.rcauthsource.secret.desc'    => 'Client Secret obtained from registering with the RCAUTH Public ID',
 	'pl.rcauthsource.issuer'         => 'DN Issuer',
-	'pl.rcauthsource.issuer.desc'    => 'The issuer of the DN certificate'
+	'pl.rcauthsource.issuer.desc'    => 'The DN of the certificate issuer',
+	'pl.rcauthsource.idphint'        => 'IdpHint parameter',
+	'pl.rcauthsource.idphint.desc'   => 'Optionally the VO portal can redirect the user to a specific IdP by also sending an idphint parameter',
 );

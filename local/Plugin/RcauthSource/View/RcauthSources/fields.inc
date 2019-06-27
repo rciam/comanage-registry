@@ -72,6 +72,15 @@
   </li>
   <li>
     <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.rcauthsource.idphint'); ?></div>
+      <div class="field-desc"><?php print _txt('pl.rcauthsource.idphint.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('idphint', array('size' => 50)) : filter_var($rcauth_sources[0]['RcAuthSource']['idphint'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
       <div class="field-title">
         <?php print _txt('pl.rcauthsource.clientid'); ?>
         <span class="required">*</span>
