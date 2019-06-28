@@ -18,13 +18,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
-  
+ 
 global $cm_lang, $cm_texts;
 
 // When localizing, the number in format specifications (eg: %1$s) indicates the argument
@@ -42,6 +42,7 @@ $cm_rcauth_source_texts['en_US'] = array(
 	'er.rcauthsource.search'     => 'Search request returned %1$s',
 	'er.rcauthsource.token.api'  => 'Access token not found in API response',
 	'er.rcauthsource.token.none' => 'Access token not configured (try resaving configuration)',
+	'er.rcauthsource.mp_oa2_server.none' => 'No or invalid MasterPortal OA2 Url. Please check RCAuth OIS configuration',
 
 	// Plugin texts
 	'pl.rcauthsource.clientid'       => 'Client ID',
@@ -54,4 +55,6 @@ $cm_rcauth_source_texts['en_US'] = array(
 	'pl.rcauthsource.issuer.desc'    => 'The DN of the certificate issuer',
 	'pl.rcauthsource.idphint'        => 'IdpHint parameter',
 	'pl.rcauthsource.idphint.desc'   => 'Optionally the VO portal can redirect the user to a specific IdP by also sending an idphint parameter',
+	'pl.rcauthsource.mp_oa2_server'        => 'MasterPortal OP configuration URL',
+	'pl.rcauthsource.mp_oa2_server.desc'   => 'URL of the well known configuration of MasterPortal\'s OP',
 );

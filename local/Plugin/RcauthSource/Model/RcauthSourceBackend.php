@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v2.0.0
@@ -32,12 +32,28 @@ include_once("mpCfgUrl.php");
 
 class RcauthSourceBackend extends OrgIdentitySourceBackend {
 	public $name = "RcauthSourceBackend";
-	public $rcauthUrl;
+	private $mpOA2Server = null;
 
 	// Constructor
 	function __construct(){
 		parent::__construct();
-		$this->rcauthUrl = new mpCfgUrl();
+	}
+
+	/**
+	 * @param $mpOA2Url   the Url of the Masterportal Oauth2 server of the RCAUTH CA
+	 */
+	public function getMPOPA2endpoints($mpOA2Url){
+		if($this->mpOA2Server == null) {
+			$this->mpOA2Server = new mpCfgUrl($mpOA2Url);
+		}
+	}
+
+	/**
+	 * @return MP Oauth2 Server Server Config Object
+	 */
+	public function getMpOA2Server()
+	{
+		return $this->mpOA2Server;
 	}
 
 	/**
@@ -82,7 +98,7 @@ class RcauthSourceBackend extends OrgIdentitySourceBackend {
 		);
 
 
-		$response = $this->do_curl($this->rcauthUrl->getTokenEndpoint(),$params,$error, $info);
+		$response = $this->do_curl($this->mpOA2Server->getTokenEndpoint(),$params,$error, $info);
 		if(!$this->IsNullOrEmptyString($info['http_code'])){
 			// The request returned successfully. Dump data into an object, check their validity and return
 			// data object from json decode
@@ -219,7 +235,7 @@ class RcauthSourceBackend extends OrgIdentitySourceBackend {
 		//		   "family_name":"Doe",
 		//		   "email":"jdoe@mail.com"
 		//		}
-		$response = $this->do_curl($this->rcauthUrl->getUserinfoEndpoint(),$options,$error, $info);
+		$response = $this->do_curl($this->mpOA2Server->getUserinfoEndpoint(),$options,$error, $info);
 
 		if($info['http_code'] == 404) {
 			// Most likely retrieving an invalid rcauth

@@ -42,3 +42,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - CO Person's email gets verified during the registration process
 - Add global scope for `Localization` variables of the default CO, COManage. This CO is only accessible by the platform administors.
 - Allow CO Person to view all Org Identities linked to his/her profile
+- Made the MasterPortal Oauth2 server url a dynamic config option for the RCAuth plugin

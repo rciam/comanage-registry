@@ -48,6 +48,7 @@
     <field name="token_type" type="C" size="20" />
     <field name="issuer" type="C" size="256" />
     <field name="idphint" type="C" size="256" />
+    <field name="mp_oa2_server" type="C" size="256" />
     <index name="rcauth_sources_i1">
       <col>org_identity_source_id</col>
       <unique />
