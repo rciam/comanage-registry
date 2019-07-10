@@ -44,3 +44,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Allow CO Person to view all Org Identities linked to his/her profile
 - Made the MasterPortal Oauth2 server url a dynamic config option for the RCAuth plugin
 - Fixed broken filtering functionality in relink process
+- Fix to redirect users to a meaningful page instead of logout
