@@ -1,0 +1,74 @@
+<?xml version="1.0" ?>
+<schema version="1.0">
+  <table name="co_mfa_service_settings">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="co_mfa_service_id" type="I">
+      <constraint>REFERENCES cm_co_mfa_services(id)</constraint>
+    </field>
+    <field name="from" type="C" size="48" />
+    <field name="text" type="C" size="512" />
+    <field name="code_length" type="I" />
+    <field name="ttl" type="I" />
+    <field name="max_verification_attemps" type="I" />
+    <field name="verify_expiration_period" type="I" />
+    <field name="utf" type="I" />
+    <field name="url" type="C" size="512" />
+    <field name="api_key" type="C" size="512" />
+    <field name="secret_key" type="C" size="512" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="deleted" type="I" />
+    <index name="cm_cos_i1">
+      <col>co_id</col>
+      <unique />
+    </index>
+    <index name="cm_co_mfa_services_i3">
+      <col>co_mfa_service_id</col>
+      <unique />
+    </index>
+    
+  </table>
+  
+  <table name="co_mfa_services">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="co_mfa_service_setting_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_mfa_service_settings(id)</constraint>
+    </field>
+    <field name="co_person_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="telephone_number_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_telephone_numbers(id)</constraint>
+    </field>
+    <field name="verified" type="I" />
+    <field name="verification_count" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="deleted" type="I" />
+    
+    <index name="co_mfa_services_i1">
+      <col>co_person_id</col>
+      <col>telephone_number_id</col>
+    </index>
+    <index name="co_mfa_services_i2">
+      <col>co_id</col>
+    </index>
+  </table>
+  
+</schema>
