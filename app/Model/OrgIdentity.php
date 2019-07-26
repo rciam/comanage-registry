@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -60,7 +60,7 @@ class OrgIdentity extends AppModel {
     "Address" => array('dependent' => true),
     // An Org Identity can be attached to one or more CO Person
     // The current design requires all links to be dropped manually
-    "CoOrgIdentityLink" => array('dependent' => false), 
+    "CoOrgIdentityLink" => array('dependent' => false),
     // A person can have various roles for a petition
     "CoPetition" => array(
       // Because a CO Petition is primarily designed to create a CO Person,
@@ -201,7 +201,7 @@ class OrgIdentity extends AppModel {
    * @since  COmanage Registry v2.0.0
    */
   
-  public function beforeSave($options = array()) {    
+  public function beforeSave($options = array()) {
     // Possibly convert the requested timestamps to UTC from browser time.
     // Do this before the strtotime/time calls below, both of which use UTC.
     
@@ -550,6 +550,10 @@ class OrgIdentity extends AppModel {
     $newModels = array();    // List of associated models we decided to save
     $deleteCert = array();   // List of certificates that are going to be deleted
     $authnAuthority = isset($_SERVER['AuthenticatingAuthority']) ? $_SERVER['AuthenticatingAuthority'] : null;
+    if(isset($authnAuthority)){
+      $authnIdps = explode(";", $authnAuthority);
+      $authnAuthority = end($authnIdps);
+    }
 
     foreach($envAttrs as $ea) {
       // First see if there is an env variable identified, and if so if it's populated
@@ -641,7 +645,7 @@ class OrgIdentity extends AppModel {
                 // If $m = 'Cert' count the existing instances and the environment variables.
                 case 'Cert':
                   $value = explode(';', $envOrgIdentity[$m][0]['subject']);
-                  // If the total of current instances is the same with the new, check if 
+                  // If the total of current instances is the same with the new, check if
                   // the values are the same, else update.
                   if(count($curOrgIdentity[$m]) == count($value)) {
                     $isInArray = true;
@@ -673,7 +677,7 @@ class OrgIdentity extends AppModel {
                       $temp[0]['subject'] = $val['subject'];
                       $temp[0]['type'] = $type;
                       $deleteCerts[] = $temp[0];
-                      // Change subject to null to determine that the instanse is changed (at least by force 
+                      // Change subject to null to determine that the instanse is changed (at least by force
                       // and not from the environment).
                       $temp[0]['subject'] = "";
                       $newOrgIdentity[$m][] = $temp[0];
