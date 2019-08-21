@@ -1015,6 +1015,7 @@ original notification at
   'fd.address.fields.req' => 'An address must consist of at least these fields:',
   'fd.admin' =>       'Administrator',
   'fd.ae.optvalue.desc' => 'Permitted value for this attribute',
+  'fd.authn_authority' => 'Authenticating Authority',
   'fd.affil-a' =>     '%1$s Affiliation',
   'fd.affiliation' => 'Affiliation',
   'fd.affiliation.ep' => 'eduPersonAffiliation',
