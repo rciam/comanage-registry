@@ -102,6 +102,7 @@ print $this->element("pageTitleAndButtons", $params);
           $days = $interval->format('%R%a');
           $expired = ($vv_settings['CoMfaServiceSetting']['verify_expiration_period'] - $days <= 0) ? true : false;
         }
+        $unconfigured = isset($vv_settings['CoMfaServiceSetting']['id']) ? false : true;
 
         $sendBtn =  '<button type="button" class="provisionbutton" title="' . _txt('pl.co_mfa_services.fetch')
           . '" onclick="javascript:js_confirm_generic(\''
@@ -111,7 +112,7 @@ print $this->element("pageTitleAndButtons", $params);
               'plugin'       => 'co_mfa_service',
               'controller'   => 'co_mfa_services',
               'action'       => 'fetchCode',
-              'mfasetting'   => $vv_settings['CoMfaServiceSetting']['id'],
+              'mfasetting'   => isset($vv_settings['CoMfaServiceSetting']['id']) ? $vv_settings['CoMfaServiceSetting']['id'] : "",
               'phoneid'      => $c['TelephoneNumber']['id'],
               'copersonid'   => $vv_co_person_id,
               'coid'         => $this->request->params['named']['co']
@@ -135,7 +136,7 @@ print $this->element("pageTitleAndButtons", $params);
               'plugin'       => 'co_mfa_service',
               'controller'   => 'co_mfa_services',
               'action'       => 'verifyCode',
-              'mfasetting'   => $vv_settings['CoMfaServiceSetting']['id'],
+              'mfasetting'   => isset($vv_settings['CoMfaServiceSetting']['id']) ? $vv_settings['CoMfaServiceSetting']['id'] : "",
               'phoneid'      => $c['TelephoneNumber']['id'],
               'copersonid'   => $vv_co_person_id,
               'coid'         => $this->request->params['named']['co'],

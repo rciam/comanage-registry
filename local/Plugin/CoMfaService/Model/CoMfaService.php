@@ -224,7 +224,7 @@ class CoMfaService extends AppModel
 
     $info = curl_getinfo($ch);
     $debug = ob_get_clean();
-    $this->log(__METHOD__ . ":: $debug => " . print_r($debug,true), LOG_DEBUG);
+    $this->log(__METHOD__ . "::debug => " . print_r($debug,true), LOG_DEBUG);
 
     // close connection
     curl_close($ch);
