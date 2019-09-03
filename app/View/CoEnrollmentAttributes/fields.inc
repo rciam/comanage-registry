@@ -493,6 +493,19 @@
             : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </td>
       </tr>
+      <tr class="line<?php print ($l % 2); $l++; ?>">
+        <td>
+          <b><?php print _txt('fd.hidden.form'); ?></b><br />
+          <span class="descr"><?php print _txt('fd.hidden.form.desc'); ?></span>
+        </td>
+        <td>
+          <?php // Note this is a CoEnrollmentAttribute field, not CoEnrollmentAttributeDefault
+          print ($e
+            ? $this->Form->input('form_hidden', array('default' => false))
+            : ($co_enrollment_attributes[0]['CoEnrollmentAttribute']['form_hidden']
+              ? _txt('fd.yes') : _txt('fd.no'))); ?>
+        </td>
+      </tr>
     </tbody>
     <tbody id="attr_def_div" style="display: none">
       <tr class="line<?php print ($l % 2); $l++; ?>">

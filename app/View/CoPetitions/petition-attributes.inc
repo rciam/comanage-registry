@@ -204,8 +204,10 @@
     }
 
     $mvpa = (count($coe_attributes) > 1);
+    // Check if the field should be displayed. If not just hide the div
+    $model_box_display = $coe_attributes[0]['CoEnrollmentAttribute']['form_hidden'] ? "none" : "block";
   ?>
-    <div class="modelbox">
+    <div class="modelbox" style="display:<?php print $model_box_display;?>">
       <div class="boxtitle">
         <?php
           // Output the box title

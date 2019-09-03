@@ -88,6 +88,12 @@ class CoEnrollmentAttribute extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'form_hidden' => array(
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+
     'ignore_authoritative' => array(
       'rule' => 'boolean',
       'required' => false,
