@@ -29,6 +29,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Add `hidden` functionality to Enroll page. The Admin can enable the functionality by changing the value of `Hide Enrollment Flow` field to true, in the config page of an Enrollment flow. By default the value is false/empty and all the configured Enrolment Flows will be displayed in `People->Enroll` page.
 - Retrieve AuthenticatingAuthority and depict in CO Person's canvas/profile
 - IdP hinting for RCAUTH plugin
+- Add support for hiding attributes from the enrollment form. Admins can hide an enrollment flow attribute by setting the value of Hidden from enrollment form view to true in the Enrollment Attribute configuration page. By default the value is false/empty and all the configured Enrolment Attributes will be displayed in the enrollment form.
+
 
 ### Changed
 - Update email and subject DN when the user logs into registry

@@ -1228,6 +1228,8 @@ original notification at
   'fd.groups' =>      'Groups',
   'fd.hidden' =>      'Hidden',
   'fd.hidden.desc' => 'If true, this field will not be rendered during enrollment',
+  'fd.hidden.form' => 'Hidden from enrollment form view',
+  'fd.hidden.form.desc' => 'If true, this field will not be depicted during enrollment',
   'fd.history.pt' =>  'Petition History',
   // Identifier Assignment
   'fd.ia.algorithm' => 'Algorithm',
