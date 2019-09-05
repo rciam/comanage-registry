@@ -220,6 +220,7 @@ class CoEnrollmentAttribute extends AppModel {
       $ret['o:title'] = _txt('fd.title') . " (" . _txt('ct.org_identities.1') . ")";
       $ret['o:o'] = _txt('fd.o') . " (" . _txt('ct.org_identities.1') . ")";
       $ret['o:ou'] = _txt('fd.ou') . " (" . _txt('ct.org_identities.1') . ")";
+      $ret['o:authn_authority'] = _txt('fd.authn_authority') . " (" . _txt('ct.org_identities.1') . ")";
       
       // (6) Multi valued Org Identity attributes, if enabled (code=i)
       // Note that since org identities don't support extended types, we use default values here.
