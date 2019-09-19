@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.5
@@ -589,7 +589,7 @@ class CoPetitionsController extends StandardController {
                     PetitionActionEnum::StepFailed,
                     $e->getMessage());
            
-      $this->performRedirect(); 
+      $this->performRedirect();
     }
     
     // Make sure we don't issue a redirect
@@ -618,6 +618,7 @@ class CoPetitionsController extends StandardController {
    */
   
   protected function dispatch($step, $id=null) {
+    $fn = 'dispatch';
     // Determine the relevant enrollment flow ID
     $efId = $this->enrollmentFlowID();
     
@@ -722,9 +723,16 @@ class CoPetitionsController extends StandardController {
         if(!empty($this->request->params['plugin'])) {
           $curPlugin = Inflector::classify($this->request->params['plugin']);
         }
+  
+        // RCIAM-57
+        $queryParams = null;
+        if(!empty($this->request->query)) {
+          $queryParams = $this->request->query;
+        }
         
         // Generate hint URL for where to go when the step is completed
-        $onFinish = $this->generateDoneRedirect($step, $id, $curPlugin);
+        $onFinish = $this->generateDoneRedirect($step, $id, $curPlugin, null,  $queryParams);
+        
         $this->set('vv_on_finish_url', $onFinish);
         
         // Run the step
@@ -756,7 +764,7 @@ class CoPetitionsController extends StandardController {
                           $e->getMessage());
             
             // Don't redirect since it will mask the actual error
-            //$this->performRedirect(); 
+            //$this->performRedirect();
           }
           
           // Make sure we don't issue a redirect
@@ -839,6 +847,19 @@ class CoPetitionsController extends StandardController {
                                               $coId,
                                               $petitionerCoPersonId,
                                               $returnUrl);
+        // RCIAM-57
+        if( $this->request->query('targetnew') ) {
+          $target_new = $this->request->query('targetnew');
+          $this->log(__METHOD__ . ":: target new => ".$target_new,LOG_DEBUG);
+          // Validate the url
+          if(filter_var($target_new, FILTER_VALIDATE_URL)) {
+            $this->log(__METHOD__ . "::target new is a valid url",LOG_DEBUG);
+            $this->CoPetition->id = $ptid;
+            $this->CoPetition->saveField('targetnew', $target_new);
+          } else {
+            $this->log(__METHOD__ . "::target new is NOT a valid url",LOG_DEBUG);
+          }
+        }
       }
       catch(Exception $e) {
         $this->Flash->set($e->getMessage(), array('key' => 'error'));
@@ -847,7 +868,8 @@ class CoPetitionsController extends StandardController {
     }
     
     // If we get here, redirect to the next step
-    
+    // RCIAM-57
+    $target_service_url = $this->CoPetition->field('targetnew', array('CoPetition.id' => $id));
     if($step == 'provision'
        && $steps['redirectOnConfirm']['enabled'] == RequiredEnum::NotPermitted) {
       // If we've completed the provision step, we're done, unless redirectOnConfirm
@@ -872,7 +894,10 @@ class CoPetitionsController extends StandardController {
         'action'     => $this->nextSteps[$step],
         $ptid
       );
-      
+      // RCIAM-57
+      if(isset($target_service_url) && $target_service_url != ""){
+        $redirect = array_merge($redirect, array( '?' => ['targetnew'=>$target_service_url] ));
+      }
       // If there is a token attached to the petition, insert it into the URL
       
       $token = null;
@@ -978,7 +1003,7 @@ class CoPetitionsController extends StandardController {
           'controller' => Inflector::underscore($plugin) . '_co_petitions',
           'action'     => $action,
           $id,
-          'oisid'      => $authsources[$current]['OrgIdentitySource']['id'] 
+          'oisid'      => $authsources[$current]['OrgIdentitySource']['id']
         );
         
         // If we're in an unauthenticated flow, we need to append a token.
@@ -1080,7 +1105,7 @@ class CoPetitionsController extends StandardController {
     
     // The step is done
     
-    $this->redirect($this->generateDoneRedirect('approve', $id));    
+    $this->redirect($this->generateDoneRedirect('approve', $id));
   }
   
   /**
@@ -1096,7 +1121,7 @@ class CoPetitionsController extends StandardController {
     
     // The step is done
     
-    $this->redirect($this->generateDoneRedirect('checkEligibility', $id));    
+    $this->redirect($this->generateDoneRedirect('checkEligibility', $id));
   }
   
   /**
@@ -1151,7 +1176,7 @@ class CoPetitionsController extends StandardController {
     
     // The step is done
     
-    $this->redirect($this->generateDoneRedirect('collectIdentifier', $id));    
+    $this->redirect($this->generateDoneRedirect('collectIdentifier', $id));
   }
   
   /**
@@ -1173,8 +1198,8 @@ class CoPetitionsController extends StandardController {
     
     // The step is done
     
-    $this->redirect($this->generateDoneRedirect('deny', $id));    
-  }  
+    $this->redirect($this->generateDoneRedirect('deny', $id));
+  }
   
   /**
    * Execute CO Petition 'finalize' step
@@ -1208,7 +1233,7 @@ class CoPetitionsController extends StandardController {
     
     // The step is done
     
-    $this->redirect($this->generateDoneRedirect('finalize', $id));  
+    $this->redirect($this->generateDoneRedirect('finalize', $id));
   }
   
   /**
@@ -1239,9 +1264,15 @@ class CoPetitionsController extends StandardController {
     $newStatus = $this->request->params['named']['confirm'] == 'true'
                  ? PetitionStatusEnum::Confirmed
                  : PetitionStatusEnum::Declined;
-    
+  
+    $queryparams = array(); // RCIAM-57
     if(!empty($this->request->params['named']['confirm'])) {
       $coPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+      // RCIAM-57
+      $redirect_service = $this->CoPetition->field('targetnew', array('CoPetition.id' => $id));
+      if(isset($redirect_service) && $redirect_service != ""){
+          $queryparams['targetnew'] = $redirect_service;
+      }
       
       $this->CoPetition->updateStatus($id, $newStatus, $coPersonId);
     } else {
@@ -1253,7 +1284,7 @@ class CoPetitionsController extends StandardController {
     // confirmed. If it was declined, the flow ends.
     
     if($newStatus == PetitionStatusEnum::Confirmed) {
-      $this->redirect($this->generateDoneRedirect('processConfirmation', $id));
+      $this->redirect($this->generateDoneRedirect('processConfirmation', $id, null, null, $queryparams));
     } else {
       // We don't really have a well defined place to redirect to on decline,
       // so just go to root. We don't finalize here because in the future we
@@ -1288,7 +1319,7 @@ class CoPetitionsController extends StandardController {
       // Send finalization notification, if configured. We do this here rather
       // than in execute_finalize so the provisioners have a chance to run
       // before the notification goes out.
-        
+      
       $this->CoPetition->sendApprovalNotification($id, $this->Session->read('Auth.User.co_person_id'), 'finalize');
     }
     // else petition is declined/denied, no need to fire provisioners or send finalization message
@@ -1310,13 +1341,19 @@ class CoPetitionsController extends StandardController {
     // Figure out where to redirect the enrollee to
     $targetUrl = $this->CoPetition->CoEnrollmentFlow->field('redirect_on_confirm',
                                                             array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+    $targetnew = $this->CoPetition->field('targetnew', array('CoPetition.id' => $id));
+  
     
-    if(!$targetUrl || $targetUrl == "") {
+    if( empty($targetUrl) && empty($targetnew)) {
       // Force a logout since we probably just made a change to information relevant
       // for login (such as linking an account).
       
       $this->Flash->set(_txt('rs.pt.relogin'), array('key' => 'success'));
       $targetUrl = "/auth/logout";
+    } elseif (empty($targetUrl) && !empty($targetnew)){
+      $targetUrl = $targetnew;
+    } else {
+      $targetUrl .= "?targetnew=" . $targetnew;
     }
     // else we suppress the flash message, since it may not make sense in context
     // or may appear "randomly" (eg: if the targetUrl is outside the Cake framework)
@@ -1367,6 +1404,17 @@ class CoPetitionsController extends StandardController {
     if(!$targetUrl || $targetUrl == "") {
       $targetUrl = $this->CoPetition->CoEnrollmentFlow->field('redirect_on_finalize',
                                                               array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+    }
+    
+    // RCIAM-57
+    // If a redirect on finalize is not available, check if a target new is
+    if(!$targetUrl || $targetUrl == "") {
+      $targetUrl = $this->CoPetition->field('targetnew', array('CoPetition.id' => $id));
+    }else{
+      $targetnew = $this->CoPetition->field('targetnew', array('CoPetition.id' => $id));
+      if(!(!$targetnew || $targetnew == "")){
+        $targetUrl .= "?targetnew=".$targetnew;
+      }
     }
     
     if(!$targetUrl || $targetUrl == "") {
@@ -1649,7 +1697,7 @@ class CoPetitionsController extends StandardController {
       }
     }
     
-    // We're done, complete the step    
+    // We're done, complete the step
     $this->redirect($this->generateDoneRedirect('selectOrgIdentity', $id));
   }
   
@@ -1681,7 +1729,7 @@ class CoPetitionsController extends StandardController {
     $this->CoPetition->sendApproverNotification($id, $this->Session->read('Auth.User.co_person_id'));
     
     $this->CoPetition->updateStatus($id,
-                                    PetitionStatusEnum::PendingApproval, 
+                                    PetitionStatusEnum::PendingApproval,
                                     $this->Session->read('Auth.User.co_person_id'));
     
     // The step is done
@@ -1701,7 +1749,7 @@ class CoPetitionsController extends StandardController {
     $this->CoPetition->sendConfirmation($id, $this->Session->read('Auth.User.co_person_id'));
     
     $this->CoPetition->updateStatus($id,
-                                    PetitionStatusEnum::PendingConfirmation, 
+                                    PetitionStatusEnum::PendingConfirmation,
                                     $this->Session->read('Auth.User.co_person_id'));
     
     // The step is done
@@ -1815,7 +1863,8 @@ class CoPetitionsController extends StandardController {
    * @return Array URL in Cake array format
    */
   
-  protected function generateDoneRedirect($step, $id=null, $curPlugin=null, $curPluginId=null) {
+  protected function generateDoneRedirect($step, $id=null, $curPlugin=null, $curPluginId=null, $queryParam=null) {
+    $fn = "generateDoneRedirect";
     $ret = array(
       'plugin'     => null,
       'controller' => 'co_petitions',
@@ -1838,6 +1887,18 @@ class CoPetitionsController extends StandardController {
       $ret['piddone'] = $curPluginId;
     } else {
       $ret['done'] = ($curPlugin ? $curPlugin : 'core');
+    }
+  
+    // RCIAM-57
+    if($queryParam){
+      if(is_array($queryParam) && isset($queryParam)){
+        foreach($queryParam as $key => $value){
+          $params[$key] = $value;
+        }
+        $ret['?'] = $params;
+      }else{
+        $this->log(get_class($this)."::{$fn} Query parameters are not in an array or null",LOG_DEBUG);
+      }
     }
     
     return $ret;
@@ -1952,7 +2013,7 @@ class CoPetitionsController extends StandardController {
                    // we don't have a CO Person ID for the user (so we're in an
                    // Org Identity context, such as search by Org Identity ID)
                    || ($pool
-                       && !$roles['copersonid'] 
+                       && !$roles['copersonid']
                        && ($roles['admin'] || $roles['subadmin']))
                    || $this->Role->isApprover($roles['copersonid']));
     
@@ -2449,7 +2510,7 @@ class CoPetitionsController extends StandardController {
                     PetitionActionEnum::StepFailed,
                     $e->getMessage());
            
-      $this->performRedirect(); 
+      $this->performRedirect();
     }
     
     // Make sure we don't issue a redirect
@@ -2501,7 +2562,7 @@ class CoPetitionsController extends StandardController {
   
   /**
    * View a CO Petition.
-   * 
+   *
    * @since  COmanage Registry v0.9.4
    * @param  Integer $id CO Petition ID
    */
