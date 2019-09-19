@@ -49,3 +49,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Select last AuthnAuthority populated through shibboleth
 - Fixed the redirect url created by CO Groups Search functionality
 - Fixed redirect controller after email verification for an OrgIdentity
+- When multiple idps are included in the request data, as a unified string with a semicolon delimiter, we do not parse them properly in order to retrieve only the last idp
+- The update of the AuthnAuthority attribute gets overwritten by the old value
+- Attribute string length to 256 characters, so as to much the max size of an Entity Id

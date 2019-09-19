@@ -1560,7 +1560,7 @@
       <constraint>REFERENCES cm_co_enrollment_attributes(id)</constraint>
     </field>
     <field name="attribute" type="C" size="80" />
-    <field name="value" type="C" size="160" />
+    <field name="value" type="C" size="256" />
     <field name="attribute_foreign_key" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />

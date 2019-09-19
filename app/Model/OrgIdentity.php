@@ -605,8 +605,6 @@ class OrgIdentity extends AppModel {
       // in order for SaveAssociated to know what to do).
       
       $newOrgIdentity['OrgIdentity'] = $curOrgIdentity['OrgIdentity'];
-      // Assign the authn_authority value
-      $newOrgIdentity['OrgIdentity']['authn_authority'] = $authnAuthority;
       
       if(!empty($envOrgIdentity['OrgIdentity'])) {
         // Copy each defined field to the record to be saved
@@ -628,6 +626,9 @@ class OrgIdentity extends AppModel {
           }
         }
       }
+
+      // Assign the authn_authority value
+      $newOrgIdentity['OrgIdentity']['authn_authority'] = $authnAuthority;
       
       // We don't want to save models which have no associated env data, so iterate
       // through the models defined by the contain and check.
