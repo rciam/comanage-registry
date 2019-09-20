@@ -720,8 +720,9 @@ class CoGroupsController extends StandardController {
   public function search() {
     $fn = "search";
     $this->log(get_class($this)."::{$fn}::@", LOG_DEBUG);
-    $url['action'] = 'select';
-    $url['controller'] = 'CoGroups';
+    $url['action'] = $this->request->data['Action']['name'];
+    $url['controller'] = 'co_groups';
+    $url['copersonid'] = $this->request->data['CoPeople']['id'];
     
     // build a URL will all the search elements in it
     // the resulting URL will be
