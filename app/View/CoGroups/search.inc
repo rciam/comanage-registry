@@ -70,6 +70,9 @@ global $cm_lang, $cm_texts;
                               array('url' => array('action'=>'search'),
                                     'id'  => 'form_search'));
     print $this->Form->hidden('CoGroup.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+    if(isset($vv_co_person_id)) {
+      print $this->Form->hidden('CoPeople.id', array('default' => $vv_co_person_id)). "\n";
+    }
 
     $args = array();
     $args['label'] = _txt('fd.action');

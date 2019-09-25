@@ -47,3 +47,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Made the MasterPortal Oauth2 server url a dynamic config option for the RCAuth plugin
 - Fixed broken filtering functionality in relink process
 - Select last AuthnAuthority populated through shibboleth
+- Fixed the redirect url created by CO Groups Search functionality
+- Fixed redirect controller after email verification for an OrgIdentity
