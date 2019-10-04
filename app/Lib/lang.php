@@ -1021,7 +1021,6 @@ original notification at
   'fd.affiliation.ep' => 'eduPersonAffiliation',
   'fd.affiliation.ep.map.desc' => 'Map the extended affiliation to this eduPersonAffiliation, see <a href="https://spaces.internet2.edu/display/COmanage/Extending+the+Registry+Data+Model#ExtendingtheRegistryDataModel-%7B%7BeduPersonAffiliation%7D%7DandExtendedAffiliations">eduPersonAffiliation and Extended Affiliations</a>',
   'fd.all' =>         'All',
-  'fd.authn_authority' => 'Authenticating IdP',
   'fd.an.desc' =>     'Alphanumeric characters only',
   'fd.approver' =>    'Approver',
   'fd.archived' =>    'Archived',
