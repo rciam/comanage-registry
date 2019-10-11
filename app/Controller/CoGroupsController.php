@@ -722,7 +722,11 @@ class CoGroupsController extends StandardController {
     $this->log(get_class($this)."::{$fn}::@", LOG_DEBUG);
     $url['action'] = $this->request->data['Action']['name'];
     $url['controller'] = 'co_groups';
-    $url['copersonid'] = $this->request->data['CoPeople']['id'];
+    if(!empty($this->request->data['CoPeople']['id'])) {
+      $url['copersonid'] = $this->request->data['CoPeople']['id'];
+    } elseif (!empty($_SESSION['co_person_id'])){
+      $url['copersonid'] = $_SESSION['co_person_id'];
+    }
     
     // build a URL will all the search elements in it
     // the resulting URL will be

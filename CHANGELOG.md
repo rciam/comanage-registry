@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Subject DN attribute in user's profile
 - RC Auth (DN linking) Plugin:
   - Associate subject DN of certificate issued by RCauth to user profile
-  - Implement as COmanage Organisational Identity Source 
+  - Implement as COmanage Organisational Identity Source
   - Integrated as an OIDC(OpenID connect) client to the MasterPortal
 - VO field in user's profile
 - VOMS Provisioner Plugin:
@@ -52,3 +52,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - When multiple idps are included in the request data, as a unified string with a semicolon delimiter, we do not parse them properly in order to retrieve only the last idp
 - The update of the AuthnAuthority attribute gets overwritten by the old value
 - Attribute string length to 256 characters, so as to much the max size of an Entity Id
+- CoGroups Search functionality broke in debug mode due to missing variable
