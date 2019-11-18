@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -114,7 +114,7 @@ class CoPeopleController extends StandardController {
   public function beforeRender() {
     if(!$this->request->is('restful')){
       // Determine if there are any Enrollment Flows for this CO and if so pass
-      // them to the view. Currently, we don't check for COU-specific flows. 
+      // them to the view. Currently, we don't check for COU-specific flows.
       
       $args = array();
       $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
@@ -356,7 +356,7 @@ class CoPeopleController extends StandardController {
       }
     }
     
-    return true;      
+    return true;
   }
   
   /**
@@ -533,10 +533,8 @@ class CoPeopleController extends StandardController {
   public function index() {
     // We need to check if we're being asked to do a match via the REST API, and
     // if so dispatch it. Otherwise, just invoke the standard behavior.
-    
-    if($this->request->is('restful')
-       && (isset($this->request->query['given'])
-           || isset($this->request->query['family']))) {
+    // then dispatch to match
+    if($this->request->is('restful') && !empty($this->request->query)) {
       $this->match();
     } else {
       parent::index();
@@ -835,32 +833,32 @@ class CoPeopleController extends StandardController {
    */
   
   public function match() {
-    $criteria['Name.given'] = "";
-    $criteria['Name.family'] = "";
-    
+    // XXX We didn't validate CO ID exists here. (This is normally done by
+    // StandardController.)
+    $req_data = ($this->request->is('restful')) ? $this->request->query : $this->request->params['named'];
+    $criteria = [];
+
+    // Check my data and match
+    if(!empty($this->req_data['given'])
+      && strlen($this->req_data['given']) > 3) {
+      $criteria['Name']['given'] = $this->req_data['given'];
+    }
+    if(!empty($this->req_data['family'])
+      && strlen($this->req_data['family']) > 3) {
+      $criteria['Name']['family'] = $this->req_data['family'];
+    }
+    if(!empty($this->req_data['mail'])
+      && Validation::email($this->req_data['mail'])) {
+      $criteria['EmailAddress']['mail'] = $this->req_data['mail'];
+    }
+    $coid = $this->cur_co['Co']['id'] ?? $this->req_data['coid'];
+    $matches = $this->CoPerson->match($coid, $criteria);
+
+    // Assign the matches
     if($this->request->is('restful')) {
-      if(isset($this->request->query['given'])) {
-        $criteria['Name.given'] = $this->request->query['given'];
-      }
-      if(isset($this->request->query['family'])) {
-        $criteria['Name.family'] = $this->request->query['family'];
-      }
-      
-      // XXX We didn't validate CO ID exists here. (This is normally done by
-      // StandardController.)
-      
-      $this->set('co_people',
-                 $this->Api->convertRestResponse($this->CoPerson->match($this->request->query['coid'],
-                                                                        $criteria)));
+      $this->set('co_people',$this->Api->convertRestResponse($matches));
     } else {
-      if(isset($this->params['named']['given'])) {
-        $criteria['Name.given'] = $this->params['named']['given'];
-      }
-      if(isset($this->params['named']['family'])) {
-        $criteria['Name.family'] = $this->params['named']['family'];
-      }
-      
-      $this->set('matches', $this->CoPerson->match($this->cur_co['Co']['id'], $criteria));
+      $this->set('matches', $matches);
     }
   }
 
@@ -907,7 +905,7 @@ class CoPeopleController extends StandardController {
         'alias' => 'Name',
         'type' => 'INNER',
         'conditions' => array(
-          'Name.co_person_id=CoPerson.id' 
+          'Name.co_person_id=CoPerson.id'
         )
       );
     }
@@ -927,7 +925,7 @@ class CoPeopleController extends StandardController {
         'alias' => 'EmailAddress',
         'type' => 'INNER',
         'conditions' => array(
-          'EmailAddress.co_person_id=CoPerson.id' 
+          'EmailAddress.co_person_id=CoPerson.id'
         )
       );
       
@@ -943,7 +941,7 @@ class CoPeopleController extends StandardController {
         'alias' => 'Identifier',
         'type' => 'INNER',
         'conditions' => array(
-          'Identifier.co_person_id=CoPerson.id' 
+          'Identifier.co_person_id=CoPerson.id'
         )
       );
       
@@ -978,7 +976,7 @@ class CoPeopleController extends StandardController {
         'alias' => 'CoPersonRole',
         'type' => 'INNER',
         'conditions' => array(
-          'CoPersonRole.co_person_id=CoPerson.id' 
+          'CoPersonRole.co_person_id=CoPerson.id'
         )
       );
     }
@@ -1000,7 +998,7 @@ class CoPeopleController extends StandardController {
   
   public function performRedirect() {
     // On add, redirect to send view for notification of invite
-          
+    
     if($this->action == 'add') {
       $this->redirect(array('controller' => 'co_invites',
                             'action' => 'send',
@@ -1137,11 +1135,11 @@ class CoPeopleController extends StandardController {
     }
     
     // build a URL will all the search elements in it
-    // the resulting URL will be 
+    // the resulting URL will be
     // example.com/registry/co_people/index/Search.givenName:albert/Search.familyName:einstein
     foreach($this->data['Search'] as $field=>$value){
       if(!empty($value)) {
-        $url['Search.'.$field] = $value; 
+        $url['Search.'.$field] = $value;
       }
     }
     
@@ -1177,7 +1175,7 @@ class CoPeopleController extends StandardController {
           $this->set('vv_configured_steps', $steps);
           $this->set('vv_current_step', 'selectEnrollee');
         }
-      }      
+      }
       
       $this->index();
     }

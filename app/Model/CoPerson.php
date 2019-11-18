@@ -637,34 +637,37 @@ class CoPerson extends AppModel {
    * @param  Array Hash of field name + search pattern pairs
    * @return Array CO Person records of matching individuals
    */
-  
+
   public function match($coId, $criteria) {
-    // XXX For now, we only support Name. That's not the right long term design.
-    
-    // We need to have at least one non-trivial condition
-    if((!isset($criteria['Name.given']) || strlen($criteria['Name.given']) < 3)
-       && (!isset($criteria['Name.family']) || strlen($criteria['Name.family']) < 3)) {
-      return(array());
+    $args = array();
+    $args['joins'] = array();
+
+    foreach($criteria as $mdl => $query_params) {
+      // Add the conditions
+      foreach($query_params as $field => $value){
+        $args['conditions']['LOWER(' . $mdl . '.' . $field . ') LIKE'] = strtolower($value) . '%';
+      }
+      // Join the table to the main model
+      $args_tmp = array();
+      $args_tmp['table'] = Inflector::tableize($mdl);
+      $args_tmp['alias'] = $mdl;
+      $args_tmp['type'] = 'INNER';
+      $args_tmp['conditions'][0] = 'CoPerson.id=' . $mdl . '.co_person_id';
+      array_push($args['joins'], $args_tmp);
+      unset($args_tmp);
     }
-    
-    // To perform case insensitive searching, we convert everything to lowercase
-    if(isset($criteria['Name.given'])) {
-      $args['conditions']['LOWER(Name.given) LIKE'] = strtolower($criteria['Name.given']) . '%';
+
+    if(!empty($args)) {
+      $args['conditions']['CoPerson.co_id'] = $coId;
+      $args['contain'][] = 'PrimaryName';
+      $args['contain'][] = 'CoPersonRole';
+    } else {
+      return [];
     }
-    if(isset($criteria['Name.family'])) {
-      $args['conditions']['LOWER(Name.family) LIKE'] = strtolower($criteria['Name.family']) . '%';
-    }
-    $args['conditions']['CoPerson.co_id'] = $coId;
-    $args['joins'][0]['table'] = 'names';
-    $args['joins'][0]['alias'] = 'Name';
-    $args['joins'][0]['type'] = 'INNER';
-    $args['joins'][0]['conditions'][0] = 'CoPerson.id=Name.co_person_id';
-    $args['contain'][] = 'PrimaryName';
-    $args['contain'][] = 'CoPersonRole';
-    
+
     return $this->find('all', $args);
   }
-  
+
   /**
    * Determine if an org identity is already associated with a CO.
    *
@@ -677,7 +680,7 @@ class CoPerson extends AppModel {
   public function orgIdIsCoPerson($coId, $orgIdentityId) {
     // Try to retrieve a link for this org identity id where the co person id
     // is a member of this CO
-      
+    
     $args['joins'][0]['table'] = 'co_org_identity_links';
     $args['joins'][0]['alias'] = 'CoOrgIdentityLink';
     $args['joins'][0]['type'] = 'INNER';
