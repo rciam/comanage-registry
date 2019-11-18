@@ -629,28 +629,51 @@ class CoPerson extends AppModel {
    */
   
   public function match($coId, $criteria) {
-    // XXX For now, we only support Name. That's not the right long term design.
+    $namesJoin = false;
+    $args = array();
+    // To perform case insensitive searching, we convert everything to lowercase
+    if(!empty($criteria['Name.given']) && strlen($criteria['Name.given']) > 3) {
+      $args['conditions']['LOWER(Name.given) LIKE'] = strtolower($criteria['Name.given']) . '%';
+      $namesJoin = true;
+    }
+    if(!empty($criteria['Name.family']) && strlen($criteria['Name.family']) > 3) {
+      $args['conditions']['LOWER(Name.family) LIKE'] = strtolower($criteria['Name.family']) . '%';
+      $namesJoin = true;
+    }
+    // If at least one of the attributes, given or family, is available the we should join the table
+    if($namesJoin) {
+      $args['joins'][0]['table'] = 'names';
+      $args['joins'][0]['alias'] = 'Name';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoPerson.id=Name.co_person_id';
+    }
     
-    // We need to have at least one non-trivial condition
-    if((!isset($criteria['Name.given']) || strlen($criteria['Name.given']) < 3)
-       && (!isset($criteria['Name.family']) || strlen($criteria['Name.family']) < 3)) {
+    // if we have an email
+    $email = strtolower($criteria['EmailAddress.mail']) ? strtolower($criteria['EmailAddress.mail']) : "";
+    if(Validation::email($email)) {
+      $args['conditions']['LOWER(EmailAddress.mail) LIKE'] = $email . '%';
+      $args_email = array();
+      $args_email['table'] = 'email_addresses';
+      $args_email['alias'] = 'EmailAddress';
+      $args_email['type'] = 'INNER';
+      $args_email['conditions'][0] = 'CoPerson.id=EmailAddress.co_person_id';
+    }
+    
+    // Now push the array at the table of args
+    if(!empty($args_email)){
+      if(!isset($args['joins'])) {
+        $args['joins'] = array();
+      }
+      array_push($args['joins'], $args_email);
+    }
+  
+    if(!empty($args)) {
+      $args['conditions']['CoPerson.co_id'] = $coId;
+      $args['contain'][] = 'PrimaryName';
+      $args['contain'][] = 'CoPersonRole';
+    } else {
       return(array());
     }
-    
-    // To perform case insensitive searching, we convert everything to lowercase
-    if(isset($criteria['Name.given'])) {
-      $args['conditions']['LOWER(Name.given) LIKE'] = strtolower($criteria['Name.given']) . '%';
-    }
-    if(isset($criteria['Name.family'])) {
-      $args['conditions']['LOWER(Name.family) LIKE'] = strtolower($criteria['Name.family']) . '%';
-    }
-    $args['conditions']['CoPerson.co_id'] = $coId;
-    $args['joins'][0]['table'] = 'names';
-    $args['joins'][0]['alias'] = 'Name';
-    $args['joins'][0]['type'] = 'INNER';
-    $args['joins'][0]['conditions'][0] = 'CoPerson.id=Name.co_person_id';
-    $args['contain'][] = 'PrimaryName';
-    $args['contain'][] = 'CoPersonRole';
     
     return $this->find('all', $args);
   }
