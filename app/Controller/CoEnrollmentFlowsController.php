@@ -309,7 +309,6 @@ class CoEnrollmentFlowsController extends StandardController {
     $this->set('title_for_layout', _txt('ct.co_enrollment_flows.pl'));
 
     // Check if we have been redirected by search
-    //$this->log(get_class($this)."::{$fn}::request => " . print_r($this->request, true), LOG_DEBUG);
     $enrollmentFlowName = isset($this->request->params['named']['Search.name']) ? $this->request->params['named']['Search.name'] : "";
     // Start with a list of enrollment flows
     // Use server side pagination
@@ -322,7 +321,6 @@ class CoEnrollmentFlowsController extends StandardController {
     }
     $this->paginate['contain'] = false;
 
-    $this->log(get_class($this)."::{$fn}::paginate => " . print_r($this->paginate, true), LOG_DEBUG);
     $this->Paginator->settings = $this->paginate;
     $flows =  $this->Paginator->paginate('CoEnrollmentFlow');
     // Walk through the list of flows and see which ones this user is authorized to run
@@ -370,7 +368,6 @@ class CoEnrollmentFlowsController extends StandardController {
 
      $url['co'] = $this->cur_co['Co']['id'];
 
-    $this->log(get_class($this)."::{$fn}::url" . $url, LOG_DEBUG);
     // redirect the user to the url
     $this->redirect($url, null, true);
   }
