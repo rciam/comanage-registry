@@ -73,3 +73,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - CO Level custom Themes had no effect on Invitation pages during and Enrollment Flow
 - Fix hardcoded intro message in invitation acceptance page.Added as Enrollment Flow Configuration.
 - Redirect directly to the configured Plugin, if the Enrollment Flow step is optional
+- Authenticated Authority did not set properly during an IdP linking Enrollment Flow

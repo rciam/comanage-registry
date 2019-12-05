@@ -180,6 +180,16 @@ class CoInvite extends AppModel {
               if(isset($cp_email['EmailAddress']['id'])){
                 $this->CoPerson->EmailAddress->verify(null, $invite['CoInvite']['co_person_id'], $invite['CoInvite']['mail'], $invite['CoPetition']['enrollee_co_person_id']);
               }
+
+              // RCIAM-197
+              $authn_authority = getenv('AuthenticatingAuthority');
+              if(!empty($authn_authority)){
+                $authnIdps = explode(";", $authn_authority);
+                $authnAuthority = end($authnIdps);
+                $this->OrgIdentity = ClassRegistry::init('OrgIdentity');
+                $this->OrgIdentity->id = $orgId;
+                $this->OrgIdentity->saveField('authn_authority', $authnAuthority);
+              }
             }
             catch(Exception $e) {
               $dbc->rollback();
