@@ -1459,7 +1459,7 @@ class CoPetitionsController extends StandardController {
         // Default redirect is to /, which isn't really a great target
         
         $this->Flash->set(_txt('rs.pt.create.self'), array('key' => 'success'));
-        $targetUrl = "/";
+        $targetUrl = !empty(Configure::read('confirmationLogout.path')) ? Configure::read('confirmationLogout.path') : "/";
       }
       // else we suppress the flash message, since it may not make sense in context
       // or may appear "randomly" (eg: if the targetUrl is outside the Cake framework)
