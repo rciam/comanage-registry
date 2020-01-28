@@ -126,7 +126,7 @@
     </div>
     <div class="field-info">
       <?php print ($e
-                   ? $this->Form->input('text', array('size' => '80','class' => 'focusFirst'))
+                   ? $this->Form->input('text', array('size' => '512','class' => 'focusFirst', 'type' => 'textarea'))
                    : filter_var($co_localizations[0]['CoLocalization']['text'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>

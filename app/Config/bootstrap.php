@@ -113,6 +113,10 @@ Configure::write('Dispatcher.filters', array(
 	'CacheDispatcher'
 ));
 
+
+// Add a custom confirmation logout page. The path should be under Views/pages/public/mycustomlogout.ctp
+// Configure::write('confirmationLogout.path', '/pages/public/mycustomlogout');
+
 /**
  * Configures default file logging options
  */
