@@ -646,13 +646,7 @@
   <?php
     // Render conclusion text for new petitions
     if(!empty($vv_conclusion_text)) {
-      print '<div class="modelbox">' . $vv_conclusion_text . "</div>";
-    }
-    if(!empty($co_enrollment_flow_id) && ($co_enrollment_flow_id === 1 || $co_enrollment_flow_id === 2)) {
-      print '<div class="ui-widget modelbox">'
-        . '<p>After you click Submit, we’ll send you an email and you simply click on a link to confirm your email address.</p>'
-        . '<p><i>Important: If you do not find the email in your Inbox, please check your Spam or Junk folder for an email from "EGI AAI Notifications". If you do find the email in these folders, mark the email as "safe" or "not spam" to ensure that you receive any future notifications about your EGI ID.</i></p>'
-        . '</div>';
+      print '<div class="ui-widget modelbox">' . $vv_conclusion_text . "</div>";
     }
   ?>
 
