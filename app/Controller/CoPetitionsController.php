@@ -752,6 +752,10 @@ class CoPetitionsController extends StandardController {
             'controller' => Inflector::underscore($plugins[$i]) . '_co_petitions',
             'action'     => $step
           );
+          // Redirect to the plugin taking the query params with you
+          if ($step == 'start' && !empty($this->request->query)) {
+              $redirect['?'] = $this->request->query;
+          }
           
           // Append petition ID or enrollment flow ID according to what we know
           if($id) {
