@@ -50,7 +50,6 @@
       print $this->Html->css('mdl/mdl-1.3.0/material.css') . "\n    ";
       print $this->Html->css('co-base') . "\n    ";
       print $this->Html->css('co-responsive') . "\n    ";
-      print $this->Html->css('rciam-pg-vert') . "\n    ";
     ?>
 
     <!-- Load JavaScript -->
@@ -66,15 +65,10 @@
       print $this->fetch('script');
     ?>
 
-    <!--  Initial calculations  -->
-    <?php
-       $currentIndex = array_search($vv_current_step, $vv_steps);
-    ?>
-
     <script type="text/javascript">
       // Add a spinner to this page
       var coSpinnerOpts = {
-        // top: '75%',
+        top: '75%',
         lines: 13, // The number of lines to draw
         length: 6, // The length of each line
         width: 3, // The line thickness
@@ -93,8 +87,6 @@
       $(function() {
         var coSpinnerTarget = document.getElementById('redirect-spinner');
         var coSpinner = new Spinner(coSpinnerOpts).spin(coSpinnerTarget);
-        // Focus to the current active circle
-        document.getElementById('<?php print $vv_current_step; ?>').focus();
       });
 
     </script>
@@ -215,35 +207,7 @@
         <div id="content" class="mdl-grid">
           <div id="content-inner" class="mdl-cell mdl-cell--12-col">
             <div id="redirect-box">
-              <div class="vprogress">
-                <?php //print $this->fetch('content'); ?>
-                <?php foreach ($vv_steps as $index => $step): ?>
-                  <?php if ($index === $currentIndex): ?>
-                    <div tabindex="-1" id="<?php print $step ?>" class="circle active">
-                      <span class="label"><?php print ($index+1); ?></span>
-                      <span class="title"><?php print $step; ?></span>
-                      <div class="spinner-pos" id="redirect-spinner"></div>
-                    </div>
-                    <div class="bar"></div>
-                  <?php elseif ($currentIndex > $index ): ?>
-                    <div id="<?php print $step ?>" class="circle done">
-                      <span class="label">✓</span>
-                      <span class="title"><?php print $step; ?></span>
-                    </div>
-                    <?php if (($currentIndex-1) === $index): ?>
-                      <div class="bar active"></div>
-                    <?php else: ?>
-                      <div class="bar done"></div>
-                    <?php endif; ?>
-                  <?php else: ?>
-                    <div id="<?php print $step; ?>" class="circle">
-                      <span class="label"><?php print ($index+1); ?></span>
-                      <span class="title"><?php print $step; ?></span>
-                    </div>
-                    <div class="bar"></div>
-                  <?php endif; ?>
-                <?php endforeach;?>
-              </div>
+              <?php print $this->fetch('content'); ?>
             </div>
           </div>
         </div>

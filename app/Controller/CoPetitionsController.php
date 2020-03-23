@@ -915,11 +915,17 @@ class CoPetitionsController extends StandardController {
       // Set the redirect target in a view var so the view can generate the redirect
       $this->set('vv_meta_redirect_target', $redirect);
       $this->set('vv_next_step', _txt('ef.step.' . $this->nextSteps[$step]));
+
+      // Get the on progress text
+      $onProgress = $this->CoPetition->CoEnrollmentFlow->field('on_progress_text', array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+      $this->set('vv_on_progress', $onProgress);
       $this->set('vv_current_step', $step);
       $this->set('vv_steps', array_keys($this->nextSteps));
       
       $this->layout = 'redirect';
-      $this->render('nextStep');
+      // TODO: make this a Platform configuration
+      //$this->render('nextStep');
+      $this->render('progressLayout');
     }
   }
   
