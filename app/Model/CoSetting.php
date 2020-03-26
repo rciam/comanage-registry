@@ -366,6 +366,18 @@ class CoSetting extends AppModel {
   public function nsfDemgraphicsEnabled($coId) {
     return (boolean)$this->lookupValue($coId, 'enable_nsf_demo');
   }
+
+  /**
+   * Determine if NSF Demographics are enabled for the specified CO.
+   *
+   * @since  COmanage Registry v3.1.1
+   * @param  integer $coId CO ID
+   * @return boolean True if enabled, false otherwise
+   */
+  
+  public function petitionUiImprovedEnabled($coId) {
+    return (boolean)$this->lookupValue($coId, 'enable_eof_ui');
+  }
   
   /**
    * Determine if Org Identity Sync is enabled for the specified CO.

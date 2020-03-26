@@ -2253,6 +2253,7 @@
     <field name="disable_expiration" type="L" />
     <field name="disable_ois_sync" type="L" />
     <field name="enable_normalization" type="L" />
+    <field name="enable_eof_ui" type="L" />
     <field name="invitation_validity" type="I" />
     <field name="permitted_fields_name" type="C" size="160" />
     <field name="required_fields_addr" type="C" size="160" />

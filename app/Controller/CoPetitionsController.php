@@ -923,9 +923,11 @@ class CoPetitionsController extends StandardController {
       $this->set('vv_steps', array_keys($this->nextSteps));
       
       $this->layout = 'redirect';
-      // TODO: make this a Platform configuration
-      //$this->render('nextStep');
-      $this->render('progressLayout');
+      if($this->Co->CoSetting->petitionUiImprovedEnabled($this->cur_co['Co']['id'])) {
+        $this->render('progressLayout');
+      } else {
+        $this->render('nextStep');
+      }
     }
   }
   

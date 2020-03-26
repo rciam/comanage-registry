@@ -1063,6 +1063,7 @@ original notification at
   'fd.de.race'    =>  'Race',
   'fd.de.disab'   =>  'Disability',
   'fd.de.enable'  =>  'Enable NSF Demographics',
+  'fd.ui.enable'  =>  'Enable Petition Improved UI',
   'fd.default'    =>  'Default',
   'fd.dp.group.admin' => 'Administrative Group',
   'fd.dp.group.admin.desc' => 'Group containing the Department administrators',

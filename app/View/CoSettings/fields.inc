@@ -123,6 +123,19 @@
   </li>
   <li>
     <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.ui.enable'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php print ($e
+        ? $this->Form->input('enable_eof_ui')
+        : (isset($co_settings[0]['CoSetting']['enable_eof_ui'])
+        && $co_settings[0]['CoSetting']['enable_eof_ui']
+          ? _txt('fd.yes') : _txt('fd.no')));
+      print ' ' . $this->Form->label('enable_eof_ui',_txt('fd.ui.enable'));
+      ?>
+  </li>
+  <li>
+    <div class="field-name">
       <div class="field-title"><?php print $this->Form->label('invitation_validity',_txt('fd.ef.invval'),array('class' => 'fieldTitle'));?></div>
       <div class="field-desc"><?php print _txt('fd.ef.invval.desc'); ?></div>
     </div>
