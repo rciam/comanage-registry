@@ -56,3 +56,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - The update of the AuthnAuthority attribute gets overwritten by the old value
 - Attribute string length to 256 characters, so as to much the max size of an Entity Id
 - CoGroups Search functionality broke in debug mode due to missing variable
+- False permission calculation for Members and Owners of COU:admins group
