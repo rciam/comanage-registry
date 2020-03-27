@@ -345,27 +345,13 @@ class CoGroupsController extends StandardController {
     $this->log(get_class($this)."::{$fn}::@ ", LOG_DEBUG);
     $roles = $this->Role->calculateCMRoles();
     
-    $own = array();
-    $member = array();
     $managed = false;
     $managedp = false;
     $readonly = false;
     $self = false;
     
     if(!empty($roles['copersonid'])) {
-      $args = array();
-      $args['conditions']['CoGroupMember.co_person_id'] = $roles['copersonid'];
-      $args['conditions']['CoGroupMember.owner'] = true;
-      $args['contain'] = false;
-      
-      $own = $this->CoGroup->CoGroupMember->find('all', $args);
-      
-      $args = array();
-      $args['conditions']['CoGroupMember.co_person_id'] = $roles['copersonid'];
-      $args['conditions']['CoGroupMember.member'] = true;
-      $args['contain'] = false;
-      
-      $member = $this->CoGroup->CoGroupMember->find('all', $args);
+      $curlRoles = $this->CoGroup->CoGroupMember->findCoPersonGroupRoles($roles['copersonid']);
       
       if(!empty($this->request->params['pass'][0])) {
         $managed = $this->Role->isGroupManager($roles['copersonid'], $this->request->params['pass'][0]);
@@ -423,24 +409,8 @@ class CoGroupsController extends StandardController {
       $p['view'] = true;
     }
     
-    if(isset($own)) {
-      // Set array of groups where person is owner
-      
-      $p['owner'] = array();
-      
-      foreach($own as $g) {
-        $p['owner'][] = $g['CoGroupMember']['co_group_id'];
-      }
-    }
-    
-    if(isset($member)) {
-      // Set array of groups where person is member
-      $p['member'] = array();
-      
-      foreach($member as $g) {
-        $p['member'][] = $g['CoGroupMember']['co_group_id'];
-      }
-    }
+    $p['member'] = !empty($curlRoles['member']) ? $curlRoles['member'] : array();
+    $p['owner'] = !empty($curlRoles['owner']) ? $curlRoles['owner'] : array();
     
     // (Re)provision an existing CO Group?
     $p['provision'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
