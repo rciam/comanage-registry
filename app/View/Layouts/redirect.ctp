@@ -207,10 +207,7 @@
         <div id="content" class="mdl-grid">
           <div id="content-inner" class="mdl-cell mdl-cell--12-col">
             <div id="redirect-box">
-              <div id="redirect-box-content">
-                <?php print $this->fetch('content'); ?>
-              </div>
-              <div id="redirect-spinner"></div>
+              <?php print $this->fetch('content'); ?>
             </div>
           </div>
         </div>

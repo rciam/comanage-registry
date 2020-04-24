@@ -741,6 +741,19 @@
   <li class="field-stack">
     <div class="field-name">
       <div class="field-title">
+        <?php print ($e ? $this->Form->label('on_progress_text', _txt('fd.ef.progress')) : _txt('fd.ef.progress')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.progress.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+        ? $this->Form->input('on_progress_text')
+        : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['on_progress_text'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li class="field-stack">
+    <div class="field-name">
+      <div class="field-title">
         <?php print ($e ? $this->Form->label('conclusion_text', _txt('fd.ef.concl')) : _txt('fd.ef.concl')); ?>
       </div>
       <div class="field-desc"><?php print _txt('fd.ef.concl.desc'); ?></div>
