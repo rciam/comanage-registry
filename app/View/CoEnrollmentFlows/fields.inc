@@ -858,7 +858,7 @@
       <?php
         print ($e
                ? $this->Form->input('hidden',
-                                    array('default' => false))
+                                    array('default' => false, 'type' => 'checkbox'))
                : ($co_enrollment_flows[0]['CoEnrollmentFlow']['hidden']
                   ? _txt('fd.yes') : _txt('fd.no')));
       ?>

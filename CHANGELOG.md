@@ -38,6 +38,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Use new [EGI theme](https://github.com/EGI-Foundation/comanage-registry-themeegi)
 - Changed the way we load plugins from config. This extention will allow plugins to inject bootstrapping and routes
 - Increased CO Localization text field capacity.
+- Improved user's graphical interaction during Enrollment Flow
 
 ### Fixed
 - Prevent users from submitting multiple registration requests
