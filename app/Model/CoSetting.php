@@ -141,6 +141,7 @@ class CoSetting extends AppModel {
     'disable_expiration'    => false,
     'disable_ois_sync'      => false,
     'enable_normalization'  => true,
+    'enable_eof_ui'         => false,
     'enable_nsf_demo'       => false,
     'invitation_validity'   => DEF_INV_VALIDITY,
     'permitted_fields_name' => PermittedNameFieldsEnum::HGMFS,
