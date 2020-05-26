@@ -14,8 +14,9 @@
   print $this->Html->css('rciam-pg-vert') . "\n    ";
   print $this->Html->css('rciam-pg-pie') . "\n    ";
 
-  $currentIndex = array_search($vv_current_step, $vv_steps);
-  $progress_percent = round(($currentIndex+1)/count($vv_steps)*100);
+$currentIndex = $vv_steps[$vv_current_step];
+$maxIndex = end($vv_steps);
+$progress_percent = round(($currentIndex/$maxIndex)*100);
 
   if (empty($vv_on_progress))  {
     $vv_on_progress =  _txt('fd.ef.progress.default');
