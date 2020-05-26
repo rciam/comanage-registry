@@ -1621,7 +1621,6 @@ original notification at
   'op.approve' =>     'Approve',
   'op.back' =>        'Back',
   'op.begin' =>       'Begin',
-  'op.start.begin' =>       'Begin',
   'op.cancel' =>      'Cancel',
   'op.clear.all' =>   'Clear',
   'op.clear.search' =>   'Clear search',
