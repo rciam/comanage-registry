@@ -161,6 +161,39 @@ class CoPetitionsController extends StandardController {
     'provision'                    => 'redirectOnConfirm'
   );
   
+  // There are steps that result in temporarily exiting the flow, so what
+  // appears to be the next step doesn't necessarily actually run.
+  // As a resulte we defined an array that maps action to an ordered step
+  // The critical path is the one that defines the order. So there will be
+  // occassions that we will habe jumps. This is acceptable.
+  protected $nextStepsFlow = array(
+    'start'                        => 1,  // 6%
+    'selectEnrollee'               => 2,  // 12%
+    'selectOrgIdentity'            => 3,  // 18%
+    'petitionerAttributes'         => 4,  // 24%
+    'sendConfirmation'             => 5,  // 29%
+    // execution continues here if confirmation not required
+    'waitForConfirmation'          => 6,  // 35%
+    'checkEligibility'             => 9,  // 53%    => The longest path prevails
+    // We have both redirectOnConfirm and waitForApproval because depending on the
+    // confirmation we might have different paths to completing the processConfirmation step
+    'establishAuthenticators'     => 10,  // 59%
+    'sendApproverNotification'     => 11, // 65%
+    // If approval is not required, then we'll continue here
+    'waitForApproval'              => 12, // 71%
+    // execution continues at finalize if approval not required
+    // processConfirmation is re-entry point following confirmation
+    'processConfirmation'          => 7,  // 41%
+    'collectIdentifier'            => 8,  // 47%
+    // approve is re-entry point following approval
+    'approve'                      => 13, // 76%
+    'sendApprovalNotification'     => 14, // 82%
+    'deny'                         => 13, // 76%
+    'finalize'                     => 15, // 88%
+    'provision'                    => 16, // 94%
+    'redirectOnConfirm'            => 17, // 100%
+  );
+  
   /**
    * Add a CO Petition.
    *
@@ -920,7 +953,9 @@ class CoPetitionsController extends StandardController {
       $onProgress = $this->CoPetition->CoEnrollmentFlow->field('on_progress_text', array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
       $this->set('vv_on_progress', $onProgress);
       $this->set('vv_current_step', $step);
-      $this->set('vv_steps', array_keys($this->nextSteps));
+      // todo: What should we do if the sorting fails???
+      asort($this->nextStepsFlow);
+      $this->set('vv_steps', $this->nextStepsFlow);
       
       $this->layout = 'redirect';
       if($this->Co->CoSetting->petitionUiImprovedEnabled($this->cur_co['Co']['id'])) {
