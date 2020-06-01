@@ -23,6 +23,8 @@ class IdpHelper extends AppHelper
     curl_setopt($ch, CURLOPT_AUTOREFERER, 1);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
     curl_setopt($ch, CURLOPT_URL, $entityId);    // get the url contents
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 3);
 
     $xmlData = curl_exec($ch); // execute curl request
     $http_response = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -60,7 +62,6 @@ class IdpHelper extends AppHelper
       }
     }
   }
-
 }
 
 ?>
