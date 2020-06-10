@@ -926,7 +926,7 @@ class AppController extends Controller {
     // Manage the CO (or COU) population?
     // XXX This permission is somewhat confusingly named (implies cmp admin managing COs)
     // as is 'admin' below (which really implies cmadmin)
-    $p['menu']['cos'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
+    $p['menu']['cos'] = $roles['cmadmin'] || $roles['coadmin'];
     // Which COUs?
     $p['menu']['admincous'] = $roles['admincous'];
     
