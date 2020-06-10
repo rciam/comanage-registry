@@ -118,7 +118,9 @@ class CoInvitesController extends AppController {
    */
   
   protected function calculateImpliedCoId($data = null) {
-    if($this->action == "confirm" || $this->action == "authconfirm") {
+    if($this->action == "confirm"
+       || $this->action == "authconfirm"
+       || $this->action == "reply") {
       // Identifier assignment requires the CO ID to be set, but since CO ID isn't
       // provided as an explicit parameter, beforeFilter can't find it.
       
@@ -844,5 +846,25 @@ class CoInvitesController extends AppController {
     } else {
       $this->Flash->set(_txt('er.notprov.id', array(_txt('ct.email_addresses.1'))), array('key' => 'error'));
     }
+  }
+
+  /**
+   * Determine the requested Enrollment Flow ID.
+   *
+   * @since  COmanage Registry v3.3
+   * @return Integer CO Enrollment Flow ID if found, or -1 otherwise
+   */
+
+  function enrollmentFlowID() {
+    // Get the inviteId
+    $inviteId = !empty($this->request->params["pass"][0]) ? $this->request->params["pass"][0] : '';
+    // Grab the invite info in case we need it later (we're about to delete it)
+    $args = array();
+    $args['conditions']['CoInvite.invitation'] = $inviteId;
+    $args['contain'] = array('CoPetition');
+
+    $invite = $this->CoInvite->find('first', $args);
+    $efId = !empty($invite["CoPetition"]["co_enrollment_flow_id"]) ? $invite["CoPetition"]["co_enrollment_flow_id"] : -1;
+    return $efId;
   }
 }

@@ -59,3 +59,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - CoGroups Search functionality broke in debug mode due to missing variable
 - False permission calculation for Members and Owners of COU:admins group
 - Fix wrong progress calculation during Enrollment
+- Fix UI Themes do not apply for Invitation Views
