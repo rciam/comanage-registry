@@ -496,6 +496,30 @@ class CoGroup extends AppModel {
   }
   
   /**
+   * Obtain all groups for a COU.
+   *
+   * @since  COmanage Registry v3.0.0
+   * @param  Integer CO ID
+   * @param  Integer COU ID
+   * @param  Boolean Whether to return admin only record
+   * @return Array Group information, as returned by find
+   */
+  
+  function findForCou($coId, $couId, $admin=false) {
+    $args = array();
+    $args['conditions']['CoGroup.co_id'] = $coId;
+    // For the CO Admin group, $couId must be null
+    $args['conditions']['CoGroup.cou_id'] = $couId;
+    if($admin) {
+      $args['conditions']['CoGroup.group_type'] = GroupEnum::Admins;
+    }
+    $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
+  
+    return $this->Co->CoGroup->find('all', $args);
+  }
+  
+  /**
    * Obtain the set of members of a group, sorted by owner status and member name.
    *
    * @since  COmanage Registry v1.0.0

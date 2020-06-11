@@ -32,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Add support for hiding attributes from the enrollment form. Admins can hide an enrollment flow attribute by setting the value of Hidden from enrollment form view to true in the Enrollment Attribute configuration page. By default the value is false/empty and all the configured Enrolment Attributes will be displayed in the enrollment form.
 - Retrieve AuthenticatingAuthority during user registration
 - Redirect User to the SP after registration. Currently the User was redirected to their COmanage profile view and should go back and reselect the service.
+- Extended CoGroups REST API to support CoGroups search by COU and admin CoGroups search by COU.
 
 ### Changed
 - Update email and subject DN when the user logs into registry
