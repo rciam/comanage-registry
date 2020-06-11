@@ -673,6 +673,12 @@ class TAndCLoginModeEnum
   const DisableAllServices = 'D';
 }
 
+class DepartmentEnum {
+  const VO                  = 'vo';
+  const ResearchInstitute   = 'researchinstitute';
+  const Department          = 'department';
+}
+
 class UrlEnum {
   const Official      = 'official';
   const Personal      = 'personal';
