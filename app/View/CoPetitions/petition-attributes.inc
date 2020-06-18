@@ -135,16 +135,10 @@
 <div class="fields">
   <?php
     // Render introductory text for new petitions
-    
-    if($this->action == 'add' && !empty($vv_introduction_text)) {
-      print '<div class="modelbox">' . $vv_introduction_text . "</div>";
-    }
 
-    if(!empty($co_enrollment_flow_id) && ($co_enrollment_flow_id === 2)) {
-        print '<div class="ui-widget modelbox">'
-            . '<p>Complete the sign-up form by entering all the required fields </p>'
-            . '</div>';
-    }
+  if(!empty($vv_introduction_text_invite)) {
+    print '<div class="modelbox">' . $vv_introduction_text_invite . "</div>";
+  }
     
     // If a token was passed in, submit it as part of the form
     if(!empty($vv_petition_token)) {

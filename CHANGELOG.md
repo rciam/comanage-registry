@@ -67,3 +67,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fix fatal error when deleting Provisioning Plugins
 - Hide left menu, user top menu, breadcrumbs during Enrollment Flow
 - CO Level custom Themes had no effect on Invitation pages during and Enrollment Flow
+- Fix hardcoded intro message in invitation acceptance page.Added as Enrollment Flow Configuration.
