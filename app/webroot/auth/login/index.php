@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -41,6 +41,33 @@ if(empty($_SERVER['REMOTE_USER'])) {
   exit;
 }
 
-$_SESSION['Auth']['external']['user'] = $_SERVER['REMOTE_USER'];
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <script type="text/javascript" src="../../js/comanage.js"></script>
+  <script type="text/javascript" src="../../js/jquery/spin.min.js"></script>
+</head>
+<body onload="actionsLoad()" style="margin:0;">
+<div id="coSpinner"></div>
+<?php
 
-header("Location: " . "/registry/users/login");
+$_SESSION['Auth']['external']['user'] = $_SERVER['REMOTE_USER'];
+$path = str_replace('auth/login/', '', $_SERVER["REQUEST_URI"]);
+$redirect_url = $_SERVER["REQUEST_SCHEME"] . '://' . $_SERVER["SERVER_NAME"] . $path . 'users/login';
+?>
+
+
+<script>
+    function actionsLoad() {
+        let coSpinnerTarget = document.getElementById('coSpinner');
+        // coSpinnerOpts are set in js/comanage.js
+        let coSpinner = new Spinner(coSpinnerOpts).spin(coSpinnerTarget);
+        // Show spinner and Redirect to COmanage
+        let redirect_url = "<?php print $redirect_url; ?>";
+        window.location.assign(redirect_url);
+    }
+</script>
+</body>
+</html>
