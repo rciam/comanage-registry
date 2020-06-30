@@ -476,6 +476,7 @@ class CoPetitionsController extends StandardController {
                                        ->CoEnrollmentFlow
                                        ->CoEnrollmentAttribute
                                        ->mapEnvAttributes($enrollmentAttributes, array());
+          $enrollmentAttributes_attributes = Hash::combine($enrollmentAttributes, '{n}.attribute', '{n}.default');
         }
         
         $this->set('co_enrollment_attributes', $enrollmentAttributes);
@@ -497,9 +498,13 @@ class CoPetitionsController extends StandardController {
                                                             array('CoEnrollmentFlow.id' => $enrollmentFlowID));
         
         if($authn || $authz != EnrollmentAuthzEnum::None) {
+          $cou_id = (array_key_exists('r:cou_id', $enrollmentAttributes_attributes))
+                    ? $enrollmentAttributes_attributes['r:cou_id']
+                    : null;
+
           $tArgs = array();
           $tArgs['conditions']['CoTermsAndConditions.co_id'] = $this->cur_co['Co']['id'];
-          $tArgs['conditions']['CoTermsAndConditions.cou_id'] = null;
+          $tArgs['conditions']['CoTermsAndConditions.cou_id'] = $cou_id;
           $tArgs['conditions']['CoTermsAndConditions.status'] = SuspendableStatusEnum::Active;
           $tArgs['contain'] = false;
           
