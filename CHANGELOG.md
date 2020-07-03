@@ -33,6 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Retrieve AuthenticatingAuthority during user registration
 - Redirect User to the SP after registration. Currently the User was redirected to their COmanage profile view and should go back and reselect the service.
 - Spinner in blank View during authentication redirect from Proxy
+- Apply VO specific Terms & Conditions when enrolling to the VO
 
 ### Changed
 - Update email and subject DN when the user logs into registry
