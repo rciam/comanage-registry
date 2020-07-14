@@ -476,6 +476,12 @@ class CoPetitionsController extends StandardController {
                                        ->CoEnrollmentFlow
                                        ->CoEnrollmentAttribute
                                        ->mapEnvAttributes($enrollmentAttributes, array());
+          $enrollmentAttributes_attributes = array();
+          foreach($enrollmentAttributes as $value) {
+            $attribute = $value['attribute'];
+            $default = (!empty($value['default'])) ? $value['default'] : '';
+            $enrollmentAttributes_attributes[$attribute] = $default;
+          }
         }
         
         $this->set('co_enrollment_attributes', $enrollmentAttributes);
@@ -497,14 +503,37 @@ class CoPetitionsController extends StandardController {
                                                             array('CoEnrollmentFlow.id' => $enrollmentFlowID));
         
         if($authn || $authz != EnrollmentAuthzEnum::None) {
+          $cou_id = (array_key_exists('r:cou_id', $enrollmentAttributes_attributes))
+                    ? $enrollmentAttributes_attributes['r:cou_id']
+                    : null;
+
+          // XXX Check for COU level T&C
           $tArgs = array();
           $tArgs['conditions']['CoTermsAndConditions.co_id'] = $this->cur_co['Co']['id'];
-          $tArgs['conditions']['CoTermsAndConditions.cou_id'] = null;
+          $tArgs['conditions']['CoTermsAndConditions.cou_id'] = $cou_id;
           $tArgs['conditions']['CoTermsAndConditions.status'] = SuspendableStatusEnum::Active;
           $tArgs['contain'] = false;
+          $tnc = $this->CoPetition->Co->CoTermsAndConditions->find('all', $tArgs);
+          unset($tArgs);
+          if (empty($tnc) && !is_null($cou_id)) {
+            $tArgs['conditions']['CoTermsAndConditions.co_id'] = $this->cur_co['Co']['id'];
+            $tArgs['conditions']['CoTermsAndConditions.cou_id'] = $cou_id;
+            $tArgs['conditions']['CoTermsAndConditions.status'] = SuspendableStatusEnum::Suspended;
+            $tArgs['contain'] = false;
+            $total_suspended = $this->CoPetition->Co->CoTermsAndConditions->find('count', $tArgs);
+            unset($tArgs);
+            if($total_suspended === 0) {
+              $tArgs = array();
+              $tArgs['conditions']['CoTermsAndConditions.co_id'] = $this->cur_co['Co']['id'];
+              $tArgs['conditions']['CoTermsAndConditions.cou_id'] = null;
+              $tArgs['conditions']['CoTermsAndConditions.status'] = SuspendableStatusEnum::Active;
+              $tArgs['contain'] = false;
+              $tnc = $this->CoPetition->Co->CoTermsAndConditions->find('all', $tArgs);
+              unset($tArgs);
+            }
+          }
           
-          $this->set('vv_terms_and_conditions',
-                     $this->CoPetition->Co->CoTermsAndConditions->find('all', $tArgs));
+          $this->set('vv_terms_and_conditions', $tnc);
           
           // Also pass through the T&C Mode
           
