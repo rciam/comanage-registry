@@ -405,6 +405,8 @@ class CoPetitionsController extends StandardController {
         $this->loadModel('CmpEnrollmentConfiguration');
         
         $envValues = false;
+        $enrollmentAttributes_attributes = array();
+
         $enrollmentAttributes = $this->CoPetition
                                      ->CoEnrollmentFlow
                                      ->CoEnrollmentAttribute
@@ -476,7 +478,7 @@ class CoPetitionsController extends StandardController {
                                        ->CoEnrollmentFlow
                                        ->CoEnrollmentAttribute
                                        ->mapEnvAttributes($enrollmentAttributes, array());
-          $enrollmentAttributes_attributes = array();
+
           foreach($enrollmentAttributes as $value) {
             $attribute = $value['attribute'];
             $default = (!empty($value['default'])) ? $value['default'] : '';
@@ -501,7 +503,7 @@ class CoPetitionsController extends StandardController {
         // We'll also run T&C if authz != None, since we'll have an authenticated user that way, too
         $authz = $this->CoPetition->CoEnrollmentFlow->field('authz_level',
                                                             array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-        
+
         if($authn || $authz != EnrollmentAuthzEnum::None) {
           $cou_id = (array_key_exists('r:cou_id', $enrollmentAttributes_attributes))
                     ? $enrollmentAttributes_attributes['r:cou_id']
