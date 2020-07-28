@@ -63,3 +63,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fix wrong progress calculation during Enrollment
 - Fix UI Themes do not apply for Invitation Views
 - Members of Closed Group could not access the View Page of the Group
+- Fix custom UI Themes should not apply to COPetition View page
+- Fix fatal error when deleting Provisioning Plugins
