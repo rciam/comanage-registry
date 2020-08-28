@@ -133,7 +133,7 @@
     <div id="comanage-wrapper" class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
       
       <div id="top-menu">
-        <?php if($this->Session->check('Auth.User')): ?>
+        <?php if($this->Session->check('Auth.User.name')): ?>
           <div id="desktop-hamburger"><em class="material-icons">menu</em></div>
         <?php endif; ?>
         <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
@@ -190,7 +190,7 @@
 
       </header>
 
-      <?php if($this->Session->check('Auth.User')): ?>
+      <?php if($this->Session->check('Auth.User.name')): ?>
         <div id="navigation-drawer" class="mdl-layout__drawer">
           <nav id="navigation" aria-label="main menu" class="mdl-navigation">
             <?php print $this->element('menuMain'); ?>
@@ -215,8 +215,8 @@
             print '<div id="content-inner" class="mdl-cell mdl-cell--12-col">';
           }
 
-          // insert breadcrumbs on all but the homepage if logged in
-          if($this->Session->check('Auth.User')) {
+          // insert breadcrumbs on all but the homepage, if logged in, and EOF introduction
+          if($this->Session->check('Auth.User.name')) {
             if ($this->request->here != $this->request->webroot) {
               print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' &gt; ', _txt('bc.home')) . "</div>";
             }
