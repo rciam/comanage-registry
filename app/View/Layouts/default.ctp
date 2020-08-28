@@ -99,6 +99,13 @@
     } else {
       $bodyClasses .= ' logged-out';
     }
+    if(!empty($vv_ui_mode)) {
+      if($vv_ui_mode === EnrollmentFlowUIMode::Basic) {
+        $bodyClasses .= ' ui-mode-basic';
+      } else {
+        $bodyClasses .= ' ui-mode-full';
+      }
+    }
     if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)) {
       $bodyClasses .=  ' with-user-defined-links';
     }
@@ -135,11 +142,11 @@
       <div id="top-menu">
         <?php if($vv_ui_mode === EnrollmentFlowUIMode::Full): ?>
           <div id="desktop-hamburger"><em class="material-icons">menu</em></div>
-        <?php endif; ?>
-        <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
-          <div id="user-defined-links-top">
-            <?php print $this->element('links'); // XXX allow user to set this location (e.g. top or side) ?>
-          </div>
+          <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
+            <div id="user-defined-links-top">
+              <?php print $this->element('links'); // XXX allow user to set this location (e.g. top or side) ?>
+            </div>
+          <?php endif; ?>
         <?php endif; ?>
         <nav id="user-menu">
           <?php print $this->element('menuUser'); ?>
