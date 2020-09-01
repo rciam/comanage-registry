@@ -259,38 +259,71 @@ class Cou extends AppModel {
    * @since  COmanage Registry v2.0.0
    * @param  Integer $parentCouId   COU ID for Parent COU
    * @param  Boolean $includeParent Whether or not to return $parentCou in the results
+   * @param  Object  $parent        Whether or not parent object exists
    * @return Array List of COU IDs and Names
-   * @throws InvalidArgumentException
    */
   
-  public function childCousById($parentCouId, $includeParent=false) {
-    // Find $parentCou
+  public function childCousById($parentCouId, $includeParent=false, $parent=NULL) {
+    // Get $parent if not exists
+    $parent = empty($parent) ? $this->getParentCouById($parentCouId) : $parent;
+
+    $children = $this->children($parentCouId,
+                                false,
+                                array('id', 'name', 'parent_id'));
     
+    $ret = array();
+    if($includeParent) {
+      // We must first check if there is/are parent(s) for this cou to include at the name
+      $parent_id = $parent['Cou']['parent_id'];
+      while(!empty($parent_id)) {
+        $grandparent = $this->getParentCouById($parent_id);
+        // Put at the front the parent name
+        $parent['Cou']['name'] = $grandparent['Cou']['name'] . ' / ' . $parent['Cou']['name'];
+        $parent_id = $grandparent['Cou']['parent_id'];
+      }
+      $ret[ $parent['Cou']['id'] ] = $parent['Cou']['name'];
+    }
+
+    // Construct cou name inlcuding parent names (if any)
+    foreach($children as $child) {
+      if($child['Cou']['parent_id'] == $parent['Cou']['id']) {
+        $ret[$child['Cou']['id']] = $parent['Cou']['name'] . ' / ' . $child['Cou']['name'];
+        continue;
+      }
+      $parent_id = $child['Cou']['parent_id'];
+      $parent_name = '';
+      while($parent_id != $parent['Cou']['id']) {
+        if(empty($parent_name)) {
+          $parent_name = Hash::extract($children, '{n}.Cou[id=' . $parent_id . '].name')[0];
+        } else {
+          $parent_name = Hash::extract($children, '{n}.Cou[id=' . $parent_id . '].name')[0] . ' / ' . $parent_name;
+        }
+        $parent_id = Hash::extract($children, '{n}.Cou[id=' . $parent_id . '].parent_id')[0];
+      }
+      $parent_name = $parent['Cou']['name'] . ' / ' . $parent_name;
+      $ret[$child['Cou']['id']] = $parent_name . ' / ' . $child['Cou']['name'];
+    }
+    return $ret;
+  }
+
+  /**
+   * Get Parent COU From parentCouId.
+   *
+   * @since  COmanage Registry v3.1.1
+   * @param  Integer $parentCouId parentCouId
+   * @return Array Parent COU
+   * @throws InvalidArgumentException
+   */
+
+  public function getParentCouById($parentCouId) {
     $args = array();
     $args['conditions']['Cou.id'] = $parentCouId;
-    $args['contain'] = false;
-    
+    $args['contain'] = false;  
     $parent = $this->find('first', $args);
-    
     if(!isset($parent['Cou']['id'])) {
       throw new InvalidArgumentException(_txt('er.unknown', array($parentCouId)));
     }
-    
-    $children = $this->children($parentCouId,
-                                false,
-                                array('id', 'name'));
-    
-    $ret = array();
-    
-    if($includeParent) {
-      $ret[ $parent['Cou']['id'] ] = $parent['Cou']['name'];
-    }
-    
-    foreach($children as $child) {
-      $ret[ $child['Cou']['id'] ] = $child['Cou']['name'];
-    }
-    
-    return $ret;
+    return $parent;
   }
 
   /**
