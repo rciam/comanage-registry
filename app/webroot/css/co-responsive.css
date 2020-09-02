@@ -357,6 +357,10 @@
     position: relative;
     left: -120px; /* offset the drawer margin */
   }
+
+  body.ui-mode-basic #redirect-box {
+    left: unset;
+  }
   /********************************/
   /* My Population - People Index */
   /********************************/

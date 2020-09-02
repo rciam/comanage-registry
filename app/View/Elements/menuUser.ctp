@@ -27,7 +27,7 @@
  */
 ?>
 
-<?php if(!empty($cur_co['Co']['id'])): ?>
+<?php if(!empty($cur_co['Co']['id']) && $vv_ui_mode === EnrollmentFlowUIMode::Full): ?>
 
   <div id="global-search" class="topMenu">
     <?php

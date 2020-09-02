@@ -371,6 +371,7 @@ class AppController extends Controller {
     // Called before each render in case permissions change
     if(!$this->request->is('restful')) {
       $this->getTheme();
+      $this->getUImode();
       
       if($this->Session->check('Auth.User.org_identities')) {
         $this->menuAuth();
@@ -875,6 +876,19 @@ class AppController extends Controller {
         $this->set('vv_theme_footer', $coTheme['footer']);
       }
     }    
+  }
+  
+  /**
+   * Define the UI Mode
+   * - postcondition: UI View variable set
+   * @since  COmanage Registry v3.3.0
+   */
+  protected function getUImode() {
+    $this->set('vv_ui_mode', EnrollmentFlowUIMode::Full);
+    // Auth.User.name is emtpy during the entire Enrollment Flow
+    if(!$this->Session->check('Auth.User.name')) {
+      $this->set('vv_ui_mode', EnrollmentFlowUIMode::Basic);
+    }
   }
   
   /**

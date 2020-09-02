@@ -65,3 +65,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Members of Closed Group could not access the View Page of the Group
 - Fix custom UI Themes should not apply to COPetition View page
 - Fix fatal error when deleting Provisioning Plugins
+- Hide left menu, user top menu, breadcrumbs during Enrollment Flow
+- CO Level custom Themes had no effect on Invitation pages during and Enrollment Flow

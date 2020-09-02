@@ -265,6 +265,12 @@ class EnrollmentOrgIdentityModeEnum {
   const None              = "N";
 }
 
+class EnrollmentFlowUIMode
+{
+  const Basic = 'B';
+  const Full  = 'F';
+}
+
 class EnrollmentRole
 {
   const Approver   = 'A';
