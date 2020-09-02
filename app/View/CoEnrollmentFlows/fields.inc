@@ -508,7 +508,7 @@
         </div>
         <div class="field-info">
           <?php print ($e
-            ? $this->Form->input('verification_body',
+            ? $this->Form->textarea('verification_body',
               array('default' => _txt('em.invite.body.ef')))
             : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_body'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </div>
@@ -734,8 +734,21 @@
     </div>
     <div class="field-info">
       <?php print ($e
-                   ? $this->Form->input('introduction_text')
+                   ? $this->Form->textarea('introduction_text')
                    : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['introduction_text'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li class="field-stack">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('introduction_text_invite', _txt('fd.ef.invite.intro')) : _txt('fd.ef.invite.intro')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.invite.intro.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                  ? $this->Form->textarea('introduction_text_invite')
+                  : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['introduction_text_invite'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li class="field-stack">
@@ -747,8 +760,8 @@
     </div>
     <div class="field-info">
       <?php print ($e
-        ? $this->Form->input('on_progress_text')
-        : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['on_progress_text'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+                  ? $this->Form->textarea('on_progress_text')
+                  : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['on_progress_text'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li class="field-stack">
@@ -760,7 +773,7 @@
     </div>
     <div class="field-info">
       <?php print ($e
-                   ? $this->Form->input('conclusion_text')
+                   ? $this->Form->textarea('conclusion_text')
                    : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['conclusion_text'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
@@ -843,7 +856,7 @@
     </div>
     <div class="field-info">
       <?php print ($e
-                   ? $this->Form->input('return_url_whitelist')
+                   ? $this->Form->textarea('return_url_whitelist')
                    : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['return_url_whitelist'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
@@ -911,7 +924,7 @@
       ?>
     </div>
   </li>
-    
+
   <?php if($e): ?>
     <li class="fields-submit">
       <div class="field-name"></div>
