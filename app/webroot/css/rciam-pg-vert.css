@@ -82,3 +82,8 @@
 .vprogress .circle.active .title {
     color: #0c95be;
 }
+
+#redirect-box {
+    background-color: unset;
+    border: unset;
+}
