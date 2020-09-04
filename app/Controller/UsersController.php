@@ -301,7 +301,15 @@ class UsersController extends AppController {
           // Note we're performing CO specific work here, even though we're not in a CO context yet.
           
           $this->OrgIdentitySource->syncByIdentifier($u);
-          
+
+          if(count($cos) === 1 && $this->Auth->redirectUrl() === '/') {
+            $args = array();
+            $args['plugin'] = null;
+            $args['controller'] = 'co_dashboards';
+            $args['action'] = 'dashboard';
+            $args['co'] = $co["co_id"];
+            $this->redirect($args);
+          }
           $this->redirect($this->Auth->redirectUrl());
         } else {
           // This is an API user. We don't do anything special at the moment, other

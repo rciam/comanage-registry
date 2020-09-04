@@ -41,6 +41,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Changed the way we load plugins from config. This extention will allow plugins to inject bootstrapping and routes
 - Increased CO Localization text field capacity.
 - Improved user's graphical interaction during Enrollment Flow
+- Redirect User to CO dashboard if member in only one CO.
 
 ### Fixed
 - Prevent users from submitting multiple registration requests
