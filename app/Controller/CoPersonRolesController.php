@@ -556,7 +556,12 @@ class CoPersonRolesController extends StandardController {
     if($roles['cmadmin'] || $roles['coadmin']) {
       // Note that here we get id => name while in CoPeopleController we just
       // get a list of names. This is to generate the pop-up on the edit form.
-      $p['cous'] = $this->CoPersonRole->Cou->allCous($this->cur_co['Co']['id']);
+      $cous = $this->CoPersonRole->Cou->find('threaded',array('conditions' => array("Cou.co_id" => $this->cur_co['Co']['id'])));
+      $childCous = array();
+      foreach($cous as $cou) {
+        $childCous = array_unique($childCous + $this->CoPersonRole->Cou->childCousById($cou['Cou']['id'], true, $cou));
+      }
+      $p['cous'] = $childCous;
     } elseif(!empty($roles['admincous'])) {
       $p['cous'] = $roles['admincous'];
     } else {
@@ -622,7 +627,7 @@ class CoPersonRolesController extends StandardController {
     $this->set('permissions', $p);
     return $p[$this->action];
   }
-  
+
   /**
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated
