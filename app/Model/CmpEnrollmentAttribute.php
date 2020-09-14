@@ -231,14 +231,6 @@ class CmpEnrollmentAttribute extends AppModel {
         'ldap_name' => '',
         'saml_name' => 'distinguishedName'
       ),
-      'vos:vo_targets_id' => array(
-        'type'      => VOsEnum::VO,
-        'label'     => _txt('fd.vos.vo_name') . " (" . _txt('en.vos.type', null, VOsEnum::VO) . ")",
-        'required'  => RequiredEnum::Optional,
-        'env_name'  => 'CMP_EF_VONAME',
-        'ldap_name' => '',
-        'saml_name' => ''
-      )
     );
     
     return $attributes;
