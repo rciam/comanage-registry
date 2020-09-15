@@ -174,14 +174,6 @@ class CertEnum
   const X509    = 'X.509';
 }
 
-class VOsEnum
-{
-	const VO = 'VO';
-	const vo_types = array(
-		'VO' => 'VO'
-	);
-}
-
 class ComparisonEnum
 {
   const Contains               = 'CTS'; // Substr

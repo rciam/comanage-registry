@@ -55,7 +55,6 @@
 
     if(empty($d[0]['OrgIdentity']['OrgIdentitySourceRecord']['id'])
        && empty($d[0][$req]['source_'.$modelu.'_id'])
-       && empty($d[0]['Vo']['vo_targets_id'])
        && empty($d[0]['Cert']['id'])) {
       // Add edit button to the top links, except for attributes attached to
       // an Org Identity that came from an Org Identity Source.

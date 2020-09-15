@@ -183,10 +183,6 @@ $cm_texts['en_US'] = array(
   'ct.urls.pl' =>               'URLs',
   'ct.certs.1' =>               'Certificate',
   'ct.certs.pl' =>              'Certificates',
-  'ct.vos.1' =>                 'Virtual Organization (Vo)',
-  'ct.vos.pl' =>                'Virtual Organizations (VOs)',
-  'ct.voms_provisioners.1' =>   'Virtual Organization (Vo)',
-  'ct.voms_provisioners.pl' =>  'Virtual Organizations (VOs)',
   
   // Embedded Discovery Service
   
@@ -375,10 +371,6 @@ original notification at
   'en.cert.type' => array(
     CertEnum::X509 => 'X.509',
   ),
-
-	'en.vos.type' => array(
-		VOsEnum::VO => 'VO'
-	),
   
   'en.chars.permitted' => array(
     PermittedCharacterEnum::AlphaNumeric      => 'AlphaNumeric Only',
