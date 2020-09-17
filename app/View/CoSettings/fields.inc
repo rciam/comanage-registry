@@ -148,6 +148,16 @@
   </li>
   <li>
     <div class="field-name">
+      <div class="field-title"><?php print $this->Form->label('email_verified_attr',_txt('fd.ef.email.vf'),array('class' => 'fieldTitle'));?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+        ? $this->Form->input('email_verified_attr', array('size' => 40))
+        : filter_var($co_settings[0]['CoSetting']['email_verified_attr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
       <div class="field-title"><?php print $this->Form->label('required_fields_addr',_txt('fd.required.addr'),array('class' => 'fieldTitle'));?></div>
     </div>
     <div class="field-info">

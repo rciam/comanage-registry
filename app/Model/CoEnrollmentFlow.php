@@ -546,7 +546,14 @@ class CoEnrollmentFlow extends AppModel {
       $ret['petitionerAttributes']['enabled'] = RequiredEnum::Optional;
     }
     $ret['petitionerAttributes']['role'] = EnrollmentRole::Petitioner;
-        
+
+    // XXX RCIAM-245
+    // XXX Force the email verification mode to none
+    // todo: this should become  a new verification mode
+    if(!empty($this->Co->CoSetting->getEmailVerifiedAttr($ef['CoEnrollmentFlow']['co_id']))
+      && !empty(getenv('voPersonVerifiedEmail'))) {
+      $ef['CoEnrollmentFlow']['email_verification_mode'] = VerificationModeEnum::None;
+    }
     // If email confirmation is requested, run sendConfirmation and its helper waitForConfirmation.
     // We can only collect identifiers if email confirmation and authentication are both set.
     // Also enable the re-entry point following email delivery.

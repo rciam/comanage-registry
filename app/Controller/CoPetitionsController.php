@@ -487,6 +487,9 @@ class CoPetitionsController extends StandardController {
         }
         
         $this->set('co_enrollment_attributes', $enrollmentAttributes);
+        // XXX RCIAM-245
+        // Get email verified attribute
+        $this->set('vv_vo_person_verified_email', $this->Co->CoSetting->getEmailVerifiedAttr($this->cur_co['Co']['id']));
       }
       
       if(in_array($this->action, array('petitionerAttributes', 'view'))) {
@@ -1881,7 +1884,7 @@ class CoPetitionsController extends StandardController {
   }
   
   /**
-   * Execute CO Petition 'waitForConfirmation' step
+   * Execute CO Petition 'waitForApproval' step
    *
    * @since  COmanage Registry v0.9.4
    * @param Integer $id CO Petition ID
@@ -2440,11 +2443,24 @@ class CoPetitionsController extends StandardController {
       // for form submission/processing
       
       try {
+        // XXX Create the OrgIdentity, CO Person and save the attributes
         $this->CoPetition->saveAttributes($this->parseCoPetitionId(),
                                           $this->enrollmentFlowID(),
                                           $this->request->data,
                                           $this->Session->read('Auth.User.co_person_id'));
-        
+
+        // XXX RCIAM-245
+        // XXX if voPersonVerifiedEmail exists skip sendConfirmation and waitForConfirmation steps
+        if(!empty($this->CoPetition->Co->CoSetting->getEmailVerifiedAttr($this->cur_co['Co']['id']))
+           && !empty(getenv('voPersonVerifiedEmail'))) {
+          $ptid = $this->parseCoPetitionId();
+          $co_person_id = $this->Session->read('Auth.User.co_person_id');
+          if(empty($co_person_id)) {
+            $co_person_id = $this->CoPetition->field('enrollee_co_person_id');
+          }
+          $this->CoPetition->verifyEmailAutoConfirm($ptid, $co_person_id);
+        } // RCIAM-245
+
         // We could calculate and execute the next plugin or step directly,
         // but that would require some refactoring.
         $this->redirect($this->generateDoneRedirect('petitionerAttributes',

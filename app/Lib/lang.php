@@ -1128,6 +1128,7 @@ original notification at
   'fd.ef.eds.prefer.desc' => 'List of entity Ids to always show ("prefer") via the EDS, one per line, maximum of 3',
   'fd.ef.efn'      => 'From Address For Notifications',
   'fd.ef.efn.desc' => 'Email address notifications will come from',
+  'fd.ef.email.vf' => "Email Verified Attribute",
   'fd.ef.env'      => 'Enable Environment Attribute Retrieval',
   'fd.ef.env.desc' => 'Examine the server environment for authoritative organizational identity attributes',
   'fd.ef.epx' =>      'Early Provisioning Executable',

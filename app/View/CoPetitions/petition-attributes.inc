@@ -238,7 +238,17 @@
               }
             }
 
+            // XXX RCIAM code: Splid the multi value email list and create a dropdown
+            // XXX According to our scenario the email verified list will preveal. As a result if available will
+            // sustitute the email list in the mail attribute
             if ($ea['validate']['content']['rule'][0] == 'email') {
+              if(!empty($vv_vo_person_verified_email)) {
+                // Get data from env
+                $verified_csv = getenv('voPersonVerifiedEmail');
+                if(!empty($verified_csv)) {
+                  $ea['default'] = $verified_csv;
+                }
+              }
               $emailValues = array();
               // Get defaul values and make separate options for select
               if(!empty($ea['default'])) {
@@ -297,7 +307,7 @@
               }
             }
             if (count($certValues) > 1) {
-              $ea['validate']['content']['rule'][0] = inList;
+              $ea['validate']['content']['rule'][0] = 'inList';
               $ea['modifiable'] = true;
               $ea['required'] = true;
             } else {
@@ -313,7 +323,7 @@
               }
             }
             if (count($emailValues) > 1) {
-              $ea['validate']['content']['rule'][0] = inList;
+              $ea['validate']['content']['rule'][0] = 'inList';
               $ea['modifiable'] = true;
             }
           }
