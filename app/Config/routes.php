@@ -89,8 +89,7 @@ Router::mapResources(array(
   'org_identities',
   'organizations',
   'telephone_numbers',
-  'urls',
-  'vos'
+  'urls'
 ));
 Router::parseExtensions();
 
