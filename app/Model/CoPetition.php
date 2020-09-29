@@ -2347,6 +2347,49 @@ class CoPetition extends AppModel {
     
     return $toEmail;
   }
+
+  /**
+   * Verify the CO Person and OrgIdenity Emails when voPersonVerifiedEmail email list exists
+   * @param integer $id  CO Petition ID
+   * @param integer $actorCoPersonId CO Person Id triggering this action
+   * @todo Test with multiple emails
+   */
+  public function verifyEmailAutoConfirm($id, $actorCoPersonId) {
+    $args = array();
+    $args['conditions']['CoPetition.id'] = $id;
+    $args['contain']['EnrolleeCoPerson'][] = 'PrimaryName';
+    $args['contain']['EnrolleeCoPerson']['CoPersonRole'][] = 'Cou';
+    $args['contain']['EnrolleeCoPerson']['CoPersonRole']['SponsorCoPerson'][] = 'PrimaryName';
+    $args['contain']['EnrolleeOrgIdentity'] = array('EmailAddress', 'PrimaryName');
+
+    $pt = $this->find('first', $args);
+
+    // Which email do we pick? Ultimately we could look at type and/or verified,
+    // but for now we'll just pick the first one. sendApprovalNotification does similar.
+    // Note array_shift will muck with $pt, but we don't need it anymore.
+
+    $ea = array_shift($pt['EnrolleeOrgIdentity']['EmailAddress']);
+
+    if(empty($ea['mail'])) {
+      throw new RuntimeException(_txt('er.orgp.nomail',
+        array(generateCn($pt['EnrolleeOrgIdentity']['PrimaryName']),
+          $pt['EnrolleeOrgIdentity']['id'])));
+    }
+
+    // XXX Update the OrgIdentity Email
+    $this->EnrolleeOrgIdentity->EmailAddress->verify(
+      $pt["EnrolleeOrgIdentity"]["id"],
+      null,
+      $ea['mail'],
+      $actorCoPersonId);
+    // XXX Update the COPerson email
+    $this->EnrolleeOrgIdentity->EmailAddress->verify(
+      null,
+      $actorCoPersonId,
+      $ea['mail'],
+      $actorCoPersonId);
+
+  }
   
   /**
    * Update the status of a CO Petition.

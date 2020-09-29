@@ -83,6 +83,11 @@ class CoSetting extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'email_verified_attr' => array(
+      'rule' => '/.*/',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'permitted_fields_name' => array(
       'rule' => '/.*/',
       'required' => false,
@@ -149,7 +154,8 @@ class CoSetting extends AppModel {
     'required_fields_name'  => RequiredNameFieldsEnum::Given,
     'sponsor_co_group_id'   => null,
     'sponsor_eligibility'   => SponsorEligibilityEnum::CoOrCouAdmin,
-    't_and_c_login_mode'    => TAndCLoginModeEnum::NotEnforced
+    't_and_c_login_mode'    => TAndCLoginModeEnum::NotEnforced,
+    'email_verified_attr'   => '',
   );
   
   /**
@@ -316,6 +322,19 @@ class CoSetting extends AppModel {
   
   public function getTAndCLoginMode($coId) {
     return $this->lookupValue($coId, 't_and_c_login_mode');
+  }
+
+    /**
+     * Get the Email Verified Attribute for the specified CO.
+     * If a non empty value exists then consider the Email Skip Verification feature enabled
+     *
+     * @since  COmanage Registry v3.1.0
+     * @param  integer $coId CO ID
+     * @return sting email_verified_attr value
+     */
+
+  public function getEmailVerifiedAttr($coId) {
+    return $this->lookupValue($coId, 'email_verified_attr');
   }
   
   /**
