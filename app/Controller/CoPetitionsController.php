@@ -685,7 +685,6 @@ class CoPetitionsController extends StandardController {
    */
   
   protected function dispatch($step, $id=null) {
-    $fn = 'dispatch';
     // Determine the relevant enrollment flow ID
     $efId = $this->enrollmentFlowID();
     
