@@ -2454,15 +2454,20 @@ class CoPetitionsController extends StandardController {
 
         // XXX RCIAM-245
         // XXX if voPersonVerifiedEmail exists skip sendConfirmation and waitForConfirmation steps
-        if(!empty($this->CoPetition->Co->CoSetting->getEmailVerifiedAttr($this->cur_co['Co']['id']))
-           && !empty(getenv('voPersonVerifiedEmail'))) {
-          $ptid = $this->parseCoPetitionId();
-          $co_person_id = $this->Session->read('Auth.User.co_person_id');
-          if(empty($co_person_id)) {
-            $co_person_id = $this->CoPetition->field('enrollee_co_person_id');
-          }
-          $this->CoPetition->verifyEmailAutoConfirm($ptid, $co_person_id);
-        } // RCIAM-245
+        $this->CoPetition->id = $this->parseCoPetitionId();
+        $this->CoPetition->CoEnrollmentFlow->id = $this->CoPetition->field('co_enrollment_flow_id');
+        $email_verification_mode = $this->CoPetition->CoEnrollmentFlow->field('email_verification_mode');
+        if(!empty($this->CoPetition->Co->CoSetting->getEmailVerifiedAttr($this->cur_co['Co']['id'])) // voPersonVerifiedEmail configured in CM
+           && !empty(getenv('voPersonVerifiedEmail'))                                                // voPersonVerifiedEmail exists in Session
+           && $email_verification_mode !== VerificationModeEnum::None                                // Enrollment requires email verification
+           && !empty($this->request->data['EnrolleeOrgIdentity'])                                    // Data from OrgIdentity exist
+           && !empty($this->request->data['EnrolleeOrgIdentity']['EmailAddress'])) {                 // Email attribute has data
+            $co_person_id = $this->Session->read('Auth.User.co_person_id');
+              if(empty($co_person_id)) {
+                  $co_person_id = $this->CoPetition->field('enrollee_co_person_id');
+              }
+              $this->CoPetition->verifyEmailAutoConfirm($this->parseCoPetitionId(), $co_person_id);
+          } // RCIAM-245
 
         // We could calculate and execute the next plugin or step directly,
         // but that would require some refactoring.

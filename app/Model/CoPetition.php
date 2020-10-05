@@ -2364,6 +2364,10 @@ class CoPetition extends AppModel {
 
     $pt = $this->find('first', $args);
 
+    // XXX There is no entry from the Identity Provider. Return
+    if(empty($pt['EnrolleeOrgIdentity']['id'])) {
+      return;
+    }
     // Which email do we pick? Ultimately we could look at type and/or verified,
     // but for now we'll just pick the first one. sendApprovalNotification does similar.
     // Note array_shift will muck with $pt, but we don't need it anymore.
