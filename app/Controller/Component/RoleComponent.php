@@ -275,6 +275,11 @@ class RoleComponent extends Component {
     $args['joins'][0]['alias'] = 'CoGroupMember';
     $args['joins'][0]['type'] = 'INNER';
     $args['joins'][0]['conditions'][0] = 'CoGroup.id=CoGroupMember.co_group_id';
+
+    // The join bypasses ChangelogBehavior, so manually exclude those records.
+    $args['conditions'][] = 'CoGroupMember.deleted IS NOT TRUE';
+    $args['conditions'][] = 'CoGroupMember.co_group_member_id IS NULL';
+
     if($condValue != null) {
       $args['conditions'][$condKey] = $condValue;
     }
@@ -909,7 +914,7 @@ class RoleComponent extends Component {
       if(!empty($coEF['CoEnrollmentFlow']['approver_co_group_id'])) {
         // $coPersonId must be a member of this group
         
-        if($this->isCoGroupMember($coPersonId, $coEF['CoEnrollmentFlow']['authz_co_group_id'])) {
+        if($this->isCoGroupMember($coPersonId, $coEF['CoEnrollmentFlow']['approver_co_group_id'])) {
           $ret = true;
         }
       } else {
@@ -1016,7 +1021,15 @@ class RoleComponent extends Component {
    */
   
   public function isCoGroupMember($coPersonId, $coGroupId) {
-    return $this->cachedGroupCheck($coPersonId, "", "", $coGroupId);
+    // Check if the CoGroup is related to a cou or not
+    $CoGroup = ClassRegistry::init('CoGroup');
+    $args = array();
+    $args['conditions']['CoGroup.id'] = $coGroupId;
+    $args['contain'] = false;
+    $group = $CoGroup->find('first', $args);
+
+    $isCou = $CoGroup->isCouAdminOrMembersGroup($group);
+    return $this->cachedGroupCheck($coPersonId, "", "", $coGroupId, false, null, $isCou);
   }
   
   /**
