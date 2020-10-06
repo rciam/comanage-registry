@@ -302,7 +302,8 @@ class UsersController extends AppController {
           
           $this->OrgIdentitySource->syncByIdentifier($u);
 
-          if(count($cos) === 1 && $this->Auth->redirectUrl() === '/') {
+          $auth_redirect_url = $this->Auth->redirectUrl();
+          if(count($cos) === 1 && $auth_redirect_url === '/') {
             $args = array();
             $args['plugin'] = null;
             $args['controller'] = 'co_dashboards';
@@ -310,7 +311,7 @@ class UsersController extends AppController {
             $args['co'] = $co["co_id"];
             $this->redirect($args);
           }
-          $this->redirect($this->Auth->redirectUrl());
+          $this->redirect($auth_redirect_url);
         } else {
           // This is an API user. We don't do anything special at the moment, other
           // than record the login event
