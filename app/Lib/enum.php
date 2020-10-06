@@ -681,6 +681,12 @@ class VerificationModeEnum
   const Automatic = 'A';
   const Review    = 'R';
   const None      = 'X';
+  const Verified  = 'V';
+}
+
+class VoPersonAttributes
+{
+  const voPersonVerifiedEmail = 'voPersonVerifiedEmail';
 }
 
 class VisibilityEnum

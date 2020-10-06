@@ -155,7 +155,7 @@ class CoSetting extends AppModel {
     'sponsor_co_group_id'   => null,
     'sponsor_eligibility'   => SponsorEligibilityEnum::CoOrCouAdmin,
     't_and_c_login_mode'    => TAndCLoginModeEnum::NotEnforced,
-    'email_verified_attr'   => '',
+    'email_verified_attr'   => VoPersonAttributes::voPersonVerifiedEmail,
   );
   
   /**
@@ -354,8 +354,9 @@ class CoSetting extends AppModel {
     $args['contain'] = false;
     
     $s = $this->find('first', $args);
-    
-    if(isset($s['CoSetting'][$field])) {
+
+    // XXX isset will not work if i add a value and then remove/delete it.
+    if(!empty($s['CoSetting'][$field])) {
       return $s['CoSetting'][$field];
     } else {
       // If not present, return the default value
