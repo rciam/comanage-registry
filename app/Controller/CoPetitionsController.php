@@ -2457,11 +2457,11 @@ class CoPetitionsController extends StandardController {
         $this->CoPetition->id = $this->parseCoPetitionId();
         $this->CoPetition->CoEnrollmentFlow->id = $this->CoPetition->field('co_enrollment_flow_id');
         $email_verification_mode = $this->CoPetition->CoEnrollmentFlow->field('email_verification_mode');
-        if(!empty($this->CoPetition->Co->CoSetting->getEmailVerifiedAttr($this->cur_co['Co']['id'])) // voPersonVerifiedEmail configured in CM
-           && !empty(getenv('voPersonVerifiedEmail'))                                                // voPersonVerifiedEmail exists in Session
-           && $email_verification_mode !== VerificationModeEnum::None                                // Enrollment requires email verification
-           && !empty($this->request->data['EnrolleeOrgIdentity'])                                    // Data from OrgIdentity exist
-           && !empty($this->request->data['EnrolleeOrgIdentity']['EmailAddress'])) {                 // Email attribute has data
+        if($email_verification_mode === VerificationModeEnum::Verified                                  // Enrollment requires email verification
+           && !empty(getenv('voPersonVerifiedEmail'))                                                   // voPersonVerifiedEmail exists in Session
+           && !empty($this->CoPetition->Co->CoSetting->getEmailVerifiedAttr($this->cur_co['Co']['id'])) // voPersonVerifiedEmail configured in CM
+           && !empty($this->request->data['EnrolleeOrgIdentity'])                                       // Data from OrgIdentity exist
+           && !empty($this->request->data['EnrolleeOrgIdentity']['EmailAddress'])) {                    // Email attribute has data
             $co_person_id = $this->Session->read('Auth.User.co_person_id');
               if(empty($co_person_id)) {
                   $co_person_id = $this->CoPetition->field('enrollee_co_person_id');
