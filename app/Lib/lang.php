@@ -1460,8 +1460,8 @@ original notification at
   'fd.telephone_number.description' => 'Description',
   // This one is for rendering into a telephone number string (eg: 555 1212 x279)
   'fd.telephone.ext' => 'x',
-  'fd.cert.subject' => 'Subject',
-  'fd.cert.issuer' => 'Issuer',
+  'fd.cert.subject' => 'Certificate Subject DN',
+  'fd.cert.issuer' => 'Certificate Issuer DN',
   'fd.vos.vo_name' => 'VO Name',
   'fd.vos.vo_domain' => 'VO Domain',
   'fd.vos.vo_entity' => 'Entity Type',
@@ -1542,8 +1542,8 @@ original notification at
   'fd.yes' =>         'Yes',
 
   // Informational messages
-  'in.cert.multi'      => 'Choose your certificate',
-  'in.email.multi'     => 'Choose your contact email address',
+  'in.cert.multi'      => 'Choose your certificate:',
+  'in.email.multi'     => 'Choose your contact email address:',
   'in.groupmember.select' => 'This change will not take effect until the person becomes active.',
   'in.id.prov'         => 'This identifier was created by the %1$s Provisioning Target. Editing it may cause operational inconsistencies if the change is not coordinated with the target.',
   'in.idval.plugins'   => 'There are no Identifier Validator plugins currently installed.',
