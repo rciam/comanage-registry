@@ -579,7 +579,11 @@ class CoEnrollmentAttribute extends AppModel {
              // "What's my email description?" This could become configurable, though.
              && $k != 'description') {
             $attr = array();
-              
+
+            // XXX RCIAM-393 skip issuer handling for now
+            if($attrModelName === 'Cert' && $k === 'issuer') {
+              continue;
+            }
             // The attribute ID and attribute key will be the same for all components
             // of a multi-valued attribute
             $attr['CoEnrollmentAttribute'] = $efAttr['CoEnrollmentAttribute'];

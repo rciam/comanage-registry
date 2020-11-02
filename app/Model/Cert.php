@@ -99,14 +99,13 @@ class Cert extends AppModel {
         ),
     );
 
-	// Check if the field passed is empty and fill in with the default value
-	public function beforeSave($options = array())
-	{
-		$this->log("@beforeSave Cert", LOG_DEBUG);
-		if ( empty($this->data['Cert']['type']) ) {
-			// Assign the default value
-			$this->data['Cert']['type'] = CertEnum::X509;
-		}
-		return true;
-	}
+  // Check if the field passed is empty and fill in with the default value
+  public function beforeSave($options = array())
+  {
+    if ( empty($this->data['Cert']['type']) ) {
+      // Assign the default value
+      $this->data['Cert']['type'] = CertEnum::X509;
+    }
+    return true;
+  }
 }

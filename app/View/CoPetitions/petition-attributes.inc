@@ -193,7 +193,14 @@
       continue;
     }
 
-    if($coe_attributes[0]['attribute'] == 'i:cert:X.509' && (array_key_exists('default', $coe_attributes[0]) && !$coe_attributes[0]['default'])) {
+    // XXX If i have no data skipt the part where i am presenting the Certificate field
+    // todo: This should be a configuration. Hide if:
+    // 1. The attribute is optional AND
+    // 2. The attribute has no value
+    // 3. The attribute is not always hidden
+    // 4. The attribute is not mandatory by the Model validation rule
+    if($coe_attributes[0]['attribute'] === 'i:cert:X.509'
+       && empty($coe_attributes[0]['default'])) {
       continue;
     }
 
@@ -225,16 +232,13 @@
           $groupDesc = false;  // Not grouping by default
           $descriptions = array();
           
-          foreach($coe_attributes as $ea) {
-            if ($ea['attribute'] == 'i:cert:X.509') {
-              $certValues = array();
-              // Get defaul values and make separate options for select
-              if (!empty($ea['default'])) {
-                $certValues = explode(";", $ea['default']);
-              }
-
+          foreach($coe_attributes as $idx => $ea) {
+            if ($ea['attribute'] === 'i:cert:X.509') {
+              $certValues = explode(";", $ea['default']);
               if (count($certValues) > 1) {
-                $coe_attributes[0]['description'] = _txt('in.cert.multi');
+                $coe_attributes[$idx]['default'] = $certValues;
+                $coe_attributes[$idx]['description'] = _txt('in.cert.multi');
+                $ea["description"] = "";
               }
             }
 
@@ -247,6 +251,7 @@
                 $verified_csv = getenv('voPersonVerifiedEmail');
                 if(!empty($verified_csv)) {
                   $ea['default'] = $verified_csv;
+                  $coe_attributes[$idx]['default'] = $verified_csv;
                 }
               }
               $emailValues = array();
@@ -256,7 +261,9 @@
               }
 
               if (count($emailValues) > 1) {
-                $coe_attributes[0]['description'] = _txt('in.email.multi');
+                $coe_attributes[$idx]['default'] = $emailValues;
+                $coe_attributes[$idx]['description'] = _txt('in.email.multi');
+                $ea["description"] = "";
               }
             }
             if(!empty($ea['description'])) {
@@ -295,37 +302,21 @@
 
         // Output the fields
         foreach ($coe_attributes as $ea):
-          // Skip login and certificate issuer attribute
-          if (strncmp($ea['field'], 'login', 5) === 0 || strncmp($ea['field'], 'issuer', 6) === 0) {
+          // Skip login
+          if (strncmp($ea['field'], 'login', 5) === 0) {
             continue;
           }
-          if ($ea['attribute'] == 'i:cert:X.509') {
+          // XXX RCIAM-393 handle all the cases of multiple values uniformly
+          // Whitelist for now.
+          if (($ea['attribute'] === 'i:cert:X.509'
+               || $ea['validate']['content']['rule'][0] === 'email')
+              && !empty($ea['default'])
+              && count($ea['default']) > 1) {
             // Get defaul values and make separate options for select
-            if (!empty($ea['default'])) {
-              foreach ($certValues as $cert) {
-                $ea['select'][$cert] = $cert;
-              }
-            }
-            if (count($certValues) > 1) {
-              $ea['validate']['content']['rule'][0] = 'inList';
-              $ea['modifiable'] = true;
-              $ea['required'] = true;
-            } else {
-              $ea['modifiable'] = false;
-            }
-          }
-
-          if ($ea['validate']['content']['rule'][0] == 'email') {
-            // Get defaul values and make separate options for select
-            if (!empty($ea['default'])) {
-              foreach ($emailValues as $email) {
-                $ea['select'][$email] = $email;
-              }
-            }
-            if (count($emailValues) > 1) {
-              $ea['validate']['content']['rule'][0] = 'inList';
-              $ea['modifiable'] = true;
-            }
+            $ea['select'] = array_combine($ea['default'], $ea['default']);
+            $ea['validate']['content']['rule'][0] = 'inList';
+            $ea['modifiable'] = true;
+            $ea['required'] = true;
           }
 
           // Output disabled fields
@@ -358,6 +349,13 @@
               // This is a select
               print '<div class="mdl-selectfield">';
               print "\n";
+              // XXX In case of select this looks nice.
+              if(isset($ea['description'])
+                && !$groupDesc
+                && $ea['description'] != "") {
+                print "<div class=\"desc\">" . $ea['description'] . "</div>\n";
+                $groupDesc = true;
+              }
 
               $args = array();
               // Set a default value if provided
@@ -510,6 +508,7 @@
             print "\n";
 
             // If there is a description for the field, render it under the field and label
+            // fixme: In case of very log attribute this breaks
             if(isset($ea['description'])
               && !$groupDesc
               && $ea['description'] != "") {
