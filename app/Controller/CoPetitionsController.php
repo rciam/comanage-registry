@@ -780,7 +780,8 @@ class CoPetitionsController extends StandardController {
       // Set the redirect target in a view var so the view can generate the redirect
       $this->set('vv_meta_redirect_target', $redirect);
       $this->set('vv_next_step', _txt('ef.step.' . $this->nextSteps[$step]));
-      
+      $this->set('vv_steps', $steps);
+
       $this->layout = 'redirect';
       $this->render('nextStep');
     }

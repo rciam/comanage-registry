@@ -291,27 +291,39 @@ class CoGroupsController extends StandardController {
    */
   
   function index() {
-    if($this->request->is('restful') && !empty($this->params['url']['copersonid'])) {
-      // We need to retrieve via a join, which StandardController::index() doesn't
-      // currently support.
-      
-      try {
+    $this->log(__METHOD__ ."::@ ", LOG_DEBUG);
+    
+    // If this is not a restful call. Load the parent behavior and return
+    if(!$this->request->is('restful')) {
+      parent::index();
+      return;
+    }
+  
+    try {
+      // The rest refers to a RESTful behavior.
+      if(!empty($this->params['url']['copersonid'])) {
+        // We need to retrieve via a join, which StandardController::index() doesn't
+        // currently support.
         $groups = $this->CoGroup->findForCoPerson($this->params['url']['copersonid']);
-        
-        if(!empty($groups)) {
-          $this->set('co_groups', $this->Api->convertRestResponse($groups));
-        } else {
-          $this->Api->restResultHeader(204, "CO Person Has No Groups");
-          return;
-        }
+        $err_msg = "CO Person has no Groups";
+      } elseif (!empty($this->params['url']['coid']) && !empty($this->params['url']['couid']) ) {
+        $admin = !empty($this->params['url']['admin']) ? $this->params['url']['admin'] : false;
+        $groups = $this->CoGroup->findForCou( $this->params['url']['coid'], $this->params['url']['couid'], $admin);
+        $err_msg = "CO and COU combination returned no group";
       }
-      catch(InvalidArgumentException $e) {
-        $this->Api->restResultHeader(404, "CO Person Unknown");
+    
+      if(!empty($groups)) {
+        $groups_response = $this->Api->convertRestResponse($groups);
+        $this->set('co_groups', $groups_response);
+      } else {
+        $this->Api->restResultHeader(204, $err_msg);
         return;
       }
-    } else {
-      parent::index();
     }
+    catch(InvalidArgumentException $e) {
+      $this->Api->restResultHeader(404, "Error:" . $e->getMessage());
+      return;
+    }  
   }
   
   /**
