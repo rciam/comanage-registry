@@ -122,7 +122,7 @@ class CoDashboardsController extends StandardController {
     // Determine what operations this user can perform
     
     // Lock down the configuration dashboard to only cmadmin and coadmin for now (might change in future)
-    $p['configuration'] = ($roles['cmadmin'] || $roles['coadmin']);
+    $p['configuration'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
     
     // View the dashboard for the specified CO?
     $p['dashboard'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);

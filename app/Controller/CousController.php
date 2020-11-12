@@ -53,6 +53,22 @@ class CousController extends StandardController {
   public $view_contains = array(
     'ParentCou'
   );
+
+  function index() {
+    $roles = $this->Role->calculateCMRoles();
+    
+    if($roles['couadmin'] && !$roles['coadmin'] && !$roles['cmadmin']) {
+      $coPersonId =  $this->Session->read('Auth.User.co_person_id');
+      $CoGroupMember = ClassRegistry::init('CoGroupMember');
+      $ret = $CoGroupMember->findCoPersonGroupRoles($coPersonId);
+      $coId = $this->cur_co['Co']['id'];
+      $cous = $this->Cou->potentialParents(NULL, $coId, $ret['owner'], TRUE);
+      $this->set('cous', $cous);
+    }
+    else {
+      parent::index();
+    }
+  }
   
   /**
    * Perform filtering of COU parent options for dropdown.
@@ -81,8 +97,16 @@ class CousController extends StandardController {
           $coId = $this->cur_co['Co']['id'];
           break;
       }
-
-      $options = $this->Cou->potentialParents($couId, $coId);
+      $roles = $this->Role->calculateCMRoles();
+      if($roles['couadmin'] && !$roles['cmadmin'] && !$roles['coadmin']) {
+        $coPersonId = $this->Session->read('Auth.User.co_person_id');
+        $CoGroupMember = ClassRegistry::init('CoGroupMember');
+        $ret = $CoGroupMember->findCoPersonGroupRoles($coPersonId);
+        $options = $this->Cou->potentialParents($couId, $coId, $ret['owner']);
+      }
+      else {
+        $options = $this->Cou->potentialParents($couId, $coId);
+      }
       $this->set('parent_options', $options);
       }
     }
@@ -218,7 +242,7 @@ class CousController extends StandardController {
     if(!$this->request->is('restful') && $this->action == 'edit') {
       if(!empty($reqdata['Cou']['name'])
          && !empty($curdata['Cou']['name'])
-         && $reqdata['Cou']['name'] != $curdata['Cou']['name']) {
+         && ($reqdata['Cou']['name'] != $curdata['Cou']['name'] || $reqdata['Cou']['parent_id'] != $curdata['Cou']['parent_id'])) {
         // The COU has been renamed, so update the relevant group names
         
         $this->Cou->Co->CoGroup->addDefaults($reqdata['Cou']['co_id'], $this->Cou->id, true);
@@ -240,22 +264,35 @@ class CousController extends StandardController {
   function isAuthorized() {
     $roles = $this->Role->calculateCMRoles();             // What was authenticated
     
+    // Check if user wants to access an edit form if is admin at this COU so to give him/ her permissions to edit or delete this COU
+    if(!empty($this->request->params["pass"])) {
+      $allowEditDelete = FALSE;
+      $array_keys = array_keys($roles["admincous"]);
+      $params = $this->request->params["pass"];
+      if(in_array($this->request->params["pass"][0], array_keys($roles["admincous"]))) {
+        $allowEditDelete = TRUE;
+      }
+    }
+    else {
+      $allowEditDelete = $roles['couadmin'];
+    }
+    
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
     // Determine what operations this user can perform
     
     // Add a new COU?
-    $p['add'] = ($roles['cmadmin'] || $roles['coadmin']);
+    $p['add'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
     
     // Delete an existing COU?
-    $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
+    $p['delete'] = ($roles['cmadmin'] || $roles['coadmin'] || $allowEditDelete);
     
     // Edit an existing COU?
-    $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
+    $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']  || $allowEditDelete);
     
     // View all existing COUs?
-    $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
+    $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
     
     // View an existing COU?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);

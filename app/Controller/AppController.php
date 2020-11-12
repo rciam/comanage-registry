@@ -937,7 +937,7 @@ class AppController extends Controller {
     $p['menu']['coattrenums'] = $roles['cmadmin'] || $roles['coadmin'];
     
     // Manage any CO configuration?
-    $p['menu']['coconfig'] = $roles['cmadmin'] || $roles['coadmin'];
+    $p['menu']['coconfig'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
     
     // View CO departments?
     $p['menu']['codepartments'] = $roles['cmadmin'];
@@ -980,7 +980,7 @@ class AppController extends Controller {
     $p['menu']['idvalidate'] = $roles['cmadmin'] || $roles['coadmin'];
     
     // Manage COU definitions?
-    $p['menu']['cous'] = $roles['cmadmin'] || $roles['coadmin'];
+    $p['menu']['cous'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
 
     // Manage CO Email Lists
     $p['menu']['colists'] = $roles['cmadmin'] || $roles['coadmin'];
