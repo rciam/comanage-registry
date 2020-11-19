@@ -136,7 +136,7 @@
           ?>
         </td>
         <td>
-          <?php if(!empty($c['CoTAndCAgreement'])): ?>
+        <?php if(!empty($c['CoTAndCAgreement']) && empty($c['CoTermsAndConditions']['co_terms_and_conditions_id'])): ?>
           <button class="checkbutton"
                   type="button"
                   onClick="open_tandc('<?php print addslashes($c['CoTermsAndConditions']['description']); ?>',
@@ -155,7 +155,7 @@
                                           $args = array(
                                             'controller' => 'co_terms_and_conditions',
                                             'action' => 'agree',
-                                            $c['CoTermsAndConditions']['id'],
+                                            (empty($c['CurrentCoTermsandConditions']) ? $c['CoTermsAndConditions']['id'] : $c['CurrentCoTermsandConditions']),
                                             'copersonid' => $vv_co_person['CoPerson']['id']
                                           );
 
