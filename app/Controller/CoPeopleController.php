@@ -157,6 +157,9 @@ class CoPeopleController extends StandardController {
       $args['contain'] = false;
       
       $this->set('vv_authenticator_count', $this->Co->Authenticator->find('count', $args));
+
+      // Custom Actions
+      $this->set('vv_custom_actions', $this->CoPerson->Co->CoSetting->getOrgIdentityActions($this->cur_co['Co']['id']));
     }
     
     parent::beforeRender();
