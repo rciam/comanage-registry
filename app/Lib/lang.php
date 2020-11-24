@@ -1349,6 +1349,8 @@ original notification at
   'fd.order.es.desc' => 'The order in which this source will be queried, among all sources configured for this enrollment flow with this mode',
   'fd.order.prov.desc' => 'The order in which this provisioner will be run when automatic provisioning occurs (leave blank to run after all current provisioners)',
   'fd.organization_id' => 'Organization ID',
+  'fd.org.actions' => 'CSV URL Action List',
+  'fd.org.actions.desc' => 'CSV URL list of actions related to OrgIdentities tab in COPerson Canvas(format: label1,URL1 new line label2,URL2)',
   'fd.ou' =>          'Department',
   'fd.parent' =>      'Parent COU',
   'fd.password' =>    'Password',

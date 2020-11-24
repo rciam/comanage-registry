@@ -1368,6 +1368,11 @@ a#top-search-toggle:hover {
   float: right;
   clear: left;
 }
+body.co_people .gearbutton,
+body.co_people .addbutton {
+  border: none;
+  background: none;
+}
 /* DATA LISTS */
 /*** ul.data-list is the main structure for representing data
      in which the field value is to the left, and actions on that

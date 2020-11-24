@@ -96,6 +96,13 @@
       text: true
     });
 
+    $(".gearbutton").button({
+        icons: {
+            primary: 'ui-icon-gear'
+        },
+        text: true
+    });
+
     $(".autobutton").button({
       icons: {
         primary: 'ui-icon-script'

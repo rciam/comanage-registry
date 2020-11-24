@@ -88,6 +88,11 @@ class CoSetting extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'org_identities_actions' => array(
+      'rule' => '/.*/',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'permitted_fields_name' => array(
       'rule' => '/.*/',
       'required' => false,
@@ -156,6 +161,7 @@ class CoSetting extends AppModel {
     'sponsor_eligibility'   => SponsorEligibilityEnum::CoOrCouAdmin,
     't_and_c_login_mode'    => TAndCLoginModeEnum::NotEnforced,
     'email_verified_attr'   => VoPersonAttributes::voPersonVerifiedEmail,
+    'org_identities_actions'=> null,
   );
   
   /**
@@ -336,6 +342,25 @@ class CoSetting extends AppModel {
   public function getEmailVerifiedAttr($coId) {
     return $this->lookupValue($coId, 'email_verified_attr');
   }
+
+  /**
+   * @param $coId
+   * @return array
+   */
+  public function getOrgIdentityActions($coId) {
+    $action_list =  $this->lookupValue($coId, 'org_identities_actions');
+    $action_items = array();
+    if(!empty($action_list)) {
+      $actions = explode(PHP_EOL, $action_list);
+      foreach($actions as $action) {
+        $action = rtrim($action);
+        $lbl_url = explode(',', $action);
+        $action_items[$lbl_url[0]] = $lbl_url[1];
+      }
+    }
+
+    return $action_items;
+  }
   
   /**
    * Obtain a single CO setting.
@@ -412,5 +437,26 @@ class CoSetting extends AppModel {
     // Note we flip the value. The data model specifies "disabled" so that
     // the default (ie: no value present in the table) is enabled.
     return !$this->lookupValue($coId, 'disable_ois_sync');
+  }
+
+  /**
+   * @param array $options
+   * @return bool
+   */
+  public function beforeSave($options = array()) {
+    if ( !empty($this->data["CoSetting"]["org_identities_actions"]) ) {
+      $actions = explode(PHP_EOL, $this->data["CoSetting"]["org_identities_actions"]);
+      foreach($actions as $action) {
+        $action = rtrim($action);
+        $lbl_url = explode(',', $action);
+        if(!filter_var($lbl_url[1], FILTER_VALIDATE_URL)) {
+          return false;
+        }
+        if(empty($lbl_url[0])) {
+          return false;
+        }
+      }
+    }
+    return parent::beforeSave($options);
   }
 }

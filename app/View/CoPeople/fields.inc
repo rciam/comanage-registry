@@ -1079,39 +1079,49 @@
         <!-- Org Ids -->
         <li id="fields-orgid" class="fieldGroup">
           <?php
+          if(!empty($vv_custom_actions)
+             || (isset($permissions['link']) && $permissions['link'])) {
+            print '<span id="org-action-menu" style="position: relative;display: block">';
+            $linkparams = array(
+              'id' => 'org-action-menu-content',
+              'class' => 'gearbutton',
+              'onclick' => 'func(0)',
+            );
+            print '<div class="coAddEditButtons">';
+            print $this->Html->link(
+              _txt('op.action'),
+              'javascript:void(0);',
+              $linkparams
+            );
+            print '</div>';
+            print '<ul id="org-action-list" class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect"';
+            print 'for="org-action-menu-content">';
+            // Admins buttons
             if(isset($permissions['link']) && $permissions['link']) {
-              print '<div class="coAddEditButtons">';
+              print '<li class="mdl-menu__item">';
               $linktarget = array(
                 'controller' => 'org_identities',
-                'action'     => 'find',
+                'action' => 'find',
                 'copersonid' => $co_people[0]['CoPerson']['id']
               );
-              $linkparams = array('class' => 'addbutton');
-              
-              print $this->Html->link(_txt('op.link'),
-                                      $linktarget,
-                                      $linkparams);
-              print '</div>';
-            }
-            if ($cur_co['Co']['id'] === 2 || $cur_co['Co']['id'] === 3) {
-              print '<div class="coAddEditButtons">';
-              if ($cur_co['Co']['id'] === 2) {
-                $coef = 3;
-              } else /* if ($cur_co['Co']['id'] === 3)*/ {
-                $coef = 6;
-              }
-              $linktarget = array(
-                'controller' => 'co_petitions',
-                'action'     => 'start',
-                'coef'       => $coef, 
+              $linkparams = array(
+                'style' => array('display: block; text-decoration: none; color: unset;')
               );
-              $linkparams = array('class' => 'addbutton');
-              
-              print $this->Html->link(_txt('op.link.new.orgid'),
-                                      $linktarget,
-                                      $linkparams);
-              print '</div>';
+              print $this->Html->link(_txt('op.link'),
+                $linktarget,
+                $linkparams);
+              print '</li>';
             }
+            // Custom buttons
+            if(!empty($vv_custom_actions)) {
+              foreach($vv_custom_actions as $lbl => $url) {
+                print '<li class="mdl-menu__item"><a style="display: block; text-decoration: none; color:unset;" href="' . $url . '">' . $lbl . '</a></li>';
+              }
+            }
+
+            print '</ul>';
+            print '</span>';
+          }
           ?>
           <a href="#tabs-orgid" class="fieldGroupName">
             <em class="material-icons">indeterminate_check_box</em>

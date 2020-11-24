@@ -156,6 +156,17 @@
         : filter_var($co_settings[0]['CoSetting']['email_verified_attr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
+  <li class="field-stack">
+    <div class="field-name">
+      <div class="field-title"><?php print $this->Form->label('org_identities_actions',_txt('fd.org.actions'),array('class' => 'fieldTitle'));?></div>
+      <div class="field-desc"><?php print _txt('fd.org.actions.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+        ? $this->Form->textarea('org_identities_actions')
+        : filter_var($co_settings[0]['CoSetting']['org_identities_actions'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
   <li>
     <div class="field-name">
       <div class="field-title"><?php print $this->Form->label('required_fields_addr',_txt('fd.required.addr'),array('class' => 'fieldTitle'));?></div>
