@@ -1081,15 +1081,14 @@
           <?php
           if(!empty($vv_custom_actions)
              || (isset($permissions['link']) && $permissions['link'])) {
-            print '<span id="org-action-menu" style="position: relative;display: block">';
+            print '<span id="org-action-menu" style="position: relative; display: block;">';
             $linkparams = array(
               'id' => 'org-action-menu-content',
               'class' => 'gearbutton',
-              'onclick' => 'func(0)',
             );
             print '<div class="coAddEditButtons">';
             print $this->Html->link(
-              _txt('op.action'),
+              _txt('fd.actions'),
               'javascript:void(0);',
               $linkparams
             );
