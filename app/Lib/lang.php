@@ -946,6 +946,7 @@ original notification at
   'fd.attrs.copr' =>  'Role Attributes',
   'fd.attrs.org' =>   'Organizational Attributes',
   'fd.attrs.pet' =>   'Petition Attributes',
+  'fd.authn_authority' => 'Authenticating Authority',
   'fd.bcc' =>         'BCC',
   'fd.bcc.desc' =>    'Comma separated list of valid email addresses to bcc',
   'fd.cc' =>          'CC',
