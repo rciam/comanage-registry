@@ -131,6 +131,13 @@ class CmpEnrollmentAttribute extends AppModel {
         'ldap_name' => 'edu_person_affiliation',
         'saml_name' => 'edu_person_affiliation'
       ),
+      'authn_authority' => array(
+        'required'  => RequiredEnum::Optional,
+        'label'     => _txt('fd.authn_authority'),
+        'env_name'  => 'CMP_EF_AUTHNAUTHORITY',
+        'ldap_name' => '',
+        'saml_name' => 'AuthenticatingAuthority'
+      ),
       'title' => array(
         'required'  => RequiredEnum::Optional,
         'label'     => _txt('fd.title'),

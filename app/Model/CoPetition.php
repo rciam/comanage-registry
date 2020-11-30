@@ -1481,7 +1481,14 @@ class CoPetition extends AppModel {
     // Start a transaction
     $dbc = $this->getDataSource();
     $dbc->begin();
-    
+
+    // RCIAM-149: Here we save the attributes during petition
+    if(isset($requestData['EnrolleeOrgIdentity']['authn_authority'])){
+      $authnIdps = explode(";", $requestData['EnrolleeOrgIdentity']['authn_authority']);
+      $authnAuthority = end($authnIdps);
+      $requestData['EnrolleeOrgIdentity']['authn_authority'] = $authnAuthority;
+    }
+
     // Walk through the request data and validate it manually. We have to do it this
     // way because it's possible for an enrollment flow to define (say) two addresses,
     // one of which is required and one of which is optional. (We can't just directly

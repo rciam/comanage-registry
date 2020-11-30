@@ -1205,13 +1205,17 @@
                         if(!empty($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'])) {
                           print filter_var($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'] ,FILTER_SANITIZE_SPECIAL_CHARS);
                         }
+                        if(!empty($link['OrgIdentity']['authn_authority'])) {
+                            $authn_authority = !empty($link['OrgIdentity']['authn_authority']) ? $link['OrgIdentity']['authn_authority'] : "";
+                            print $authn_authority;
+                        }
                       ?>
                     </td>
                     <td>
                       <?php
                         if(!empty($link['OrgIdentity']['o'])) {
                           print filter_var($link['OrgIdentity']['o'], FILTER_SANITIZE_SPECIAL_CHARS);
-                        }  
+                        }
                       ?>
                     </td>
                     <td>

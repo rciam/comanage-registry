@@ -170,6 +170,26 @@ class CoInvite extends AppModel {
           if($orgId) {
             try {
               $this->CoPerson->EmailAddress->verify($orgId, null, $invite['CoInvite']['mail'], $invite['CoPetition']['enrollee_co_person_id']);
+
+              $args = array();
+              $args['conditions']['EmailAddress.co_person_id'] = $invite['CoInvite']['co_person_id'];
+              $args['conditions']['EmailAddress.mail'] = $invite['CoInvite']['mail'];
+              $args['conditions']['EmailAddress.deleted'] = false;
+              $args['contain'] = false;
+              $cp_email = $this->CoPerson->EmailAddress->find('first', $args);
+              if(isset($cp_email['EmailAddress']['id'])){
+                $this->CoPerson->EmailAddress->verify(null, $invite['CoInvite']['co_person_id'], $invite['CoInvite']['mail'], $invite['CoPetition']['enrollee_co_person_id']);
+              }
+
+              // RCIAM-197
+              $authn_authority = getenv('AuthenticatingAuthority');
+              if(!empty($authn_authority)){
+                  $authnIdps = explode(";", $authn_authority);
+                  $authnAuthority = end($authnIdps);
+                  $this->OrgIdentity = ClassRegistry::init('OrgIdentity');
+                  $this->OrgIdentity->id = $orgId;
+                  $this->OrgIdentity->saveField('authn_authority', $authnAuthority);
+              }
             }
             catch(Exception $e) {
               $dbc->rollback();

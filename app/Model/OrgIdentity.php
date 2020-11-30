@@ -138,6 +138,13 @@ class OrgIdentity extends AppModel {
         'allowEmpty' => true
       )
     ),
+    'authn_authority' => array(
+      'content' => array(
+        'rule' => '/.*/',
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
 /*    'organization_id' => array(
       'content' => array(
         'rule' => 'numeric',
