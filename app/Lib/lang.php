@@ -1444,7 +1444,7 @@ original notification at
   'fd.tc.agree.impl' => 'By clicking <i>Submit</i>, you are agreeing to the following Terms and Conditions.<br />Please review the T&C before continuing.',
   'fd.tc.agree.login' => 'You must agree to all of the following Terms and Conditions before continuing.',
   'fd.tc.agree.no' => 'Not Agreed',
-  'fd.tc.agree.yes' => 'Agreed',
+  'fd.tc.agree.yes' => 'Agreed (%1$s, %2$s)',
   'fd.tc.archived' => 'The definition of this T&C changed after the agreement was recorded',
   'fd.tc.cou.desc' => 'If set, this T&C only applies to members of the specified COU',
   'fd.tc.for' =>      'Terms and Conditions for %1$s (%2$s)',
