@@ -2004,6 +2004,13 @@ class CoPetitionsController extends StandardController {
    */
   
   function isAuthorized() {
+    // I do not serve XML REST Requests
+    if($this->request->is('restful') && $this->request->is('xml')) {
+      $this->Api->restResultHeader(204, "Unable to fullfil the request.");
+      $this->response->send();
+      exit;
+    }
+
     $roles = $this->Role->calculateCMRoles();
     
     // Construct the permission set for this user, which will also be passed to the view.
@@ -2038,10 +2045,16 @@ class CoPetitionsController extends StandardController {
       $args['contain'] = false;
       
       $pt = $this->CoPetition->find('first', $args);
-      
+
       if(!$pt) {
-        $this->Flash->set(_txt('er.notfound', array(_txt('ct.co_petitions.1', $petitionId))), array('key' => 'error'));
-        $this->redirect('/');
+        if($this->request->is('restful')) {
+          $this->Api->restResultHeader(404, _txt('er.notfound', array(_txt('ct.co_petitions.1'), $petitionId)));
+          $this->response->send();
+          exit;
+        } else {
+          $this->Flash->set(_txt('er.notfound', array(_txt('ct.co_petitions.1'), $petitionId)), array('key' => 'error'));
+          $this->redirect('/');
+        }
       }
       
       $curPetitioner = $pt['CoPetition']['petitioner_co_person_id'];
@@ -2536,20 +2549,35 @@ class CoPetitionsController extends StandardController {
       $recipient = $this->CoPetition->resend($id, $this->Session->read('Auth.User.co_person_id'));
     }
     catch(Exception $e) {
-      $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(403, "Unable to send Confirmation Email.");
+        $this->set('vv_response', array( __FUNCTION__ => $e->getMessage()));
+      } else {
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      }
     }
     
     if($recipient) {
-      $this->Flash->set(_txt('rs.inv.sent', array($recipient)), array('key' => 'success'));
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(200, _txt('rs.inv.sent', array($recipient)));
+        $this->set('vv_response', array(
+          'status'  => _txt('rs.inv.sent', array($recipient)),
+          'recipient'   => $recipient,
+        ));
+      } else {
+        $this->Flash->set(_txt('rs.inv.sent', array($recipient)), array('key' => 'success'));
+      }
     }
-    
-    // Always redirect to the petition, regardless of how we got here.
-    
-    $this->redirect(array(
-      'controller' => 'co_petitions',
-      'action' => 'view',
-      $id
-    ));
+
+    if(!$this->request->is('restful')) {
+      // Always redirect to the petition, regardless of how we got here.
+
+      $this->redirect(array(
+        'controller' => 'co_petitions',
+        'action' => 'view',
+        $id
+      ));
+    }
   }
   
   /**
