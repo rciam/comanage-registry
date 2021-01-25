@@ -37,6 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Added configuration option to skip email verification during Enrollment if a non empty voPersonVerified email attribute is provided
 - Added configuration option to customize the list of actions available on the top right corner of the OrgIdentity tab in COPerson's canvas
 - Added resend email invitation via REST API
+- Added support for Certificate Issuer DN (Import during Enrollment flow.Update on login)
 
 ### Changed
 - Update email and subject DN when the user logs into registry

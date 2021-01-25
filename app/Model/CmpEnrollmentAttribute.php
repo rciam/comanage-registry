@@ -231,6 +231,14 @@ class CmpEnrollmentAttribute extends AppModel {
         'ldap_name' => '',
         'saml_name' => 'distinguishedName'
       ),
+      'certs:issuer' => array(
+        'type'      => CertEnum::X509,
+        'label'     => _txt('fd.cert.issuer') . " (" . _txt('en.cert.type', null, CertEnum::X509) . ")",
+        'required'  => RequiredEnum::Optional,
+        'env_name'  => 'CMP_EF_SUBJECTDN',
+        'ldap_name' => '',
+        'saml_name' => 'voPersonCertificateIssuerDN'
+      ),
     );
     
     return $attributes;

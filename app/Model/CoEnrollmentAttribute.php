@@ -580,9 +580,15 @@ class CoEnrollmentAttribute extends AppModel {
              && $k != 'description') {
             $attr = array();
 
-            // XXX RCIAM-393 skip issuer handling for now
+            // XXX RCIAM-393, RCIAM-492
+            // voPersonCertificateDn and voPersonCertificateIssuerDn does not support scope in SAML
+            // So i do not know which SDN pairs with IDN in case of multivalues.
             if($attrModelName === 'Cert' && $k === 'issuer') {
-              continue;
+              $this->Cert = ClassRegistry::init('Cert');
+
+              if($this->Cert->consumeDecideVoPersonCertAttr()) {
+                continue;
+              }
             }
             // The attribute ID and attribute key will be the same for all components
             // of a multi-valued attribute

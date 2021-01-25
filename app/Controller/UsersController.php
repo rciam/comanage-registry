@@ -302,6 +302,12 @@ class UsersController extends AppController {
           
           $this->OrgIdentitySource->syncByIdentifier($u);
 
+          // RCIAM-492 Sync any custom Models here. Like the Cert Model
+          // XXX Sync Certificates
+          $this->Cert = ClassRegistry::init('Cert');
+          $this->Cert->syncByIdentifier($u);
+
+          // Redirect user
           $auth_redirect_url = $this->Auth->redirectUrl();
           if(count($cos) === 1 && $auth_redirect_url === '/') {
             $args = array();
