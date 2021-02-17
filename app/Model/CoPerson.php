@@ -126,6 +126,7 @@ class CoPerson extends AppModel {
     // A person can have one or more URL
     "Url" => array('dependent' => true),
     "Cert" => array('dependent' => true),
+    "Assurance" => array('dependent' => true),
   );
 
   // Default display field for cake generated views

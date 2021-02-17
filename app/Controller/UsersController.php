@@ -34,8 +34,7 @@ class UsersController extends AppController {
                        "CoGroupMember",
                        "CoSetting",
                        "CoTermsAndConditions",
-                       "OrgIdentity",
-                       "OrgIdentitySource");
+                       "OrgIdentity");
 
   public $components = array(
     'Auth' => array(
@@ -299,14 +298,18 @@ class UsersController extends AppController {
           
           // Update Org Identities associated with an Enrollment Source, if configured.
           // Note we're performing CO specific work here, even though we're not in a CO context yet.
-          
-          $this->OrgIdentitySource->syncByIdentifier($u);
-
-          // RCIAM-492 Sync any custom Models here. Like the Cert Model
-          // XXX Sync Certificates
+          // RCIAM-492 Sync any custom Models here.
+          // todo: This should become a background job when we find a way to invalidated CO Person's cached state in Session
           if(!empty($orgIdentities)) {
-            $this->Cert = ClassRegistry::init('Cert');
-            $this->Cert->syncByIdentifier($u);
+            $mdl_list = array(
+              "OrgIdentitySource",
+              "Cert",
+              "Assurance"
+            );
+            foreach($mdl_list as $mdl) {
+              $this->$mdl = ClassRegistry::init($mdl);
+              $this->$mdl->syncByIdentifier($u);
+            }
           }
 
           // Redirect user

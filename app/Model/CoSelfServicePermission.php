@@ -212,6 +212,7 @@ class CoSelfServicePermission extends AppModel {
       'TelephoneNumber' => _txt('ct.telephone_numbers.1'),
       'Url'             => _txt('ct.urls.1'),
       'Cert'            => _txt('ct.certs.1'),
+      'Assurance'       => _txt('ct.assurances.1'),
     );
     
     // So we don't need to synchronize the valid types, we'll dynamically construct

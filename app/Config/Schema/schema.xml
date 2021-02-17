@@ -2330,4 +2330,38 @@
       <col>subject</col>
     </index>
   </table>
+
+  <table name="assurances">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="value" type="C" size="512" />
+    <field name="description" type="C" size="512" />
+    <field name="type" type="C" size="32" />
+    <field name="org_identity_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="assurance_id" type="I">
+      <constraint>REFERENCES cm_assurances(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    <index name="assurances_i1">
+      <col>org_identity_id</col>
+    </index>
+    <index name="assurances_i2">
+      <col>co_person_id</col>
+    </index>
+    <index name="assurances_i3">
+      <col>assurance_id</col>
+    </index>
+  </table>
 </schema>

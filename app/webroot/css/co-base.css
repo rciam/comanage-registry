@@ -1409,9 +1409,7 @@ ul.data-table li {
   margin-bottom: 0;
   border-bottom: 2px solid #ccc;
 }
-.personExplorer .coAddEditButtons .ui-state-default,
-.personExplorer .coAddEditButtons .ui-widget-content .ui-state-default,
-.personExplorer .coAddEditButtons .ui-widget-header .ui-state-default {
+.personExplorer .coAddEditButtons .addbutton {
   background: none;
   border: none;
 }
