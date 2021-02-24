@@ -188,13 +188,16 @@
         $coea_entry_count[$coea_model["Assurance"][0]["model"]] += 1;
       }
     }
+    // Remove the rules that do not fullfil certain prerequisites
+//    $coea_model["Assurance"] = $this->Assurance->assuranceRulesEvaluate($coea_model["Assurance"]);
   }
 
   // Print the hidden fields
   foreach($hidden_attr as $ea) {
     if($ea['hidden']) {
       $fieldName = $ea['model'] . '.' . $ea['field'];
-      if($ea['model'] === $coea_model["Assurance"][0]["model"]) {
+      if(!empty($coea_model["Assurance"])
+         && $ea['model'] === $coea_model["Assurance"][0]["model"]) {
         for($index=0; $index<$coea_entry_count[$ea['model']]; $index++) {
           $fieldName = $ea['model'] . '.' . $index . '.' . $ea['field'];
           print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . PHP_EOL;
@@ -230,7 +233,7 @@
       continue;
     }
 
-    $mvpa = (count($coe_attributes) > 1);
+    $mvpa = (is_array($coe_attributes) && count($coe_attributes) > 1);
     // Check if the field should be displayed. If not just hide the div
     $model_box_display = $coe_attributes[0]['CoEnrollmentAttribute']['form_hidden'] ? "none" : "block";
   ?>

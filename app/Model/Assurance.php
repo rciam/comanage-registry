@@ -145,6 +145,7 @@ class Assurance extends AppModel {
     $args['conditions'][] = 'Identifier.org_identity_id IS NOT NULL';
     $args['conditions'][] = 'Assurance.org_identity_id IS NOT NULL';
     $args['conditions'][] = 'NOT Assurance.deleted';
+    $args['conditions'][] = 'NOT Identifier.deleted';
     $args['contain'] = false;
 
     $certs = $this->find('all', $args);
@@ -170,7 +171,8 @@ class Assurance extends AppModel {
         }
       );
       if (!empty($assurance_found)) {
-        $assurance_found = reset($assurance_found);
+        // XXX Pop the intermediate index level
+        $assurance_found = array_pop($assurance_found);
         $assurance_env_map = !empty($assurance_found['env_name']) ? $assurance_found['env_name'] : "";
       }
     }
@@ -216,6 +218,7 @@ class Assurance extends AppModel {
    * @param string $identifier      OrgIdentity Identifier constructed from the IdP
    */
   public function syncByIdentifier($identifier) {
+    $current_assurances_list = array();
     $current_assurances = $this->getAssurancesByOrgIdentityIdentifier($identifier);
     $active_login_orgs = $this->getOrgIdentityByIdentifier($identifier);
     $assurance_env_value = $this->getEnvValues();
@@ -240,7 +243,26 @@ class Assurance extends AppModel {
     } else {
       $new_assur_values[] = $assurance_env_value;
     }
+    $this->log(__METHOD__ . "::Session(New) Assurance values => " . print_r($new_assur_values, true), LOG_DEBUG);
 
+
+    // XXX Filter out the entries that do not pass the REFEDS assertion criteria for IAP
+//    $assurance_iap = array_filter(
+//      $new_assur_values,
+//      function($assur_val) {
+//        return (strpos($assur_val, "/" . AssuranceComponentEnum::IdentityAssurance . "/") !== false);
+//      }
+//    );
+//    $new_assur_values = $this->componentRefedsIAPEvaluate($assurance_iap, $new_assur_values);
+
+    // XXX Filter out the entries that do not pass the REFEDS assertion criteria for ATP
+//    $assurance_atp = array_filter(
+//      $new_assur_values,
+//      function($assur_val) {
+//        return (strpos($assur_val, "/" . AssuranceComponentEnum::AttributeAssurance . "/") !== false);
+//      }
+//    );
+//    $new_assur_values = $this->componentRefedsATPEvaluate($assurance_atp, $new_assur_values);
 
     // XXX Filter and REMOVE obsolete assurance entries
     // (The ones that are no longer present in OrgIdentity retrieved attributes)
@@ -259,8 +281,102 @@ class Assurance extends AppModel {
     }
 
     // XXX Import the non existing ones
-    $current_assurances_list = Hash::combine($current_assurances,'{n}.Assurance.id', '{n}.Assurance.value', '{n}.Assurance.org_identity_id');
+    if(!empty($current_assurances)) {
+      $current_assurances_list = Hash::combine(
+        $current_assurances,
+        '{n}.Assurance.id',
+        '{n}.Assurance.value',
+        '{n}.Assurance.org_identity_id'
+      );
+    }
     $this->importAssurancesLoginOrgIdentity($active_login_orgs, $current_assurances_list, $new_assur_values);
+  }
+
+  /**
+   * @param [string] $assurance_iap
+   * @param [string] $assurance_list
+   * @return mixed
+   */
+  public function componentRefedsIAPEvaluate($assurance_iap, $assurance_list) {
+    $iap_eval = array();
+    foreach($assurance_iap as $iap_val) {
+      $iap_val_explode = explode('/', $iap_val);
+      $iap_level = end($iap_val_explode);
+      if($iap_level === AssuranceIdentityEnum::Low) {
+        $iap_eval[] = 'a';
+      } elseif($iap_level === AssuranceIdentityEnum::Medium) {
+        $iap_eval[] = 'b';
+      } elseif($iap_level === AssuranceIdentityEnum::High) {
+        $iap_eval[] = 'c';
+      }
+    }
+    if(!empty($iap_eval)) {
+      sort($iap_eval);
+      $iap_eval = implode("", $iap_eval);
+      if($iap_eval !== "a"
+        && $iap_eval !== "ab"
+        && $iap_eval !== "abc") {
+        $is_enrollment = false;
+        if(Hash::dimensions($assurance_list) > 1) {
+          $is_enrollment = true;
+        }
+          // Remove this entries from the list
+        foreach($assurance_iap as $iap_val) {
+          if($is_enrollment) {
+            $key = array_search($iap_val, array_column($assurance_list, "default"));
+            unset($assurance_list[$key]);
+            $assurance_list = array_values($assurance_list);
+          } else {
+            $key = array_search($iap_val, $assurance_list);
+            unset($assurance_list[$key]);
+            $assurance_list = array_values($assurance_list);
+          }
+        }
+      }
+    }
+    return $assurance_list;
+  }
+
+  /**
+   * @param [string] $assurance_atp
+   * @param [string] $assurance_list
+   * @return mixed
+   */
+  public function componentRefedsATPEvaluate($assurance_atp, $assurance_list) {
+    $atp_eval = array();
+    foreach($assurance_atp as $atp_val) {
+      $atp_val_explode = explode('/', $atp_val);
+      $atp_level = end($atp_val_explode);
+      if($atp_level === AssuranceAttribute::EpaOneDay) {
+        $atp_eval[] = 'a';
+      } elseif($atp_level === AssuranceAttribute::EpaOneMonth) {
+        $atp_eval[] = 'b';
+      }
+    }
+    if(!empty($atp_eval)) {
+      sort($atp_eval);
+      $atp_eval = implode("", $atp_eval);
+      if($atp_eval !== "a"
+        && $atp_eval !== "ab") {
+        $is_enrollment = false;
+        if(Hash::dimensions($assurance_list) > 1) {
+          $is_enrollment = true;
+        }
+        // Remove this entries from the list
+        foreach($assurance_atp as $atp_val) {
+          if($is_enrollment) {
+            $key = array_search($atp_val,array_column($assurance_list,"default"));
+            unset($assurance_list[$key]);
+            $assurance_list = array_values($assurance_list);
+          } else {
+            $key = array_search($atp_val, $assurance_list);
+            unset($assurance_list[$key]);
+            $assurance_list = array_values($assurance_list);
+          }
+        }
+      }
+    }
+    return $assurance_list;
   }
 
   /**
@@ -337,8 +453,9 @@ class Assurance extends AppModel {
    */
   public function beforeSave($options = array())
   {
+    // XXX When entering one by one the Assurance values how can i check if there is low before medium? During sync or enrollment flow
+    // these values could possible come in reverse order. Then they will fail???
     if(!empty($this->data['Assurance']['value'])) {
-      $this->data['Assurance']['value'] = trim($this->data['Assurance']['value']);
       // Check if this value is already in the database before saving
       $args = array();
       $args['conditions']['Assurance.value'] = trim($this->data['Assurance']['value']);
