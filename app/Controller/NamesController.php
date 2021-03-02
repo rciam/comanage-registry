@@ -57,51 +57,6 @@ class NamesController extends MVPAController {
     parent::beforeFilter();
   }
 
-  function index() {
-    // If this is not a restful call. Load the parent behavior and return
-    if(!$this->request->is('restful')
-      || empty($this->params['url']['couid'])) {
-      parent::index();
-      return;
-    }
-
-    try {
-
-      // We need to retrieve via a join, which StandardController::index() doesn't
-      // currently support.
-      $args = array();
-      $args['joins'][0]['table']         = 'co_group_members';
-      $args['joins'][0]['alias']         = 'CoGroupMember';
-      $args['joins'][0]['type']          = 'INNER';
-      $args['joins'][0]['conditions'][0] = 'CoGroupMember.co_person_id=Name.co_person_id';
-      $args['joins'][1]['table']         = 'co_groups';
-      $args['joins'][1]['alias']         = 'CoGroup';
-      $args['joins'][1]['type']          = 'INNER';
-      $args['joins'][1]['conditions'][0] = 'CoGroup.id=CoGroupMember.co_group_id';
-      $args['conditions']['CoGroup.cou_id'] = $this->params['url']['couid'];
-      if(!empty($this->params['url']['admin']) && (bool)$this->params['url']['admin'] === true) {
-        $args['conditions']['CoGroup.group_type'] = GroupEnum::Admins;
-      } else {
-        $args['conditions']['CoGroup.group_type'] = GroupEnum::ActiveMembers;
-      }
-      $args['conditions']['CoGroupMember.member'] = true;
-      $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
-      $names = $this->Name->find('all', $args);
-
-      if(!empty($names)) {
-        $names_response = $this->Api->convertRestResponse($names);
-        $this->set('names', $names_response);
-      } else {
-        $this->Api->restResultHeader(204, "COU has no Name");
-        return;
-      }
-    }
-    catch(InvalidArgumentException $e) {
-      $this->Api->restResultHeader(404, "Error:" . $e->getMessage());
-      return;
-    }
-  }
-
   /**
    * Callback before views are rendered.
    *
