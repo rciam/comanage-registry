@@ -597,7 +597,7 @@ class CoEnrollmentAttribute extends AppModel {
             $attr['attribute'] = $efAttr['CoEnrollmentAttribute']['attribute'];
             
             // Track if the mvpa itself is required
-            $attr['mvpa_required'] = $efAttr['CoEnrollmentAttribute']['required'];
+            $attr['mvpa_required'] = (bool)$efAttr['CoEnrollmentAttribute']['required'];
             
             // For certain MVPAs, check if this field is even permitted (currently only names)
             // XXX this is kind of clunky -- rewrite if this expands to more attributes
@@ -638,12 +638,12 @@ class CoEnrollmentAttribute extends AppModel {
                && $efAttr['CoEnrollmentAttribute']['ignore_authoritative']);
             
             // We hide language, primary_name, type, status, and verified
-            $attr['hidden'] = ($k == 'language'
-                               || $k == 'login'
-                               || $k == 'primary_name'
-                               || $k == 'type'
-                               || $k == 'status'
-                               || $k == 'verified' ? 1 : 0);
+            $attr['hidden'] = ($k === 'language'
+                               || $k === 'login'
+                               || $k === 'primary_name'
+                               || $k === 'type'
+                               || $k === 'status'
+                               || $k === 'verified' ? true : false);
             
             if($attr['hidden']) {
               // Populate a default value.
@@ -779,7 +779,7 @@ class CoEnrollmentAttribute extends AppModel {
         $optin = (!empty($attr['default'])
                   && !$attr['modifiable']
                   && !$attr['hidden']
-                  && $attr['required'] == RequiredEnum::Optional);
+                  && $attr['required'] === RequiredEnum::Optional);
         
         // Inject hidden attributes to specify membership
         
@@ -903,7 +903,7 @@ class CoEnrollmentAttribute extends AppModel {
     if(!empty($envValues)) {
       $eaMap = array();
       
-      for($i = 0;$i < count($enrollmentAttributes);$i++) {
+      for($i = 0, $iMax = count($enrollmentAttributes); $i < $iMax; $i++) {
         $model = explode('.', $enrollmentAttributes[$i]['model'], 2);
         
         // Only track org identity attributes
@@ -955,15 +955,16 @@ class CoEnrollmentAttribute extends AppModel {
           
           // Make sure the modifiable value is set. If a value was found, we will
           // make it not-modifiable.
-          
-          $enrollmentAttributes[$i]['modifiable'] = !(boolean)$enrollmentAttributes[$i]['default'];
+
+          $enrollmentAttributes[$i]['modifiable'] = $enrollmentAttributes[$i]['modifiable'] ||
+                                                    (empty($enrollmentAttributes[$i]['default']) && (bool)$enrollmentAttributes[$i]['required']);
         }
       }
     }
     
     // Check for default values from env variables.
     
-    for($i = 0;$i < count($enrollmentAttributes);$i++) {
+    for($i = 0, $iMax = count($enrollmentAttributes); $i < $iMax; $i++) {
       // Skip anything that's hidden. This will prevent us from setting a
       // default value for metadata attributes, and will also prevent using
       // default values in hidden attributes (which is probably a feature, not
@@ -982,11 +983,22 @@ class CoEnrollmentAttribute extends AppModel {
         } else {
           $envVar = $enrollmentAttributes[$i]['CoEnrollmentAttribute']['default_env'];
         }
-        
-        $enrollmentAttributes[$i]['default'] = getenv($envVar);
-        
+        // The default value is either the default envVar or the default hardcoded value if the envVar is not present
+        // in the session. For example community Identity Providers might not provide affiliation attributes.
+        $enrollmentAttributes[$i]['default'] = !empty(getenv($envVar)) ? getenv($envVar)
+          : ( !empty($enrollmentAttributes[$i]['default']) ? $enrollmentAttributes[$i]['default'] : '');
+
+        $enrollmentAttributes[$i]['modifiable'] = (!isset($enrollmentAttributes[$i]['modifiable'])) ? true :
+                                                    $enrollmentAttributes[$i]['modifiable'];
+        // XXX Should we define default value for each env_var in case of complex attributes, e.g. given name
+        // We use allowEmpty to check, which is more accurate than $validate->required.
+        // Required is true if the attribute is required by the enrollment flow configuration,
+        // AND if the MVPA's element is also required/allowEmpty (eg: Email requires mail to be set).
         // In the new style, these are defaults, not canonical values
-        $enrollmentAttributes[$i]['modifiable'] = true;
+        if( empty($enrollmentAttributes[$i]['default'])
+          && $enrollmentAttributes[$i]['required']) {
+          $enrollmentAttributes[$i]['modifiable'] = true;
+        }
       }
     }
     

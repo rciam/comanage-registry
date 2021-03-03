@@ -176,7 +176,9 @@
     if($ea['hidden']) {
       $fieldName = $ea['model'] . '.' . $ea['field'];
     }
-
+    if(!isset($ea['default'])) {
+      $ea['default'] = '';
+    }
     print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . "\n";
   }
 
