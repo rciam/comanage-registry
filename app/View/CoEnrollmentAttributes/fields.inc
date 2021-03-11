@@ -42,7 +42,10 @@
     switch(attrname) {
     <?php foreach(array_keys($vv_enums) as $k): ?>
       case "<?php print $k; ?>":
-        ret = new Array(<?php print '"' . join('","', array_values(filter_var($vv_enums[$k],FILTER_SANITIZE_SPECIAL_CHARS))) . '"'; ?>);
+        ret = new Array(<?php
+          $vv_enum_vals = is_array($vv_enums[$k]) ? $vv_enums[$k] : [];
+          print '"' . join('","', array_values(filter_var($vv_enum_vals,FILTER_SANITIZE_SPECIAL_CHARS))) . '"';
+          ?>);
         break;
     <?php endforeach; ?>
     }

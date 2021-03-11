@@ -602,6 +602,12 @@
           $args['mvpa_format'] = 'formatAddress';
           
           print $this->element('mvpa', $args);
+
+          $args['mvpa_model'] = 'Assurance';
+          $args['mvpa_field'] = 'value';
+          unset($args['mvpa_format']);
+
+          print $this->element('mvpa', $args);
         }
       ?>
 

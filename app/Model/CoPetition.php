@@ -323,8 +323,19 @@ class CoPetition extends AppModel {
           return false;
         } else {
           // Treat this attribute as optional, but check if it's set
-          
-          if(!empty($data[ $efAttr['field'] ])) {
+          $first_element = (!empty($data) && is_array($data)) ? current($data) : null;
+
+          if(!is_null($first_element) && is_array($first_element)) {
+            // Data contain multiple entries
+            foreach($data as $data_entry) {
+              // XXX This will break even if only one of the entry misses a value.
+              if(empty($data_entry[ $efAttr['field'] ])) {
+                continue;
+              }
+            }
+            return false;
+          } elseif(!empty($data[ $efAttr['field'] ])) {
+            // XXX Data have a single entry
             return false;
           } else {
             continue;
@@ -1631,7 +1642,7 @@ class CoPetition extends AppModel {
         $orgData['EnrolleeOrgIdentity']['co_id'] = $petition['CoPetition']['co_id'];
       
       // Save the Org Identity. All the data is validated, so don't re-validate it.
-      
+
       if($this->EnrolleeOrgIdentity->saveAssociated($orgData, array("validate" => false,
                                                                     "atomic" => true,
                                                                     "provision" => false))) {
@@ -3213,6 +3224,12 @@ class CoPetition extends AppModel {
     if($err) {
       return null;
     } else {
+      // XXX remove/normalize attribute id
+      foreach($ret as $mdl => $mdl_data) {
+        if(Hash::dimensions($mdl_data) > 2) {
+          $ret[$mdl] = array_pop($mdl_data);
+        }
+      }
       return $ret;
     }
   }

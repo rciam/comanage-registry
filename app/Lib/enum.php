@@ -155,6 +155,43 @@ class AffiliationEnum
   );
 }
 
+class AssuranceComponentEnum
+{
+  const IdentifierUniqueness  = 'ID';
+  const IdentityAssurance     = 'IAP';
+  const AttributeAssurance    = 'ATP';
+  const AssuranceProfile      = 'profile';
+  const type = array(
+    'ID'  => 'Identifier Uniqueness',
+    'IAP' => 'Identity Assurance',
+    'ATP' => 'Attribute Assurance',
+    'profile' => 'Profile Assurance',
+  );
+}
+
+class AssuranceIdentifierUniqueEnum
+{
+  const Unique                = 'unique';
+  const EppnUniqueNoReassign  = 'eppn-unique-no-reassign';
+  const EppnUniqueReassign1y  = 'eppn-unique-reassign-1y';
+}
+
+class AssuranceIdentityEnum
+{
+  const Low                   = 'low';
+  const Medium                = 'medium';
+  const High                  = 'high';
+  const LocalEnterprise       = 'local-enterprise';
+}
+
+class AssuranceAttribute
+{
+  const EpaOneMonth            = 'ePA-1m';
+  const EpaOneDay              = 'ePA-1d';
+  const VpeaOneDay             = 'vPEA-1d';
+  const VpeaOneMonth           = 'vPEA-1m';
+}
+
 class AuthenticationEventEnum
 {
   const ApiLogin               = 'AI';

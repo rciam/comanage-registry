@@ -66,6 +66,7 @@ Router::mapResources(array(
 	'co_departments',
 	'co_email_lists',
   'certs',
+  'assurances',
   'co_extended_attributes',
   'co_extended_types',
   'co_invites',

@@ -887,7 +887,8 @@ class ProvisionerBehavior extends ModelBehavior {
       'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
       'SshKey',
       'Url',
-      'Cert'
+      'Cert',
+      'Assurance',
     );
     
     $coPersonData = $coPersonModel->find('first', $args);

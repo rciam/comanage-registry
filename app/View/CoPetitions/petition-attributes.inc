@@ -151,6 +151,7 @@
   $coea_model = array();
   $misc_attr = array();
   $hidden_attr = array();
+  $coea_entry_count = array();
 
   foreach($co_enrollment_attributes as $ea) {
     // Sort hidden ones out, but if this is view only don't separate out
@@ -162,22 +163,50 @@
     } else {
       if(isset($ea['group'])) {  // Sort by group
         $coea_model[ $ea['group'] ][] = $ea;
+        $coea_entry_count[ $ea['model'] ] = !isset($coea_entry_count[ $ea['model'] ]) ? 1 : $coea_entry_count[ $ea['model'] ]++;
       } else {
         // Has no group
         if(!empty($ea['label'])) {
           $coea_model[ $ea['label'] ][] = $ea;
+          $coea_entry_count[ $ea['model'] ] = !isset($coea_entry_count[ $ea['model'] ]) ? 1 : $coea_entry_count[ $ea['model'] ]++;
         }
       }
     }
+  }
+
+  // XXX Explode Assurance Model if applicable
+  if(!empty($coea_model["Assurance"])
+     && !empty($coea_model["Assurance"][0]["default"])) {
+    $assurance_values = explode(';', $coea_model["Assurance"][0]["default"]);
+    if(is_array($assurance_values) && count($assurance_values) > 1) {
+      $orig_assurance_ob = new ArrayObject($coea_model["Assurance"][0]);
+      $orig_assurance = $orig_assurance_ob->getArrayCopy();
+      $coea_entry_count[$coea_model["Assurance"][0]["model"]] = 0;
+      foreach($assurance_values as $idx => $v) {
+        $coea_model["Assurance"][$idx] = $orig_assurance;
+        $coea_model["Assurance"][$idx]["default"] = $v;
+        $coea_entry_count[$coea_model["Assurance"][0]["model"]] += 1;
+      }
+    }
+    // Remove the rules that do not fullfil certain prerequisites
+//    $coea_model["Assurance"] = $this->Assurance->assuranceRulesEvaluate($coea_model["Assurance"]);
   }
 
   // Print the hidden fields
   foreach($hidden_attr as $ea) {
     if($ea['hidden']) {
       $fieldName = $ea['model'] . '.' . $ea['field'];
+      if(!empty($coea_model["Assurance"])
+         && $ea['model'] === $coea_model["Assurance"][0]["model"]) {
+        for($index=0; $index<$coea_entry_count[$ea['model']]; $index++) {
+          $fieldName = $ea['model'] . '.' . $index . '.' . $ea['field'];
+          print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . PHP_EOL;
+        }
+        continue;
+      }
     }
 
-    print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . "\n";
+    print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . PHP_EOL;
   }
 
   // Print the ones not hidden
@@ -204,7 +233,7 @@
       continue;
     }
 
-    $mvpa = (count($coe_attributes) > 1);
+    $mvpa = (is_array($coe_attributes) && count($coe_attributes) > 1);
     // Check if the field should be displayed. If not just hide the div
     $model_box_display = $coe_attributes[0]['CoEnrollmentAttribute']['form_hidden'] ? "none" : "block";
   ?>
@@ -301,7 +330,7 @@
         $l = 0; // Reset zebra stripes
 
         // Output the fields
-        foreach ($coe_attributes as $ea):
+        foreach ($coe_attributes as $idx => $ea):
           // Skip login
           if (strncmp($ea['field'], 'login', 5) === 0) {
             continue;
@@ -311,6 +340,7 @@
           if (($ea['attribute'] === 'i:cert:X.509'
                || $ea['validate']['content']['rule'][0] === 'email')
               && !empty($ea['default'])
+              && is_array($ea['default'])
               && count($ea['default']) > 1) {
             // Get defaul values and make separate options for select
             $ea['select'] = array_combine($ea['default'], $ea['default']);
@@ -319,17 +349,20 @@
             $ea['required'] = true;
           }
 
+          $model = $ea['model'];
+          if ($ea['attribute'] === 'i:assurance:profile') {
+            $model = $ea['model'] . '.' . $idx;
+          }
           // Output disabled fields
           if(!$ea['hidden'] && isset($ea['default']) && !$ea['modifiable']) {
             // Since disabled values don't submit with the form, convert them to hidden
             // fields and change the fieldName for the visible attribute
-
-            $hfieldName = $ea['model'] . '.' . $ea['field'];
+            $hfieldName = $model . '.' . $ea['field'];
             $fieldName = $hfieldName . "-disabled";
 
-            print $this->Form->hidden($hfieldName, array('default' => $ea['default'])) . "\n";
+            print $this->Form->hidden($hfieldName, array('default' => $ea['default'])) . PHP_EOL;
           } else {
-            $fieldName = $ea['model'] . '.' . $ea['field'];
+            $fieldName = $model . '.' . $ea['field'];
           }
 
           // Emit the field itself, according to the type of field
@@ -347,13 +380,12 @@
             switch($ruleType) {
             case 'inList':
               // This is a select
-              print '<div class="mdl-selectfield">';
-              print "\n";
+              print '<div class="mdl-selectfield">' . PHP_EOL;
               // XXX In case of select this looks nice.
               if(isset($ea['description'])
                 && !$groupDesc
                 && $ea['description'] != "") {
-                print "<div class=\"desc\">" . $ea['description'] . "</div>\n";
+                print '<div class="desc">' . $ea['description'] . '</div>' . PHP_EOL;
                 $groupDesc = true;
               }
 
@@ -380,7 +412,7 @@
                 print $this->Form->error($fieldName, array('class' => 'mdl-selectfield__error'));
               }
 
-              print "</div>\n";
+              print "</div>" . PHP_EOL;
               break;
             case 'validateTimestamp':
               // Handle dates specially to generate the popup calendar
@@ -418,7 +450,7 @@
                 print $this->Form->error($fieldName);
               }
 
-              print "</div>\n";
+              print "</div>" . PHP_EOL;
               break;
             default:
               // Use default field - a text input
@@ -496,7 +528,7 @@
               print $this->Form->label($fieldName, filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS) . $requiredSymbol, array('class' => 'mdl-textfield__label'));
               print $this->Form->input($fieldName, $args);
 
-              print "</div>\n";
+              print "</div>" . PHP_EOL;
 
               if ($matchable) {
                 print '<div class="matchable-output" id="' . $matchableInfoId . '">';
@@ -505,14 +537,14 @@
               break;
             }
 
-            print "\n";
+            print PHP_EOL;
 
             // If there is a description for the field, render it under the field and label
             // fixme: In case of very log attribute this breaks
             if(isset($ea['description'])
               && !$groupDesc
               && $ea['description'] != "") {
-              print "\n<div class=\"desc\">" . $ea['description'] . "</div>\n";
+              print PHP_EOL . '<div class="desc">' . $ea['description'] . '</div>' . PHP_EOL;
             }
           } else {
 
@@ -522,19 +554,10 @@
             print '<div class="modelbox-data-label">';
             print filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS);
 
-            /* XXX Don't show required status for view (read-only):
-            if($ea['required']) {
-              if($mvpa && !$ea['mvpa_required']) {
-                print "<span class=\"required\">&dagger;</span>\n";
-              } else {
-                print "<span class=\"required\">*</span>\n";
-              }
-            } */
-
             if(isset($ea['description'])
               && !$groupDesc
               && $ea['description'] != "") {
-              print '<div class="desc">' . $ea['description'] . "</div>\n";
+              print '<div class="desc">' . $ea['description'] . "</div>" . PHP_EOL;
             }
             print '</div>'; // modelbox-data-label
 

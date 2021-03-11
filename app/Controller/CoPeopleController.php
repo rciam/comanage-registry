@@ -67,6 +67,7 @@ class CoPeopleController extends StandardController {
     'PrimaryName',
     'SshKey',
     'Cert',
+    'Assurance',
     'Url' => array('SourceUrl' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
   );
   
@@ -79,6 +80,7 @@ class CoPeopleController extends StandardController {
     'Name',
     'PrimaryName',
     'Cert',
+    'Assurance',
     'Url'
   );
   

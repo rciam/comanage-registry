@@ -135,15 +135,27 @@
                && ($co['co_person']['status'] == StatusEnum::Active
                    || $co['co_person']['status'] == StatusEnum::GracePeriod)
                && !empty($co['co_person']['CoPersonRole'])) {
-              print '<li class="mdl-menu__item">';
+
+              $elem_id = md5($co['co_name'] . '-' . $co['co_person_id']);
               $args = array(
                 'plugin' => '',
                 'controller' => 'co_people',
                 'action' => 'canvas',
                 $co['co_person_id']
               );
-              print $this->Html->link(_txt('me.identity.for', array($co['co_name'])), $args);
-              print "</li>";
+              $co_link = $this->Html->link(
+                _txt('me.identity.for', array($co['co_name'])),
+                $args,
+                array('id' => $elem_id));
+
+              print $this->Html->tag(
+                'li',
+                $co_link,
+                array(
+                  'class' => 'mdl-menu__item',
+                  'onclick' => "document.getElementById('" . $elem_id . "').click()"
+                )
+              );
             }
           }
         }

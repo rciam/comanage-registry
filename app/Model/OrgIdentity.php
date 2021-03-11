@@ -88,6 +88,7 @@ class OrgIdentity extends AppModel {
     // A person can have one or more URL
     "Url" => array('dependent' => true),
     "Cert" => array('dependent' => true),
+    "Assurance" => array('dependent' => true),
   );
 
   public $belongsTo = array(

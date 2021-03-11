@@ -39,6 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Added resend email invitation via REST API
 - Added support for Certificate Issuer DN (Import during Enrollment flow.Update on login)
 - Added filter MVPA Model entries, i.e. Names, Email Addresses, Identifiers, etc, by COU/VO or by COU/VO Administrators
+- Added support for Assurance Components
 
 ### Changed
 - Update email and subject DN when the user logs into registry
@@ -78,3 +79,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fix hardcoded intro message in invitation acceptance page.Added as Enrollment Flow Configuration.
 - Redirect directly to the configured Plugin, if the Enrollment Flow step is optional
 - Authenticated Authority did not set properly during an IdP linking Enrollment Flow
+- Make top right User Menu element clickable across the entire line

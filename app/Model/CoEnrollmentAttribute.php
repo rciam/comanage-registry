@@ -245,8 +245,11 @@ class CoEnrollmentAttribute extends AppModel {
 
       foreach(array_keys($cm_texts[ $cm_lang ]['en.cert.type']) as $k)
         $ret['i:cert:'.$k] = _txt('fd.cert.subject') . " (" . $cm_texts[ $cm_lang ]['en.cert.type'][$k] . ", " . _txt('ct.certs.1') . ")";
+
+      // XXX Make the profile the default type. Handle this in the Model
+      $ret['i:assurance:profile'] = _txt('ct.assurances.1') . " (" . _txt('ct.org_identities.1') . ")";
     }
-    
+
     // (7) Enrollment Flow specific attributes -- these don't get copied out of the petition (code=e)
     $ret['e:textfield'] = _txt('fd.pt.textfield');
     
