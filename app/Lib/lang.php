@@ -1351,6 +1351,7 @@ original notification at
   'fd.ois.sync.skipknown.desc' => 'If an email address is already attached to an Org Identity associated with this Source, do not query for it',
   'fd.open' =>        'Open',
   'fd.order' =>       'Order',
+  'fd.ordr'  =>       'Order',
   'fd.order.es.desc' => 'The order in which this source will be queried, among all sources configured for this enrollment flow with this mode',
   'fd.order.prov.desc' => 'The order in which this provisioner will be run when automatic provisioning occurs (leave blank to run after all current provisioners)',
   'fd.organization_id' => 'Organization ID',

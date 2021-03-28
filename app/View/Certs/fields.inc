@@ -104,6 +104,52 @@
         ?>
         </span>
     </li>
+    <li>
+      <div class="field-name">
+        <div class="field-title"> <?php print ($e ? $this->Form->label('ordr', _txt('fd.order')) : _txt('fd.order')); ?></div>
+      </div>
+      <div class="field-info">
+        <?php
+        if($e) {
+          print $this->Form->input('ordr');
+        } else {
+          if(!empty($certs[0]['Cert']['id'])) {
+            $value = (!empty($certs[0]['Cert']['ordr'])) ? filter_var($certs[0]['Cert']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS) : "";
+            print $this->Form->create(
+              Inflector::singularize($this->name),
+              array(
+                'inputDefaults' => array('label' => false, 'div' => false),
+                'url' => array(
+                  'action' => 'update_order',
+                  $certs[0]['Cert']['id']
+                ),
+              )
+            );
+            print $this->Form->hidden('id', array('default' => $certs[0]['Cert']['id'])) . "\n";
+            print $this->Form->hidden('org_identity_id', array('default' =>$certs[0]['Cert']['org_identity_id'])) . "\n";
+            print $this->Form->hidden('co_person_id', array('default' => $certs[0]['Cert']['co_person_id'])) . "\n";
+            print $this->Form->input(
+              'ordr',
+              array(
+                'value' => $value,
+                'style' => 'width: 5em;',
+              )
+            );
+            $options = array(
+              'label' => _txt('op.save'),
+              'div' => array(
+                'class' => '',
+                'style' => 'display:inline-block; margin-left: 1em; height: inherit;',
+              )
+            );
+            print $this->Form->end($options);
+          } else {
+            print '';
+          }
+        }
+        ?>
+      </div>
+    </li>
     <?php if($e): ?>
         <li class="fields-submit">
             <span class="field-name">
