@@ -242,7 +242,8 @@ class IdentifiersController extends MVPAController {
     // the identifier passed in the URL, otherwise we lookup based on the record ID.
     
     $managed = false;
-    
+    $self = false;
+
     if(!empty($roles['copersonid'])) {
       switch($this->action) {
       case 'add':
@@ -272,6 +273,12 @@ class IdentifiersController extends MVPAController {
           } elseif(!empty($identifier['Identifier']['org_identity_id'])) {
             $managed = $this->Role->isCoOrCouAdminForOrgidentity($roles['copersonid'],
                                                                  $identifier['Identifier']['org_identity_id']);
+            if(!empty($roles['orgidentities'])) {
+              $org_ids = Hash::extract($roles, 'orgidentities.{n}.org_id');
+              if(in_array($identifier['Identifier']['org_identity_id'], $org_ids)) {
+                $self = true;
+              }
+            }
           }
         }
         break;
@@ -307,7 +314,8 @@ class IdentifiersController extends MVPAController {
     
     // View an existing Identifier?
     $p['view'] = ($roles['cmadmin']
-                  || $roles['coadmin'] 
+                  || $self
+                  || $roles['coadmin']
                   || ($managed && $roles['couadmin']));
     
     $this->set('permissions', $p);

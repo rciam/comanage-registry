@@ -26,14 +26,14 @@
  */
 
   // Determine if fields are editable
-  $e = false;
+  $editable = false;
   
   if(($this->action == "add" && $permissions['add']) || ($this->action == "edit" && $permissions['edit']))
-    $e = true;
+    $editable = true;
     
   // We shouldn't get here if we don't have at least read permission, but check just in case
   
-  if(!$e && !$permissions['view'])
+  if(!$editable && !$permissions['view'])
     return(false);
 
   // We can emit all attributes because the ones we don't want should be null
@@ -55,7 +55,7 @@
             <?php print _txt('fd.assurance.value'); ?>
         </span>
         <span class="field-info">
-            <?php print ($e ? $this->Form->input('value', array('class' => 'focusFirst')) : filter_var($assurances[0]['Assurance']['value'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+            <?php print ($editable ? $this->Form->input('value', array('class' => 'focusFirst')) : filter_var($assurances[0]['Assurance']['value'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </span>
     </li>
     <li>
@@ -63,7 +63,7 @@
             <?php print _txt('fd.desc'); ?>
         </span>
          <span class="field-info">
-            <?php print ($e ? $this->Form->input('description', array('size' => '512')) : filter_var($assurances[0]['Assurance']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+            <?php print ($editable ? $this->Form->input('description', array('size' => '512')) : filter_var($assurances[0]['Assurance']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </span>
     </li>
     <li>
@@ -78,7 +78,7 @@
             $attrs['value'] = (isset($assurances) ? $assurances[0]['Assurance']['type'] : "");
             $attrs['empty'] = false;
 
-            if($e) {
+            if($editable) {
                 print $this->Form->select('type',
                                           AssuranceComponentEnum::type,
                                           $attrs);
@@ -87,12 +87,12 @@
                     print $this->Form->error('type');
                 }
             } else {
-                print _txt(AssuranceComponentEnum::type, null, filter_var($assurances[0]['Assurance']['type'],FILTER_SANITIZE_SPECIAL_CHARS));
+                print filter_var(AssuranceComponentEnum::type[ $assurances[0]['Assurance']['type'] ], FILTER_SANITIZE_SPECIAL_CHARS);
             }
         ?>
         </span>
     </li>
-    <?php if($e): ?>
+    <?php if($editable): ?>
         <li class="fields-submit">
             <span class="field-name">
                 <span class="required"><?php print _txt('fd.req'); ?></span>
