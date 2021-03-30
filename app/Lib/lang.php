@@ -1787,6 +1787,7 @@ original notification at
   'op.tc.review.pt' => 'Review All Agreed To Terms and Conditions',
   'op.unlink' =>      'Unlink',
   'op.unlink.confirm' => 'Are you sure you wish to unlink this identity?',
+  'op.expunge.confirm' => 'Are you sure you wish to expunge this identity?',
   'op.unlock' =>      'Unlock',
   'op.upload' =>      'Upload',
   'op.upload.new' =>  'Upload a New %1$s',
