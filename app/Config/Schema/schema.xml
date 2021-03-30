@@ -2331,6 +2331,23 @@
       <col>subject</col>
     </index>
   </table>
+  
+  <table name="provisioner_cert_records">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_person_role_id" type="I">
+      <constraint>REFERENCES cm_co_persone_role(id)</constraint>
+    </field>
+    <field name="cert_id" type="I"/>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="actor_identifier" type="C" size="256" />
+    <index name="provisioner_cert_records_i1">
+      <col>co_person_role_id</col>
+    </index>
+  </table>
 
   <table name="assurances">
     <field name="id" type="I">

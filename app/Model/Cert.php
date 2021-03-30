@@ -39,10 +39,10 @@ class Cert extends AppModel {
 
   // Association rules from this model to other models
   public $belongsTo = array(
-      // A Certificate may be attached to a CO Person Role
-      "CoPerson",
-      // A Certificate may be attached to an Org Identity
-      "OrgIdentity",
+    // A Certificate may be attached to a CO Person Role
+    "CoPerson",
+    // A Certificate may be attached to an Org Identity
+    "OrgIdentity",
   );
 
   // Default display field for cake generated views

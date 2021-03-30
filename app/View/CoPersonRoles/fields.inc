@@ -530,6 +530,48 @@
               } // foreach
             } // endif extended attributes
             ?>
+            <li>
+              <div class="field-name">
+                <div class="field-title">
+                  <?php print _txt('ct.certs.pl'); ?>
+                </div>
+              </div>
+              <ul class="field-children">
+                <?php foreach($vv_linked_certs as $cert):?>
+                <li>
+                  <div class="field-name">
+                    <div class="field-title">
+                      <?php
+                      $cert_id_link = $this->Html->link(
+                        _txt('fd.cert.subject') . '(' . $cert['Cert']['id'] . ')',
+                        array(
+                          'controller' => 'certs',
+                          'action' => 'view',
+                          $cert['Cert']['id']
+                        )
+                      );
+                      $org_id_link = $this->Html->link(
+                        $cert['Cert']['org_identity_id'],
+                        array(
+                          'controller' => 'org_identities',
+                          'action' => 'view',
+                          $cert['Cert']['org_identity_id']
+                        )
+                      );
+                      print $cert_id_link;
+                      ?>
+                    </div>
+                  </div>
+                  <div class="field-info">
+                    <?php print filter_var($cert['Cert']['subject'],FILTER_SANITIZE_SPECIAL_CHARS)
+                      . ' <b>('
+                      . filter_var($cert['Cert']['type'],FILTER_SANITIZE_SPECIAL_CHARS)
+                      . ')</b>'; ?>
+                  </div>
+                </li>
+                <?php endforeach; ?>
+              </ul>
+            </li>
             <?php if($e && !$es): ?>
               <li class="fields-submit">
                 <div class="field-name">
@@ -559,7 +601,7 @@
             
             $args['mvpa_model'] = 'Address';
             $args['mvpa_format'] = 'formatAddress';
-            
+
             print $this->element('mvpa', $args);
           }
         ?>
