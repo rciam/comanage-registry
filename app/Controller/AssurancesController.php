@@ -138,6 +138,12 @@ class AssurancesController extends MVPAController {
             } elseif(!empty($assurance['Assurance']['org_identity_id'])) {
               $managed = $this->Role->isCoOrCouAdminForOrgidentity($roles['copersonid'],
                 $assurance['Assurance']['org_identity_id']);
+              if(!empty($roles['orgidentities'])) {
+                $org_ids = Hash::extract($roles, 'orgidentities.{n}.org_id');
+                if(in_array($assurance['Assurance']['org_identity_id'], $org_ids)) {
+                  $self = true;
+                }
+              }
             }
           }
           break;

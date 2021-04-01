@@ -2301,6 +2301,7 @@
     <field name="subject" type="C" size="330" />
     <field name="issuer" type="C" size="330" />
     <field name="type" type="C" size="32" />
+    <field name="ordr" type="I" />
     <field name="co_person_id" type="I">
       <constraint>REFERENCES cm_co_people(id)</constraint>
     </field>

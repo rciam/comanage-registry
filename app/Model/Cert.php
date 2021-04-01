@@ -99,6 +99,11 @@ class Cert extends AppModel {
         'allowEmpty' => true,
       ),
     ),
+    'ordr' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    )
   );
 
   /**
@@ -409,6 +414,11 @@ class Cert extends AppModel {
    */
   public function beforeSave($options = array())
   {
+    if(count($options["fieldList"]) === 1
+       && $options["fieldList"][0] === 'ordr') {
+      return true;
+    }
+
     if(empty($this->data['Cert']['type'])) {
       // Assign the default value
       $this->data['Cert']['type'] = CertEnum::X509;
@@ -417,6 +427,65 @@ class Cert extends AppModel {
       $this->data['Cert']['issuer'] = trim($this->data['Cert']['issuer']);
     }
     $this->data['Cert']['subject'] = trim($this->data['Cert']['subject']);
+
+    if(empty($this->data['Cert']['ordr'])
+       || $this->data['Cert']['ordr'] == '') {
+      // Find the current high value and add one
+      $n = 1;
+
+      // I know the CO Person username
+      $u = !empty($_SESSION["Auth"]["User"]["username"]) ? $_SESSION["Auth"]["User"]["username"] : null;
+      if(!empty($u)) {
+        $oargs = array();
+        $oargs['joins'][0]['table'] = 'identifiers';
+        $oargs['joins'][0]['alias'] = 'Identifier';
+        $oargs['joins'][0]['type'] = 'INNER';
+        $oargs['joins'][0]['conditions'][0] = 'OrgIdentity.id=Identifier.org_identity_id';
+        $oargs['conditions']['Identifier.identifier'] = $u;
+        $oargs['conditions']['Identifier.login'] = true;
+        // Join on identifiers that aren't deleted (including if they have no status)
+        $oargs['conditions']['OR'][] = 'Identifier.status IS NULL';
+        $oargs['conditions']['OR'][]['Identifier.status <>'] = SuspendableStatusEnum::Suspended;
+        // As of v2.0.0, OrgIdentities have validity dates, so only accept valid dates (if specified)
+        // Through the magic of containable behaviors, we can get all the associated
+        $oargs['conditions']['AND'][] = array(
+          'OR' => array(
+            'OrgIdentity.valid_from IS NULL',
+            'OrgIdentity.valid_from < ' => date('Y-m-d H:i:s', time())
+          )
+        );
+        $oargs['conditions']['AND'][] = array(
+          'OR' => array(
+            'OrgIdentity.valid_through IS NULL',
+            'OrgIdentity.valid_through > ' => date('Y-m-d H:i:s', time())
+          )
+        );
+        // data we need in one clever find
+        $oargs['contain'][] = 'Cert';
+
+        $this->OrgIdentity = ClassRegistry::init('OrgIdentity');
+        $orgIdentities = $this->OrgIdentity->find('all', $oargs);
+
+        $cert_ordering = Hash::extract($orgIdentities, '{n}.Cert.{n}.ordr');
+        if(!empty($cert_ordering)) {
+          rsort($cert_ordering);
+          $n = (int)current($cert_ordering) + 1;
+        }
+      } else {
+        $args = array();
+        $args['fields'][] = "MAX(ordr) as m";
+        $args['conditions']['Cert.org_identity_id'] = $this->data['Cert']['org_identity_id'];
+        $args['order'][] = "m";
+
+        $o = $this->find('first', $args);
+
+        if(!empty($o[0]['m'])) {
+          $n = $o[0]['m'] + 1;
+        }
+      }
+
+      $this->data['Cert']['ordr'] = $n;
+    }
 
     return true;
   }

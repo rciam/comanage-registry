@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Email Addresses Controller
+ * COmanage Registry Certs Controller
  *
  * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * 
@@ -49,6 +49,33 @@ class CertsController extends MVPAController {
     $this->redirectTab = 'cert';
 
     parent::beforeFilter();
+  }
+
+
+  /**
+   * Update ordr column
+   * @param $id
+   *
+   * @since COmanage Registry v3.1.1
+   */
+  function update_order($id) {
+    if(is_null($id)) {
+      $this->redirect("/");
+    }
+
+    $this->autoRender = false; // We don't render a view in this example
+    $this->layout=null;
+
+    $this->Cert->id = $id;
+    $this->Cert->saveField('ordr', $this->request->data['Cert']['ordr']);
+
+    $args = array(
+      'controller' => 'certs',
+      'action'     => 'view',
+      filter_var($id,FILTER_SANITIZE_SPECIAL_CHARS)
+    );
+
+    $this->redirect($args);
   }
 
   /**
@@ -114,6 +141,7 @@ class CertsController extends MVPAController {
       case 'delete':
       case 'edit':
       case 'view':
+      case 'update_order':
         if(!empty($this->request->params['pass'][0])) {
           // look up $this->request->params['pass'][0] and find the appropriate co person id or org identity id
           // then pass that to $this->Role->isXXX
@@ -133,6 +161,12 @@ class CertsController extends MVPAController {
           } elseif(!empty($cert['Cert']['org_identity_id'])) {
             $managed = $this->Role->isCoOrCouAdminForOrgidentity($roles['copersonid'],
                                                                  $cert['Cert']['org_identity_id']);
+            if(!empty($roles['orgidentities'])) {
+              $org_ids = Hash::extract($roles, 'orgidentities.{n}.org_id');
+              if(in_array($cert['Cert']['org_identity_id'], $org_ids)) {
+                $self = true;
+              }
+            }
           }
         }
         break;
@@ -190,10 +224,10 @@ class CertsController extends MVPAController {
     $p['index'] = $this->request->is('restful') && ($roles['cmadmin'] || $roles['coadmin']);
     
     // View an existing Certificate?
-    $p['view'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                  || $selfperms['view']);
-    
+    $p['update_order'] = $p['view'] = ($roles['cmadmin']
+                                      || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                                      || $selfperms['view']);
+
     $this->set('permissions', $p);
     return $p[$this->action];
   }

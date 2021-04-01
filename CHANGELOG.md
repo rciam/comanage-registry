@@ -40,6 +40,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Added support for Certificate Issuer DN (Import during Enrollment flow.Update on login)
 - Added filter MVPA Model entries, i.e. Names, Email Addresses, Identifiers, etc, by COU/VO or by COU/VO Administrators
 - Added support for Assurance Components
+- Added capability to order Certificates
+- Delete User's Organization link and the Organization itself in one step
 
 ### Changed
 - Update email and subject DN when the user logs into registry
@@ -80,3 +82,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Redirect directly to the configured Plugin, if the Enrollment Flow step is optional
 - Authenticated Authority did not set properly during an IdP linking Enrollment Flow
 - Make top right User Menu element clickable across the entire line
+- Permission denied when accessing an MVPA Model View linked to an OrgIdentity
