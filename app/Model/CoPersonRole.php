@@ -68,7 +68,12 @@ class CoPersonRole extends AppModel {
     ),
     "HistoryRecord",
     // A person can have one or more telephone numbers
-    "TelephoneNumber" => array('dependent' => true)
+    "TelephoneNumber" => array('dependent' => true),
+    // A person can have one or more Certificates
+    "ProvisionerCertRecord" => array(
+      'dependent' => true,
+      'foreignKey' => 'co_person_role_id'
+    ),
   );
 
   // Default display field for cake generated views
@@ -408,6 +413,28 @@ class CoPersonRole extends AppModel {
     }
   }
 
+  /**
+   * @since COmanage Registry v3.1.1
+   * @param $co_person_role_id
+   * @return array
+   */
+  public function getLinkedCertificates($co_person_role_id) {
+    $args = array();
+    $args['joins'][0]['table'] = 'cm_provisioner_cert_records';
+    $args['joins'][0]['alias'] = 'ProvisionerCertRecord';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'ProvisionerCertRecord.cert_id = Cert.id';
+    $args['joins'][1]['table'] = 'cm_co_person_roles';
+    $args['joins'][1]['alias'] = 'CoPersonRole';
+    $args['joins'][1]['type'] = 'INNER';
+    $args['joins'][1]['conditions'][0] = 'ProvisionerCertRecord.co_person_role_id = CoPersonRole.id';
+    $args['conditions']['ProvisionerCertRecord.co_person_role_id'] = $co_person_role_id;
+    $args['contain'] = false;
+
+    $Cert = ClassRegistry::init('Cert');
+    $linked_certs = $Cert->find('all', $args);
+    return !empty($linked_certs) ? $linked_certs : array();
+  }
   /**
    * Reconcile memberships in COU members groups based on the 
    * CoPersonRole(s) for a CoPerson and the Cou(s) for those roles.

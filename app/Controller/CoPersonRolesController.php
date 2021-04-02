@@ -52,7 +52,7 @@ class CoPersonRolesController extends StandardController {
     'Address' => array('SourceAddress' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'CoPerson', // Used to check status recalculation on save
     'SponsorCoPerson' => array('PrimaryName'),
-    'TelephoneNumber' => array('SourceTelephoneNumber' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'))))
+    'TelephoneNumber' => array('SourceTelephoneNumber' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
   );
   
   // We need various related models for index and search
@@ -60,7 +60,7 @@ class CoPersonRolesController extends StandardController {
     'Address' => array('SourceAddress' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'Cou',
     'SponsorCoPerson' => array('PrimaryName'),
-    'TelephoneNumber' => array('SourceTelephoneNumber' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'))))
+    'TelephoneNumber' => array('SourceTelephoneNumber' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
   );
   
   // The extended attributes for this CO
@@ -256,6 +256,13 @@ class CoPersonRolesController extends StandardController {
       
       // Extended attributes
       $this->set('vv_extended_attributes', $this->extended_attributes);
+
+      // Get the linked Certificates
+      $linked_certs = isset($this->request->params["pass"][0])
+                      ? $this->CoPersonRole->getLinkedCertificates($this->request->params["pass"][0])
+                      : array();
+      $this->set('vv_linked_certs', $linked_certs);
+
     }
   }
   
