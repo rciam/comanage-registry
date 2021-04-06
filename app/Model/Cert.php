@@ -103,7 +103,7 @@ class Cert extends AppModel {
       'rule' => 'numeric',
       'required' => false,
       'allowEmpty' => true
-    )
+    ),
   );
 
   /**
@@ -352,6 +352,7 @@ class Cert extends AppModel {
           'id' => $exist_cert['Cert']['id'],
           'issuer' => $issuer_dn_env,
           'subject' => $subject_dn_env,
+          'ordr' => $exist_cert['Cert']['ordr'],
         );
         $this->save($cert_data);
         $this->clear();
