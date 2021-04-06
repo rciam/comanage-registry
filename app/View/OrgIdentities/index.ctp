@@ -92,6 +92,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
     <thead>
     <tr>
       <th><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
+      <th><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.co_people.linked')); ?></th>
       <th><?php print $this->Paginator->sort('source', _txt('fd.source')); ?></th>
       <th><?php print $this->Paginator->sort('o', _txt('fd.o')); ?></th>
       <th><?php print $this->Paginator->sort('ou', _txt('fd.ou')); ?></th>
@@ -108,13 +109,27 @@ if(isset($permissions['search']) && $permissions['search'] ) {
         <td>
           <?php
           print $this->Html->link(
-            generateCn($p['PrimaryName']),
+            generateCn($p['PrimaryName']) . ' (' . $p['OrgIdentity']['id'] . ')',
             array(
               'controller' => 'org_identities',
               'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
               $p['OrgIdentity']['id']
             )
           );
+          ?>
+        </td>
+        <td>
+          <?php
+          foreach($p["CoOrgIdentityLink"] as $links) {
+            print $this->Html->link(
+                generateCn($links["CoPerson"]["PrimaryName"]) . ' (' . $links["CoPerson"]["id"] . ')',
+                array(
+                  'controller' => 'co_people',
+                  'action' => 'canvas',
+                  $links["CoPerson"]["id"]
+                )
+              ) . PHP_EOL;
+          }
           ?>
         </td>
         <td><?php
