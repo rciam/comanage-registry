@@ -1048,6 +1048,7 @@ original notification at
   'fd.co_group.auto' => 'Automatic',
   'fd.co_group.group_type' => 'Group Type',
   'fd.co_people.filter' => 'CO Person Filter',
+  'fd.co_people.linked' => 'CO People Linked',
   'fd.co_people.search' => 'CO Person Search',
   'fd.co_people.status' => 'CO Person Status',
   'fd.created' =>     'Created',

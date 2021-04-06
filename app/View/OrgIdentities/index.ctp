@@ -92,6 +92,8 @@ if(isset($permissions['search']) && $permissions['search'] ) {
     <thead>
     <tr>
       <th><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
+      <th><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.co_people.linked')); ?></th>
+      <th><?php print $this->Paginator->sort('source', _txt('fd.source')); ?></th>
       <th><?php print $this->Paginator->sort('o', _txt('fd.o')); ?></th>
       <th><?php print $this->Paginator->sort('ou', _txt('fd.ou')); ?></th>
       <th><?php print $this->Paginator->sort('title', _txt('fd.title')); ?></th>
@@ -107,7 +109,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
         <td>
           <?php
           print $this->Html->link(
-            generateCn($p['PrimaryName']),
+            generateCn($p['PrimaryName']) . ' (' . $p['OrgIdentity']['id'] . ')',
             array(
               'controller' => 'org_identities',
               'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
@@ -116,6 +118,28 @@ if(isset($permissions['search']) && $permissions['search'] ) {
           );
           ?>
         </td>
+        <td>
+          <?php
+          foreach($p["CoOrgIdentityLink"] as $links) {
+            print $this->Html->link(
+                generateCn($links["CoPerson"]["PrimaryName"]) . ' (' . $links["CoPerson"]["id"] . ')',
+                array(
+                  'controller' => 'co_people',
+                  'action' => 'canvas',
+                  $links["CoPerson"]["id"]
+                )
+              ) . PHP_EOL;
+          }
+          ?>
+        </td>
+        <td><?php
+          if(!empty($p["OrgIdentitySourceRecord"]["OrgIdentitySource"]["description"])) {
+            print "<mark>OrgIdentity Source:</mark> " . filter_var($p["OrgIdentitySourceRecord"]["OrgIdentitySource"]["description"] ,FILTER_SANITIZE_SPECIAL_CHARS). "<br>";
+          }
+          if(!empty($p['OrgIdentity']['authn_authority'])) {
+            print filter_var($p['OrgIdentity']['authn_authority'] ,FILTER_SANITIZE_SPECIAL_CHARS). "<br>";
+          }
+          ?></td>
         <td><?php print filter_var($p['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td><?php print filter_var($p['OrgIdentity']['ou'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td><?php print filter_var($p['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>

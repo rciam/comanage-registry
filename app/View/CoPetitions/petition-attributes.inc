@@ -262,7 +262,8 @@
           $descriptions = array();
           
           foreach($coe_attributes as $idx => $ea) {
-            if ($ea['attribute'] === 'i:cert:X.509') {
+            if ($ea['attribute'] === 'i:cert:X.509'
+                && !empty($ea['default'])) {
               $certValues = explode(";", $ea['default']);
               if (count($certValues) > 1) {
                 $coe_attributes[$idx]['default'] = $certValues;
@@ -274,7 +275,8 @@
             // XXX RCIAM code: Split the multi value email list and create a dropdown
             // XXX According to our scenario the email verified list will preveal. As a result if available will
             // substitute the email list in the mail attribute
-            if ($ea['validate']['content']['rule'][0] == 'email') {
+            if (isset($ea['validate']['content']['rule'][0])
+                && $ea['validate']['content']['rule'][0] == 'email') {
               if(!empty($vv_vo_person_verified_email)) {
                 // Get data from env
                 $verified_csv = getenv('voPersonVerifiedEmail');
