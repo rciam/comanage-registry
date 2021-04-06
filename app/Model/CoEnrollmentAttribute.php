@@ -577,6 +577,9 @@ class CoEnrollmentAttribute extends AppModel {
              && $k != 'co_person_role_id'
              && $k != 'org_identity_id'
              && $k != 'source_' . $attrName . '_id'
+             // COmanage v3.1.0
+             // We need to skip ordering and let the Model handle it by its own
+             && $k != 'ordr'
              // For now, we skip description (introduced to MVPAs in 3.1.0)
              // because it will generally be too confusing to people.
              // "What's my email description?" This could become configurable, though.
