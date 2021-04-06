@@ -92,6 +92,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
     <thead>
     <tr>
       <th><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
+      <th><?php print $this->Paginator->sort('source', _txt('fd.source')); ?></th>
       <th><?php print $this->Paginator->sort('o', _txt('fd.o')); ?></th>
       <th><?php print $this->Paginator->sort('ou', _txt('fd.ou')); ?></th>
       <th><?php print $this->Paginator->sort('title', _txt('fd.title')); ?></th>
@@ -116,6 +117,14 @@ if(isset($permissions['search']) && $permissions['search'] ) {
           );
           ?>
         </td>
+        <td><?php
+          if(!empty($p["OrgIdentitySourceRecord"]["OrgIdentitySource"]["description"])) {
+            print "<mark>OrgIdentity Source:</mark> " . filter_var($p["OrgIdentitySourceRecord"]["OrgIdentitySource"]["description"] ,FILTER_SANITIZE_SPECIAL_CHARS). "<br>";
+          }
+          if(!empty($p['OrgIdentity']['authn_authority'])) {
+            print filter_var($p['OrgIdentity']['authn_authority'] ,FILTER_SANITIZE_SPECIAL_CHARS). "<br>";
+          }
+          ?></td>
         <td><?php print filter_var($p['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td><?php print filter_var($p['OrgIdentity']['ou'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td><?php print filter_var($p['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>

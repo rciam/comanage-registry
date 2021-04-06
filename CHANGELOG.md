@@ -53,6 +53,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Redirect User to CO dashboard if member in only one CO.
 - Show whole tree for nested COUs at the `Add a New CO Person Role` form
 - Remove VO Model and old VomsProvisioner Plugin from core
+- Show OrgIdentity Source in OrgIdentity Index View
 
 ### Fixed
 - Prevent users from submitting multiple registration requests
