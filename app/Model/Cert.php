@@ -285,6 +285,8 @@ class Cert extends AppModel {
     $is_sdn_multi_val = $this->isEnvMultiVal($subject_dn_env);
 
     // REMOVE CERTIFICATES
+    // Remove Duplicates
+    $cert_ids_to_delete = $this->findDuplicateIds($current_certs);
 
     // XXX New Certificate list is empty
     if(is_null($is_sdn_multi_val)) {
@@ -314,11 +316,21 @@ class Cert extends AppModel {
       },
       ARRAY_FILTER_USE_BOTH
     );
-    // Delete the certificates
     foreach($certs_to_delete as $cert) {
+      $cert_ids_to_delete[] = $cert['Cert']['id'];
+    }
+
+    // Soft Delete all Certs to delete
+    foreach($cert_ids_to_delete as $cert_id) {
       // Soft Delete everything
       // Since i am using delete function, Changelog behaviour should work
-      $this->delete($cert['Cert']['id']);
+      $this->delete($cert_id);
+      // Remove from current_certs
+      $current_certs_flatten = Hash::flatten($current_certs);
+      $cert_path = array_search((int)$cert_id, $current_certs_flatten, true);
+      $key = key(Hash::expand(array($cert_path => $cert_id)));
+      unset($current_certs[$key]);
+      $current_certs = array_values($current_certs);
     }
 
     // ADD/UPDATE CERTIFICATES
@@ -361,6 +373,31 @@ class Cert extends AppModel {
       // Import Non Existing Certificates
       $this->importCertsLoginOrgIdentity($active_login_orgs, $current_sdn_list, $new_sdns, $issuer_dn_env);
     } // Single valued Subject DN
+  }
+
+  /**
+   * Return the Certifificate IDs of the duplicate entries
+   *
+   * @param array $certs
+   * @return array|int[]|string[]
+   */
+  public function findDuplicateIds($certs) {
+    if(empty($certs)) {
+      return array();
+    }
+    // XXX Filter the duplicate ones
+    $certs_combined_list = Hash::combine(
+      $certs,
+      '{n}.Cert.id',
+      array( '%s@separator@%s@separator@%d',
+        '{n}.Cert.subject',
+        '{n}.Cert.issuer',
+        '{n}.Cert.org_identity_id')
+    );
+
+    $cert_keys_all = array_keys($certs_combined_list);
+    $cert_keys_remained = array_keys(array_unique($certs_combined_list));
+    return array_diff($cert_keys_all, $cert_keys_remained);
   }
 
 

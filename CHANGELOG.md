@@ -86,3 +86,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Authenticated Authority did not set properly during an IdP linking Enrollment Flow
 - Make top right User Menu element clickable across the entire line
 - Permission denied when accessing an MVPA Model View linked to an OrgIdentity
+- Remove duplicate Certificate Entries
