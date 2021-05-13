@@ -1124,14 +1124,19 @@ class AppController extends Controller {
     
     // Determine what menu contents plugins want available
     $plugins = $this->loadAvailablePlugins('all', 'simple');
+    $sidebar = array();
     
     foreach($plugins as $plugin) {
       if(method_exists($this->$plugin, 'cmPluginMenus')) {
         $menu['plugins'][$plugin] = $this->$plugin->cmPluginMenus();
       }
+      if(method_exists($this->$plugin, 'cmPluginSidebar')) {
+        $sidebar['plugins'][$plugin] = $this->$plugin->cmPluginSidebar();
+      }
     }
     
     $this->set('menuContent', $menu);
+    $this->set('vv_sidebarContent', $sidebar);
     
     // An a temporary workaround for CO-720, determine which COs have enrollment flows
     // defined. Once CO-828 is done, this could be replaced by examining $this->cur_co
