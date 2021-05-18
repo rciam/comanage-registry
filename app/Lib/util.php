@@ -318,7 +318,7 @@ function render_plugin_menus() {
   $coid = null;
   
   if(func_num_args() == 4
-     && ($menu == 'coconfig' || $menu == 'copeople')){
+     && ($menu == 'coconfig' || $menu == 'copeople' || $menu == 'cogroups')){
     $coid = func_get_arg(3);
   }
   
