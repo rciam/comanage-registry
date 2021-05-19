@@ -290,6 +290,25 @@
           )
         );
       }
+
+      // Load Plugin Sidebar Actions
+      if(isset($vv_sidebarContent['plugins'])) {
+        foreach($vv_sidebarContent['plugins'] as $plugin => $paction_list) {
+          foreach($paction_list as $idx => $paction) {
+            $sidebarButtons[] = array(
+              'icon'    => $paction['icon'],
+              'title'   => $paction['title'],
+              'url'     => array(
+                'plugin'    => Inflector::underscore($plugin),
+                'controller' => $paction['url']['controller'],
+                'action'     => $paction['url']['action'],
+                'co'         => $cur_co['Co']['id']
+              )
+            );
+          }
+        }
+      }
+
     }
     
     // Populate the cross reference
