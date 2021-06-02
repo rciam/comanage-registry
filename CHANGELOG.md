@@ -43,6 +43,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Added capability to order Certificates
 - Delete User's Organization link and the Organization itself in one step
 - Added the capability to Link and present a Certificate under a VO(COU)
+- REST API query COU by name
 
 ### Changed
 - Update email and subject DN when the user logs into registry

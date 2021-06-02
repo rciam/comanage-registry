@@ -903,6 +903,13 @@ class StandardController extends AppController {
             }
             
             $params['conditions'] = array($req.'.co_id' => $this->params['url']['coid']);
+            // Query by name column
+            $column_names = array_keys($model->schema());
+            if(!empty($this->params['url']['name'])
+                && in_array('name', $column_names)) {
+                $searchname = urldecode($this->params['url']['name']);
+                $params['conditions']['LOWER(' . $model->name . '.name) LIKE'] = "%$searchname%";
+            }
           }
         } elseif($this->allows_cou && !empty($this->params['url']['couid'])) {
           // Only retrieve members of the requested COU.
