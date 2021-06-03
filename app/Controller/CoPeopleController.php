@@ -676,7 +676,14 @@ class CoPeopleController extends StandardController {
                      || ($managed && $roles['couadmin']));
     
     // View all existing CO People (or a COU's worth)?
-    $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+    // For the case of the COU disable index. Enable only for the people belonging to the COU the coperson is an admin
+    $myPopulationPermit = false;
+    if(!empty($this->request->params["named"]["Search.couid"])
+       && !empty($roles["admincous"])
+          && array_key_exists($this->request->params["named"]["Search.couid"], $roles["admincous"])) {
+        $myPopulationPermit = true;
+    }
+    $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $myPopulationPermit);
     $p['search'] = $p['index'];
     
     if($this->action == 'index' && $p['index']) {
