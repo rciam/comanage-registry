@@ -26,6 +26,7 @@
  */
   
 class Cou extends AppModel {
+
   // Define class name for cake
   public $name = "Cou";
   
@@ -188,7 +189,7 @@ class Cou extends AppModel {
    * @return Array Array of [id] => [name]
    */
   
-  public function potentialParents($currentCou, $coId) {
+  public function potentialParents($currentCou, $coId, $groupAdmin = FALSE, $returnOptionArray = FALSE) {
     // Editing an existing COU requires removing it and its children from the list of potential parents
     if($currentCou) {
       // Find this COU and its children
@@ -212,14 +213,28 @@ class Cou extends AppModel {
     } else {
       $conditions = array();
       $conditions['Cou.co_id'] = $coId;
+      if($groupAdmin !== FALSE) {
+        $joins[0]['table'] = 'co_groups';
+        $joins[0]['alias'] = 'CoGroups';
+        $joins[0]['type'] = 'INNER';
+        $joins[0]['conditions'][0] = 'Cou.id=CoGroups.cou_id';
+        $conditions['CoGroups.id'] = $groupAdmin;
+        
+      } 
     }
     
     $args = array();
     $args['conditions'] = $conditions;
+    if(!empty($joins)){
+      $args['joins'] = $joins;
+    }
     $args['contain'] = false;
     
     // Create options list all other COUS in CO
     $optionArrays = $this->find('all', $args);
+    if($returnOptionArray){
+      return $optionArrays;
+    }
     $optionList = Set::combine($optionArrays, '{n}.Cou.id','{n}.Cou.name');
     
     return $optionList;

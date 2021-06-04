@@ -356,8 +356,8 @@
             $e = $permissions['edit'];
             $v = $permissions['view'] || $c['CoGroup']['open'];
 
-            if(!empty($permissions['owner'])
-               && in_array($c['CoGroup']['id'], $permissions['owner'])) {
+            if((!empty($permissions['owner']) && in_array($c['CoGroup']['id'], $permissions['owner'])) 
+            || in_array($c['CoGroup']['id'], $permissions['admingroups'])) {
               $d = true;
               $e = true;
             }
