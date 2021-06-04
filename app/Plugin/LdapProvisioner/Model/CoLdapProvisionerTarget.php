@@ -26,7 +26,7 @@
  */
 
 App::uses("CoProvisionerPluginTarget", "Model");
-
+App::uses('LdapSyncEntitlements', 'LdapProvisioner.Lib');
 class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
   // Define class name for cake
   public $name = "CoLdapProvisionerTarget";
@@ -49,6 +49,22 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     "CoLdapProvisionerAttrGrouping" => array(
       'className' => 'LdapProvisioner.CoLdapProvisionerAttrGrouping',
       'dependent' => true
+    )
+  );
+  
+  public $duplicatableModels = array(
+    // Must explicitly list this model in the order it should be duplicated
+    "CoLdapProvisionerTarget" => array(
+      "parent" => "CoProvisioningTarget",
+      "fk"     => "co_provisioning_target_id"
+    ),
+    "CoLdapProvisionerAttribute" => array(
+      "parent" => "CoLdapProvisionerTarget",
+      "fk"     => "co_ldap_provisioner_target_id"
+    ),
+    "CoLdapProvisionerAttrGrouping" => array(
+      "parent" => "CoLdapProvisionerTarget",
+      "fk"     => "co_ldap_provisioner_target_id"
     )
   );
   
@@ -120,10 +136,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       'required' => true,
       'allowEmpty' => false
     ),
-    'opt_lang' => array(
+    'attr_opts' => array(
       'rule' => 'boolean'
     ),
-    'opt_role' => array(
+    'hierarchy_format' => array(
       'rule' => 'boolean'
     ),
     'oc_eduperson' => array(
@@ -140,6 +156,9 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     ),
     'oc_ldappublickey' => array(
       'rule' => 'boolean'
+    ),
+    'oc_voperson' => array(
+      'rule' => 'boolean'
     )
   );
   
@@ -153,16 +172,26 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
    * @param  Array                  $coProvisioningTargetData CO Provisioning Target data
    * @param  Array                  $provisioningData         CO Person or CO Group Data used for provisioning
    * @param  Boolean                $modify                   Whether or not this will be for a modify operation
+   * @param  Array                  $dns                      DNs as obtained from CoLdapProvisionerDn::obtainDn
    * @param  Array                  $dnAttributes             Attributes used to generate the DN for this person, as returned by CoLdapProvisionerDn::dnAttributes
    * @param  LdapProvUnconfAttrEnum $uam                      How to handle unconfigured attributes
    * @return Array Attribute data suitable for passing to ldap_add, etc
    * @throws UnderflowException
+   * @todo   This function is getting a bit long and could use some refactoring
    */
   
-  protected function assembleAttributes($coProvisioningTargetData, $provisioningData, $modify, $dnAttributes, $uam) {
+  protected function assembleAttributes($coProvisioningTargetData, 
+                                        $provisioningData,
+                                        $modify,
+                                        $dns,
+                                        $dnAttributes,
+                                        $uam) {
     // First see if we're working with a Group record or a Person record
     $person = isset($provisioningData['CoPerson']['id']);
     $group = isset($provisioningData['CoGroup']['id']);
+    
+    // Make it easier to see if attribute options are enabled
+    $attropts = ($person && $coProvisioningTargetData['CoLdapProvisionerTarget']['attr_opts']);
     
     // Pull the attribute configuration
     $args = array();
@@ -221,7 +250,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         // Filter out any attributes in $pattrs that are not defined in $configuredAttributes.
         $pattrs = array_intersect_key($pattrs, $configuredAttributes[$oc]);
 
-        // If this is not a modify operation than filter out any array() values.        
+        // If this is not a modify operation then filter out any array() values.        
         if(!$modify) {
           $pattrs = array_filter($pattrs, function ($attrValue) {
             return !(is_array($attrValue) && empty($attrValue));
@@ -301,32 +330,74 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
               $targetType = $configuredAttributes[$oc][$attr]['type'];
             }
             
+            // Labeled attribute, used to construct attribute options
+            $lattr = $attr;
+            
             switch($attr) {
               // Name attributes
               case 'cn':
-                if($person) {
-                  // Currently only preferred name supported (CO-333)
-                  $attributes[$attr] = generateCn($provisioningData['PrimaryName']);
-                } else {
-                  $attributes[$attr] = $provisioningData['CoGroup']['name'];
+                if($group) {
+                  
+                  if($provisioningData['CoGroup']['cou_id'] != NULL) {
+                    // We must first check if there is/are parent(s) for this cou to include at the name
+                    $parent = $this->CoLdapProvisionerDn->CoGroup->Cou->getParentCouById($provisioningData['CoGroup']['cou_id']);
+                    $parent_id = $parent['Cou']['parent_id'];
+
+                    while(!empty($parent_id)) {
+                      $grandparent = $this->CoLdapProvisionerDn->CoGroup->Cou->getParentCouById($parent_id);
+                      // Put at the front the parent name
+                      $parent['Cou']['name'] = $grandparent['Cou']['name'] . ':' . $parent['Cou']['name'];
+                      $parent_id = $grandparent['Cou']['parent_id'];
+                    }
+                    $ret[$parent['Cou']['id']] = $parent['Cou']['name'];
+                    $group_name = explode(":", $provisioningData['CoGroup']['name']);
+                    $attributes[$lattr] = $group_name[0] . ':' . $group_name[1] . ":" . $ret[$parent['Cou']['id']] . ":" . $group_name[3];
+                  }
+                  else {
+                    $attributes[$lattr] = $provisioningData['CoGroup']['name'];
+                  }
+                  break;
                 }
-                break;
+                // else $person, fall through
               case 'givenName':
-                // Currently only preferred name supported (CO-333)
-                $attributes[$attr] = $provisioningData['PrimaryName']['given'];
-                break;
               case 'sn':
                 // Currently only preferred name supported (CO-333)
-                if(!empty($provisioningData['PrimaryName']['family'])) {
-                  $attributes[$attr] = $provisioningData['PrimaryName']['family'];
+                
+                if($attropts && !empty($provisioningData['PrimaryName']['language'])) {
+                  $lattr = $lattr . ";lang-" . $provisioningData['PrimaryName']['language'];
+                }
+                
+                if($attr == 'cn') {
+                  $attributes[$lattr] = generateCn($provisioningData['PrimaryName']);
+                } else {
+                  $f = ($attr == 'givenName' ? 'given' : 'family');
+                  
+                  // Registry doesn't permit given to be blank, so we can safely
+                  // assume we're going to populate it. However, Registry does not
+                  // require a family name. The person schema DOES require sn to be
+                  // populated, so if we don't have one we have to insert a default
+                  // value, which for now will just be a dot (.).
+                  
+                  if(!empty($provisioningData['PrimaryName'][$f])) {
+                    $attributes[$lattr] = $provisioningData['PrimaryName'][$f];
+                  } else {
+                    $attributes[$lattr] = ".";
+                  }
                 }
                 break;
               case 'displayName':
               case 'eduPersonNickname':
+              case 'voPersonAuthorName':
                 // Walk through each name
                 foreach($provisioningData['Name'] as $n) {
+                  $llattr = $lattr;
+                  
+                  if($attropts && !empty($n['language'])) {
+                    $llattr .= ";lang-" . $n['language'];
+                  }
+                  
                   if(empty($targetType) || ($targetType == $n['type'])) {
-                    $attributes[$attr][] = generateCn($n);
+                    $attributes[$llattr][] = generateCn($n);
                     
                     if(!$multiple) {
                       // We're only allowed one name in the attribute
@@ -342,6 +413,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
               case 'o':
               case 'ou':
               case 'title':
+              case 'voPersonAffiliation':
                 // Map the attribute to the column
                 $cols = array(
                   'eduPersonAffiliation' => 'affiliation',
@@ -349,7 +421,8 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   'employeeType' => 'affiliation',
                   'o' => 'o',
                   'ou' => 'ou',
-                  'title' => 'title'
+                  'title' => 'title',
+                  'voPersonAffiliation' => 'affiliation',
                 );
                 
                 // Walk through each role
@@ -357,6 +430,12 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 
                 foreach($provisioningData['CoPersonRole'] as $r) {
                   if(!empty($r[ $cols[$attr] ])) {
+                    $lrattr = $lattr;
+                    
+                    if($attropts) {
+                      $lrattr = $lattr . ";role-" . $r['id'];
+                    }
+                    
                     if($attr == 'eduPersonAffiliation'
                        || $attr == 'eduPersonScopedAffiliation') {
                       $affilmap = $this->CoProvisioningTarget->Co->CoExtendedType->affiliationMap($provisioningData['Co']['id']);
@@ -374,10 +453,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                           }
                         }
                         
-                        $attributes[$attr][] = $affilmap[ $r[ $cols[$attr] ] ] . $scope;
+                        $attributes[$lrattr][] = $affilmap[ $r[ $cols[$attr] ] ] . $scope;
                       }
                     } else {
-                      $attributes[$attr][] = $r[ $cols[$attr] ];
+                      $attributes[$lrattr][] = $r[ $cols[$attr] ];
                     }
                     
                     $found = true;
@@ -401,6 +480,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
               case 'labeledURI':
               case 'mail':
               case 'uid':
+              case 'voPersonApplicationUID':
+              case 'voPersonExternalID':
+              case 'voPersonID':
+              case 'voPersonSoRID':
                 // Map the attribute to the model and column
                 $mods = array(
                   'eduPersonOrcid' => 'Identifier',
@@ -410,7 +493,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   'employeeNumber' => 'Identifier',
                   'labeledURI' => 'Url',
                   'mail' => 'EmailAddress',
-                  'uid' => 'Identifier'
+                  'uid' => 'Identifier',
+                  'voPersonApplicationUID' => 'Identifier',
+                  'voPersonExternalID' => 'Identifier',
+                  'voPersonID' => 'Identifier',
+                  'voPersonSoRID' => 'Identifier'
                 );
                 
                 $cols = array(
@@ -421,7 +508,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   'employeeNumber' => 'identifier',
                   'labeledURI' => 'url',
                   'mail' => 'mail',
-                  'uid' => 'identifier'
+                  'uid' => 'identifier',
+                  'voPersonApplicationUID' => 'identifier',
+                  'voPersonExternalID' => 'identifier',
+                  'voPersonID' => 'identifier',
+                  'voPersonSoRID' => 'identifier'
                 );
                 
                 if($attr == 'eduPersonOrcid') {
@@ -438,7 +529,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                     $scope = '@' . $coProvisioningTargetData['CoLdapProvisionerTarget']['scope_suffix'];
                   } else {
                     // Don't add this attribute since we don't have a scope
-                    continue;
+                    break;
                   }
                 }
                 
@@ -493,7 +584,35 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                     if(empty($targetType) || ($targetType == $m['type'])) {
                       // And finally that the attribute itself is set
                       if(!empty($m[ $cols[$attr] ])) {
-                        if($attr == 'labeledURI' && !empty($m['description'])) {
+                        // Check for attribute options
+                        if($attropts && $attr == 'voPersonApplicationUID') {
+                          // Map the identifier type to a service short label.
+                          // There can be more than one service linked to a given
+                          // identifier type, so we may insert more than one copy
+                          // of the attribute (which is fine, as long as the app
+                          // labels are different).
+                          
+                          // XXX it'd be better to pass this with the provisioning data
+                          // rather than call it once per identifer, or at least to pull
+                          // a map once
+                          $labels = $this->CoProvisioningTarget
+                                         ->Co
+                                         ->CoGroup
+                                         ->CoService
+                                         ->mapIdentifierToLabels($provisioningData['Co']['id'],
+                                                                 $m['type']);
+                          
+                          if(!empty($labels)) {
+                            foreach($labels as $id => $sl) {
+                              $lrattr = $lattr . ';app-' . $sl;
+                              
+                              $attributes[$lrattr][] = $m[ $cols[$attr] ] . $scope;
+                            }
+                          } else {
+                            // There was no matching label, so we won't export the identifier.
+                            // $attributes[$attr][] = $m[ $cols[$attr] ] . $scope;
+                          }
+                        } elseif($attr == 'labeledURI' && !empty($m['description'])) {
                           // Special case for labeledURI, which permits a description to be appended
                           $attributes[$attr][] = $m[ $cols[$attr] ] . " " . $m['description'];
                         } else {
@@ -518,12 +637,50 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   $attributes[$attr] = array();
                 }
                 break;
+              case 'voPersonPolicyAgreement':
+                if(!$attropts) {
+                  $attributes[$attr] = array();
+                }
+
+                foreach($provisioningData['CoTAndCAgreement'] as $tc) {
+                  if(!empty($tc['agreement_time'])
+                     && !empty($tc['CoTermsAndConditions']['url'])
+                     && $tc['CoTermsAndConditions']['status'] == SuspendableStatusEnum::Active) {
+                    if($attropts) {
+                      $lrattr = $lattr . ";time-" . strtotime($tc['agreement_time']);
+                      $attributes[$lrattr][] = $tc['CoTermsAndConditions']['url'];
+                    } else {
+                      $attributes[$attr][] = $tc['CoTermsAndConditions']['url'];
+                    }
+                  }
+                }
+                
+                if(!$attropts && empty($attributes[$attr]) && !$modify) {
+                  // This is the same as the approach using $found, but without an extra variable
+                  unset($attributes[$attr]);
+                }
+                break;
+              case 'voPersonStatus':
+                $attributes[$attr] = StatusEnum::$to_api[ $provisioningData['CoPerson']['status'] ];
+                
+                if($attropts) {
+                  // If attribute options are enabled, emit person role status as well
+                  
+                  foreach($provisioningData['CoPersonRole'] as $r) {
+                    $lrattr = $lattr . ";role-" . $r['id'];
+                    
+                    $attributes[$lrattr] = StatusEnum::$to_api[ $r['status'] ];
+                  }
+                }
+                break;
               // Authenticators
               case 'sshPublicKey':
+                if($modify) {
+                  // Start with an empty list in case no active keys
+                  $attributes[$attr] = array();
+                }
                 foreach($provisioningData['SshKey'] as $sk) {
-                  global $ssh_ti;
-                  
-                  $attributes[$attr][] = $ssh_ti[ $sk['type'] ] . " " . $sk['skey'] . " " . $sk['comment'];
+                  $attributes[$attr][] = $sk['type'] . " " . $sk['skey'] . " " . $sk['comment'];
                 }
                 break;
               case 'userPassword':
@@ -537,8 +694,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                     // There's probably a better place for this (an enum somewhere?)
                     switch($up['password_type']) {
                       // XXX we can't use PasswordAuthenticator's enums in case the plugin isn't installed
-                      case 'CR':
-                        $attributes[$attr][] = '{CRYPT}' . $up['password'];
+                      // For now we only support Salted SHA 1 as the "least bad" out of the
+                      // box option for OpenLDAP.
+                      case 'SH':
+                        $attributes[$attr][] = '{SSHA}' . $up['password'];
                         break;
                       default:
                         // Silently ignore other types
@@ -547,10 +706,35 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   }
                 }
                 break;
+              case 'voPersonCertificateDN':
+              case 'voPersonCertificateIssuerDN':
+                if(!$attropts) {
+                  $attributes[$attr] = array();
+                }
+                
+                foreach($provisioningData['Certificate'] as $cr) {
+                  // Skip locked certs
+                  if(!isset($cr['AuthenticatorStatus']['locked']) || !$cr['AuthenticatorStatus']['locked']) {
+                    $f = ($attr == 'voPersonCertificateDN' ? 'subject_dn' : 'issuer_dn');
+                    
+                    if($attropts) {
+                      $lrattr = $lattr . ";scope-" . $cr['id'];
+                      
+                      $attributes[$lrattr][] = $cr[$f];
+                    } else {
+                      $attributes[$attr][] = $cr[$f];
+                    }
+                  }
+                }
+                
+                if(!$attropts && empty($attributes[$attr]) && !$modify) {
+                  // This is the same as the approach using $found, but without an extra variable
+                  unset($attributes[$attr]);
+                }
+                break;
               // Attributes from models attached to CO Person Role
               case 'facsimileTelephoneNumber':
               case 'l':
-              case 'mail':
               case 'mobile':
               case 'postalCode':
               case 'roomNumber':
@@ -561,7 +745,6 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 $mods = array(
                   'facsimileTelephoneNumber' => 'TelephoneNumber',
                   'l' => 'Address',
-                  'mail' => 'EmailAddress',
                   'mobile' => 'TelephoneNumber',
                   'postalCode' => 'Address',
                   'roomNumber' => 'Address',
@@ -573,7 +756,6 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 $cols = array(
                   'facsimileTelephoneNumber' => 'number',
                   'l' => 'locality',
-                  'mail' => 'mail',
                   'mobile' => 'number',
                   'postalCode' => 'postal_code',
                   'roomNumber' => 'room',
@@ -592,12 +774,23 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                       if(empty($targetType) || ($targetType == $m['type'])) {
                         // And finally that the attribute itself is set
                         if(!empty($m[ $cols[$attr] ])) {
+                          // Check for attribute options
+                          $lrattr = $lattr;
+                          
+                          if($attropts) {
+                            $lrattr .= ";role-" . $r['id'];
+                            
+                            if(!empty($m['language'])) {
+                              $lrattr .= ";lang-" . $m['language'];
+                            }
+                          }
+                          
                           if($mods[$attr] == 'TelephoneNumber') {
                             // Handle these specially... we want to format the number
                             // from the various components of the record
-                            $attributes[$attr][] = formatTelephone($m);
+                            $attributes[$lrattr][] = formatTelephone($m);
                           } else {
-                            $attributes[$attr][] = $m[ $cols[$attr] ];
+                            $attributes[$lrattr][] = $m[ $cols[$attr] ];
                           }
                           
                           $found = true;
@@ -616,7 +809,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 }
                 
                 if(!$found && $modify) {
-                  $attributes[$attr] = array();
+                  $attributes[$lattr] = array();
                 }
                 break;
               // Group attributes (cn is covered above)
@@ -650,10 +843,30 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
               case 'isMemberOf':
                 if($person) {
                   if(!empty($provisioningData['CoGroupMember'])) {
-                    foreach($provisioningData['CoGroupMember'] as $gm) {
-                      if(isset($gm['member']) && $gm['member']
-                         && !empty($gm['CoGroup']['name'])) {
-                        $attributes['isMemberOf'][] = $gm['CoGroup']['name'];
+                    foreach ($provisioningData['CoGroupMember'] as $gm) {
+                      if(
+                        isset($gm['member']) && $gm['member']
+                        && !empty($gm['CoGroup']['name'])
+                      ) {
+                       
+                        if($gm['CoGroup']['cou_id'] != NULL) {
+                          // We must first check if there is/are parent(s) for this cou to include at the name
+                          $parent = $this->CoLdapProvisionerDn->CoGroup->Cou->getParentCouById($gm['CoGroup']['cou_id']);
+                          $parent_id = $parent['Cou']['parent_id'];
+
+                          while(!empty($parent_id)) {
+                            $grandparent = $this->CoLdapProvisionerDn->CoGroup->Cou->getParentCouById($parent_id);
+                            // Put at the front the parent name
+                            $parent['Cou']['name'] = $grandparent['Cou']['name'] . ':' . $parent['Cou']['name'];
+                            $parent_id = $grandparent['Cou']['parent_id'];
+                          }
+                          $ret[$parent['Cou']['id']] = $parent['Cou']['name'];
+                          $group_name = explode(":",$gm['CoGroup']['name']);
+                          $attributes['isMemberOf'][] = $group_name[0] . ':' . $group_name[1] . ":" . $ret[$parent['Cou']['id']] . ":" . $group_name[3];
+                        }
+                        else {
+                          $attributes['isMemberOf'][] = $gm['CoGroup']['name'];
+                        }
                       }
                     }
                   }
@@ -687,15 +900,20 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 break;
               // eduPersonEntitlement is based on Group memberships
               case 'eduPersonEntitlement':
-                if(!empty($provisioningData['CoGroupMember'])) {
+                
                   $entGroupIds = Hash::extract($provisioningData['CoGroupMember'], '{n}.co_group_id');
                   
-                  $attributes[$attr] = $this->CoProvisioningTarget
-                                            ->Co
-                                            ->CoGroup
-                                            ->CoService
-                                            ->mapCoGroupsToEntitlements($provisioningData['Co']['id'], $entGroupIds);
-                }
+                  if(!Configure::check('LdapConfig')) {
+                    Configure::load('ldap');
+                  }           
+                  $config = Configure::read('LdapConfig');
+                  
+                  if(!empty($config)) {
+                    //$person = isset($provisioningData['CoPerson']['id']);
+                    $syncEntitlements = new LdapSyncEntitlements($config, $provisioningData['Co']['id']);
+                    $new_entitlements = $syncEntitlements->getEntitlements($provisioningData['CoPerson']['id']);
+                    $attributes[$attr] = $new_entitlements;
+                  }
                 
                 if(!$modify && empty($attributes[$attr])) {
                   // Can't have empty values on add
@@ -739,7 +957,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
               default:
                 throw new InternalErrorException("Unknown attribute: " . $attr);
                 break;
-            }
+            } // end of attribute switch
           } elseif($modify && $uam == LdapProvUnconfAttrEnum::Remove) {
             // In case this attribute is probably no longer being exported (but was previously),
             // set an empty value to indicate delete. Note there are use cases where this isn't
@@ -755,9 +973,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
             }
           }
           
-          // Check if we emitted anything
-          if(!empty($attributes[$attr])) {
-            $attrEmitted = true;
+          // Check if we emitted anything by comparing the keys for marshalled attributes
+          // to the attribute just considered, knowing that we may have added
+          // an attribute with a name appended with an option like ';prior'.
+          if(array_filter($attributes, function ($k) use ($attr) {return strpos($k, $attr) === 0;}, ARRAY_FILTER_USE_KEY)
+          // CO-1914 On modify of multivalued attribute, this could be an empty array
+          // indicating no value to emit
+          && !empty($attributes[$attr])) {
+               $attrEmitted = true;
           }
         }
         
@@ -782,17 +1005,20 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                                explode(',', $coProvisioningTargetData['CoLdapProvisionerTarget']['person_ocs']));
     }
     
-    // Make sure the DN values are in the list (check case insensitively, in case
-    // the user-entered case used to build the DN doesn't match). First, map the
-    // outbound attributes to lowercase.
+    // Now that we have the attributes, perform some sanity checks and cleanup.
     
     $lcattributes = array();
     
+    // Note we're currently expecting $lcattributes to have attr options (step 4, below)
     foreach(array_keys($attributes) as $a) {
       $lcattributes[strtolower($a)] = $a;
     }
     
-    // Now walk through each DN attribute, but only multivalued ones.
+    // (1) Make sure the DN values are in the list (check case insensitively, in case
+    // the user-entered case used to build the DN doesn't match). First, map the
+    // outbound attributes to lowercase.
+    
+    // Walk through each DN attribute, but only multivalued ones.
     // At the moment we don't check, say cn (which is single valued) even though
     // we probably should.
     
@@ -817,14 +1043,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       }
     }
     
-    // We can't send the same value twice for multi-valued attributes. For example,
+    // (2) We can't send the same value twice for multi-valued attributes. For example,
     // eduPersonAffiliation can't have two entries for "staff", though it can have
     // one for "staff" and one for "employee". We'll walk through the multi-valued
     // attributes and remove any duplicate values. (We wouldn't have to do this here
     // if we checked before inserting each value, above, but that would require a
     // fairly large refactoring.)
     
-    // While we're here, convert newlines to $ so the attribute doesn't end up
+    // (3) While we're here, convert newlines to $ so the attribute doesn't end up
     // base-64 encoded, and also trim leading and trailing whitespace. While
     // normalization will typically handle this, in some cases (normalization
     // disabled, some attributes that are not normalized) we can still end up
@@ -859,7 +1085,104 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       }
     }
     
+    // (4) If this is a modify operation and attribute options are enabled,
+    // it's more complicated to clean our no longer valid values. For example,
+    // if someone adds a language tag to an attribute that didn't previously
+    // have one, the attribute is effectively renamed from, say, "cn" to "cn;lang-es",
+    // To deal with this, we pull the current LDAP record.
+    
+    // Build the list of configured attributes, regardless of schema
+    $sattributes = array();
+    
+    foreach($supportedAttributes as $oc => $occfg) {
+      $sattributes = array_map('strtolower', array_merge($sattributes, array_keys($occfg['attributes'])));
+    }
+
+    if($modify && $attropts) {
+      try {
+        $currec = $this->queryLdap($coProvisioningTargetData['CoLdapProvisionerTarget']['serverurl'],
+                                   $coProvisioningTargetData['CoLdapProvisionerTarget']['binddn'],
+                                   $coProvisioningTargetData['CoLdapProvisionerTarget']['password'],
+                                   // We need the DN, which provision() already assemebled. Specifically,
+                                   // if there is a rename in progress we need the old dn since that's still
+                                   // what physically in the LDAP server. (The rename hasn't happened yet.)
+                                   $dns['olddn'],
+                                   "(objectclass=*)");
+      }
+      catch(Exception $e) {
+        if($e->getCode() == 32) { // LDAP_NO_SUCH_OBJECT
+          // No such object, maybe it was manually removed?
+          // We'll continue processing as if !$modify
+        } else {
+          // Rethrow the exception
+          throw new RuntimeException($e->getMessage());
+        }
+      }
+      
+      if(!empty($currec)) {
+        if($currec['count'] != 1) {
+          throw new RuntimeException(_txt('er.ldapprovisioner.basedn'));
+        }
+        
+        for($i = 0;$i < $currec[0]['count'];$i++) {
+          $fattr = $currec[0][$i]; // eg: cn;lang-es
+          $cattr = substr($fattr, 0, strpos($fattr, ';')); // eg: cn
+          // If there is no ; in $fattr, substr will return an empty string
+          if(!$cattr) { $cattr = $fattr; }
+          
+          // Is this attribute (currently in LDAP) not in our export?
+          if(!isset($lcattributes[strtolower($fattr)])
+             // And is it an attribute we are configured to manage/export?
+             && in_array(strtolower($cattr), $sattributes)) {
+            // Insert a blank record for this attribute to delete it
+            $attributes[$fattr] = array();
+          }
+        }
+      }
+    }
+    
     return $attributes;
+  }
+  
+  /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v3.2.0
+   */
+
+  public function beforeSave($options = array()) {
+    // Verify that a scope is defined (scope_suffix) if an attribute requiring scope
+    // is defined (eduPersonScopedAffiliation, eduPersonUniqueId).
+    
+    // Only do this check if no scope is set.
+    if(empty($this->data['CoLdapProvisionerTarget']['scope_suffix'])) {
+      $attrs = $this->supportedAttributes();
+      
+      // Walk through the list of attributes looking for those that require scope.
+      // If we find any that are enabled for export, throw an error.
+      
+      foreach($attrs as $oc => $occfg) {
+        // Check that the objectclass is enabled
+        $occol = "oc_" . strtolower($oc);
+        
+        if($occfg['objectclass']['required']
+           // If !isset, it's probably a plugin schema, which is always enabled
+           || !isset($this->data['CoLdapProvisionerTarget'][$occol])
+           || $this->data['CoLdapProvisionerTarget'][$occol]) {
+          foreach($occfg['attributes'] as $attr => $acfg) {
+            if(isset($acfg['requirescope']) && $acfg['requirescope']) {
+              // This attribute requires scope, see if it is required or enabled
+              $dbCfg = Hash::extract($this->data['CoLdapProvisionerAttribute'], '{n}.CoLdapProvisionerAttribute[attribute='.$attr.']');
+              
+              if($acfg['required']
+                 || (isset($dbCfg[0]['export']) && $dbCfg[0]['export'])) {
+                throw new InvalidArgumentException(_txt('er.ldapprovisioner.scope', array($attr)));
+              }
+            }
+          }
+        }
+      }
+    }
   }
   
   /**
@@ -926,22 +1249,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       case ProvisioningActionEnum::CoPersonEnteredGracePeriod:
       case ProvisioningActionEnum::CoPersonUnexpired:
       case ProvisioningActionEnum::CoPersonUpdated:
-        if(!in_array($provisioningData['CoPerson']['status'],
-                     array(StatusEnum::Active,
-                           StatusEnum::Expired,
-                           StatusEnum::GracePeriod,
-                           StatusEnum::Suspended))) {
-          // Convert this to a delete operation. Basically we (may) have a record in LDAP,
-          // but the person is no longer active. Don't delete the DN though, since
-          // the underlying person was not deleted.
-          
-          $delete = true;
-        } else {
-          // An update may cause an existing person to be written to LDAP for the first time
-          // or for an unexpectedly removed entry to be replaced
-          $assigndn = true;  
-          $modify = true;
-        }
+        // An update may cause an existing person to be written to LDAP for the first time
+        // or for an unexpectedly removed entry to be replaced
+        $assigndn = true;  
+        $modify = true;
         break;
       case ProvisioningActionEnum::CoGroupAdded:
         $assigndn = true;
@@ -968,10 +1279,28 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         break;
     }
     
+    if($person) {
+      if(!empty($provisioningData['CoPerson']['status'])
+         && !in_array($provisioningData['CoPerson']['status'],
+                      array(StatusEnum::Active,
+                            StatusEnum::Expired,
+                            StatusEnum::GracePeriod,
+                            StatusEnum::Suspended))) {
+        // Convert this to a delete operation. Basically we (may) have a record in LDAP,
+        // but the person is no longer active. Don't delete the DN though, since
+        // the underlying person was not deleted.
+        
+        $delete = true;
+        $add = false;
+        $assigndn = false;
+        $modify = false;
+      }
+    }
+    
     if($group) {
       // If this is a group action and no Group Base DN is defined, or oc_groupofnames is false,
       // then don't try to do anything.
-      
+      $coProvisioningTargetData['CoLdapProvisionerTarget']['oc_groupofnames'] = true;
       if(!isset($coProvisioningTargetData['CoLdapProvisionerTarget']['group_basedn'])
          || empty($coProvisioningTargetData['CoLdapProvisionerTarget']['group_basedn'])
          || !$coProvisioningTargetData['CoLdapProvisionerTarget']['oc_groupofnames']) {
@@ -1034,6 +1363,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         $attributes = $this->assembleAttributes($coProvisioningTargetData,
                                                 $provisioningData,
                                                 $modify,
+                                                $dns,
                                                 $dnAttributes,
                                                 $uam);
       }
@@ -1047,6 +1377,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           $delete = true;
         }
       }
+      // Let other errors bubble up the stack
     }
     
     // Bind to the server
@@ -1126,7 +1457,6 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                               $provisioningData[($person ? 'CoPerson' : 'CoGroup')]['id'],
                                               $dns['newdnerr'])));
       }
-      
       if(!@ldap_mod_replace($cxn, $dns['newdn'], $attributes)) {
         if(ldap_errno($cxn) == 0x20 /*LDAP_NO_SUCH_OBJECT*/) {
           // Change to an add operation. We call ourselves recursively because
@@ -1504,14 +1834,15 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           ),
           'eduPersonScopedAffiliation' => array(
             'required'  => false,
-            'multiple'  => true
+            'multiple'  => true,
+            'requirescope' => true
           ),
           'eduPersonUniqueId' => array(
             'required'  => false,
             'multiple'  => false,
-            'alloworgvalue' => true,
             'extendedtype' => 'identifier_types',
-            'defaulttype' => IdentifierEnum::ePUID
+            'defaulttype' => IdentifierEnum::Enterprise,
+            'requirescope' => true
           )
         )
       ),
@@ -1591,6 +1922,63 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         'attributes' => array(
           'sshPublicKey' => array(
             'required'   => true,
+            'multiple'   => true
+          )
+        )
+      ),
+      'voPerson' => array(
+        'objectclass' => array(
+          'required'    => false
+        ),
+        'attributes' => array(
+          'voPersonAffiliation' => array(
+            'required'   => false,
+            'multiple'   => true
+          ),
+          'voPersonApplicationUID' => array(
+            'required'  => false,
+            'multiple'  => true,
+            'extendedtype' => 'identifier_types',
+            'defaulttype' => IdentifierEnum::UID
+          ),
+          'voPersonAuthorName' => array(
+            'required'    => false,
+            'multiple'    => true,
+            'typekey'     => 'en.name.type',
+            'defaulttype' => NameEnum::Author
+          ),
+          'voPersonCertificateDN' => array(
+            'required'   => false,
+            'multiple'   => true
+          ),
+          'voPersonCertificateIssuerDN' => array(
+            'required'   => false,
+            'multiple'   => true
+          ),
+          'voPersonExternalID' => array(
+            'required'  => false,
+            'multiple'  => true,
+            'extendedtype' => 'identifier_types',
+            'defaulttype' => IdentifierEnum::ePPN
+          ),
+          'voPersonID' => array(
+            'required'  => false,
+            'multiple'  => true,
+            'extendedtype' => 'identifier_types',
+            'defaulttype' => IdentifierEnum::Enterprise
+          ),
+          'voPersonPolicyAgreement' => array(
+            'required'   => false,
+            'multiple'   => true
+          ),
+          'voPersonSoRID' => array(
+            'required'  => false,
+            'multiple'  => true,
+            'extendedtype' => 'identifier_types',
+            'defaulttype' => IdentifierEnum::SORID
+          ),
+          'voPersonStatus' => array(
+            'required'   => false,
             'multiple'   => true
           )
         )

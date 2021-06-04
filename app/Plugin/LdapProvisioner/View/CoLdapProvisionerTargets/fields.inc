@@ -258,18 +258,25 @@
   <li>
     <div class="field-name">
       <div class="field-title"><?php print _txt('pl.ldapprovisioner.opts'); ?></div>
-      <div class="field-desc"><?php /* print _txt('pl.ldapprovisioner.opts.desc'); */ ?></div>
+      <div class="field-desc"><?php print _txt('pl.ldapprovisioner.opts.desc'); ?></div>
     </div>
     <div class="field-info checkbox">
       <?php
         if($e) {
-          // Disabled because not yet implemented -- need CO-115
-          print $this->Form->input('opt_lang', array('label' => _txt('pl.ldapprovisioner.opt.lang'),
-                                                   'disabled' => true));
-          
-          // Disabled because not yet implemented
-          print $this->Form->input('opt_role', array('label' => _txt('pl.ldapprovisioner.opt.role'),
-                                                   'disabled' => true));
+          print $this->Form->input('attr_opts', array('label' => _txt('pl.ldapprovisioner.opts'), 'checked' => empty($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['attr_opts']) ? false : true));
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.ldapprovisioner.hierarchy'); ?></div>
+      <div class="field-desc"><?php print _txt('pl.ldapprovisioner.hierarchy.desc'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php
+        if($e) {
+          print $this->Form->input('hierarchy_format', array('label' => _txt('pl.ldapprovisioner.hierarchy'), 'checked' => empty($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['hierarchy_format']) ? false : true));
         }
       ?>
     </div>
@@ -293,16 +300,18 @@
             $ocopts = array();
             $ocopts['label'] = _txt('pl.ldapprovisioner.oc.enable', array($oc));
             $ocopts['onClick'] = 'toggle_div("oc_' . $oc . '_div")';
-
+            $ocopts['checked'] = false;
             if($supportedAttributes[$oc]['objectclass']['required']) {
               $ocopts['label'] .= " (" . _txt('fd.required') . ")";
               $ocopts['checked'] = true;
               $ocopts['disabled'] = true;
             }
-
+            if(!empty($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['oc_' . strtolower($oc)])){
+              $ocopts['checked'] = true;
+            }
             print $this->Form->input('oc_' . strtolower($oc), $ocopts) . "<br />";
 
-            print '<div id="oc_' . $oc . '_div">';
+            print '<div id="oc_' . $oc . '_div" class="nested">';
 
             foreach(array_keys($supportedAttributes[$oc]['attributes']) as $attr) {
               // Make sure the attributes map to the indexing created by Cake
@@ -474,11 +483,11 @@
                 $xchecked = isset($currentAttributes[$attr]['use_org_value'])
                             && $currentAttributes[$attr]['use_org_value'];
 
-                print "&nbsp;&nbsp;&nbsp;&nbsp;"
+                print '<div class="nested">'
                       . $this->Form->input($xname,
                                            array('label' => _txt('pl.ldapprovisioner.fd.useorgval'),
                                                  'checked' => $xchecked))
-                      . "<br />\n";
+                      . "</div>\n";
               }
             }
             

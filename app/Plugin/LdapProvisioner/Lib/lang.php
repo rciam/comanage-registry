@@ -50,6 +50,7 @@ $cm_ldap_provisioner_texts['en_US'] = array(
   'er.ldapprovisioner.dn.config'      => 'DN configuration invalid',
   'er.ldapprovisioner.dn.noattr'      => 'DN attributes not found for CO Person %1$s',
   'er.ldapprovisioner.dn.none'        => 'DN not found for %1$s %2$s (%3$s)',
+  'er.ldapprovisioner.scope'          => 'Attribute %1$s requires scope and is enabled, but Attribute Scope is blank',
   
   // Plugin texts
   'pl.ldapprovisioner.attr.hasmember.desc'  => 'Applies to Group',
@@ -76,10 +77,10 @@ $cm_ldap_provisioner_texts['en_US'] = array(
   'pl.ldapprovisioner.person_ocs'     => 'Additional Person Object Classes',
   'pl.ldapprovisioner.person_ocs.desc' => 'Additional externally managed object classes (comma separated) to define for the person record, see <a href="https://spaces.internet2.edu/x/ygYwAg">documentation</a>',
   'pl.ldapprovisioner.oc.enable'      => 'Enable <code>%1$s</code> objectclass',
-  'pl.ldapprovisioner.opts'           => 'Attribute Options',
-  'pl.ldapprovisioner.opts.desc'      => 'XXX link to documentation',
-  'pl.ldapprovisioner.opt.lang'       => 'Enable attribute options for languages',
-  'pl.ldapprovisioner.opt.role'       => 'Enable attribute options for roles',
+  'pl.ldapprovisioner.opts'           => 'Enable Attribute Options',
+  'pl.ldapprovisioner.opts.desc'      => 'See the <a href="https://spaces.internet2.edu/display/COmanage/LDAP+Provisioning+Plugin#LDAPProvisioningPlugin-LDAPAttributeOptions">documentation</a> for more details',
+  'pl.ldapprovisioner.hierarchy'      => 'Enable Hierarchy Format at Group Names',
+  'pl.ldapprovisioner.hierarchy.desc' => 'Hierarchy format seperating each level by ":" at Group Names (e.g CO:COU:example.org:child of example.org)',
   'pl.ldapprovisioner.scope'          => 'Attribute Scope',
   'pl.ldapprovisioner.scope.desc'     => 'For attributes requiring scope, the scope to append (not including @)',
   'pl.ldapprovisioner.serverurl'      => 'Server URL',

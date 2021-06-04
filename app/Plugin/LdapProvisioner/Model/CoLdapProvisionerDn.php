@@ -87,8 +87,25 @@ class CoLdapProvisionerDn extends AppModel {
       // Throw an exception... this should be defined
       throw new RuntimeException(_txt('er.ldapprovisioner.dn.config'));
     }
-    
-    $dn = "cn=" . $coGroupData['CoGroup']['name']
+    if(!is_null($coGroupData['CoGroup']['cou_id']) && $coProvisioningTargetData['CoLdapProvisionerTarget']['hierarchy_format']) {
+      // We must first check if there is/are parent(s) for this cou to include at the name
+      $parent = $this->CoGroup->Cou->getParentCouById($coGroupData['CoGroup']['cou_id']);
+      $parent_id = $parent['Cou']['parent_id'];
+
+      while(!empty($parent_id)) {
+        $grandparent = $this->CoGroup->Cou->getParentCouById($parent_id);
+        // Put at the front the parent name
+        $parent['Cou']['name'] = $grandparent['Cou']['name'] . ':' . $parent['Cou']['name'];
+        $parent_id = $grandparent['Cou']['parent_id'];
+      }
+      $ret[$parent['Cou']['id']] = $parent['Cou']['name'];
+      $group_name = explode(":", $coGroupData['CoGroup']['name']);
+      $coGroupName = $group_name[0] . ':' . $group_name[1] . ":" . $ret[$parent['Cou']['id']] . ":" . $group_name[3];
+    }
+    else {
+      $coGroupName = $coGroupData['CoGroup']['name'];
+    }
+    $dn = "cn=" . $coGroupName
         . "," . $coProvisioningTargetData['CoLdapProvisionerTarget']['group_basedn'];
       
     return $dn;

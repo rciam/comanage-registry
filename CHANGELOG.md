@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## [Unreleased]
+
+### Added
+- Hierarchy representation of COUs option at LDAP Provisioner
+- Attribute Options at LDAP Provisioner
+- voPerson object class at LDAP Provisioner
+- Load entitlements configuration from file (local/Config)
+
+### Changed
+- Construct entitlements using LdapSyncEntitlements class
+
+### Fixed
+- Show stored values at LDAP Provisioner configuration page
+
 ## [3.1.0-rciam] - 2021-06-30
 
 ### Added
