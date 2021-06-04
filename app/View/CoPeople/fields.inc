@@ -331,6 +331,7 @@
   $l = 1;
 ?>
 
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
 <script type="text/javascript">
   <!-- /* JS specific to these fields */ -->
   
@@ -339,6 +340,20 @@
     var $tabs = $( "#tabs" ).tabs();
     $('#autogenerate-dialog').dialog('open');
   }
+
+  var clipboard = new ClipboardJS('.allowCopy', {
+      text: function(trigger) {
+          return trigger.alt;
+      }
+  });
+
+  clipboard.on('success', function(e) {
+      generateFlash( e.text+" copied to Clipboard.", "success");
+  });
+
+  clipboard.on('error', function(e) {
+      generateFlash( e.text+" failed to copy.", "error");
+  });
 
   $(function() {
     // Explorer menu toggles
@@ -1173,10 +1188,20 @@
                     <td>
                       <?php
                         if(!empty($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'])) {
-                          print filter_var($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'] ,FILTER_SANITIZE_SPECIAL_CHARS). "<br>";
+                          print filter_var($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'] ,FILTER_SANITIZE_SPECIAL_CHARS) . "<br>";
                         }
                         if(!empty($link['OrgIdentity']['authn_authority'])) {
-                            print filter_var($link['OrgIdentity']['authn_authority'] ,FILTER_SANITIZE_SPECIAL_CHARS). "<br>";
+                          $authn_authority = $link['OrgIdentity']['authn_authority'];
+                          $data = $this->Idp->getIdpInfo($link['OrgIdentity']['authn_authority']);
+                          $authnAuthFN = (isset($data['authnAuthFN']) ) ? filter_var($data['authnAuthFN'], FILTER_SANITIZE_SPECIAL_CHARS)
+                                                                        : filter_var($link['OrgIdentity']['authn_authority'] ,FILTER_SANITIZE_SPECIAL_CHARS);
+                          print (isset($data['logoUrl'])) ?
+                                 "<img "
+                                   . "class=\"ois-logo allowCopy\" "
+                                   . "src=\"{$data['logoUrl']}\" "
+                                   . "alt=\"{$authn_authority}\" "
+                                   . "title=\"{$authnAuthFN}\">"
+                                                          : $authnAuthFN;
                         }
                       ?>
                     </td>
