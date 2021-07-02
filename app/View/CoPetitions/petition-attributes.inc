@@ -455,6 +455,12 @@
               print "</div>" . PHP_EOL;
               break;
             default:
+              // XXX Hide the non required Address fields
+              if(strpos($ea["attribute"], 'm:address:') !== false ) {
+                  if(!$ea['required']) {
+                      break;
+                  }
+              }
               // Use default field - a text input
               print '<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">';
 
@@ -525,11 +531,35 @@
                 }
               }
 
-              // Render the form field, label, and error (if any)
-              // error is output by default with class "error-message"
-              print $this->Form->label($fieldName, filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS) . $requiredSymbol, array('class' => 'mdl-textfield__label'));
-              print $this->Form->input($fieldName, $args);
+              // XXX For the case of country use a select input
+              if(isset($ea['field']) && $ea['field'] === 'country') {
+                $args = array();
+                // Set a default value if provided
+                if(isset($ea['default'])) {
+                  $args['value'] = $ea['default'];
+                  $args['disabled'] = !$ea['modifiable'];
+                }
+                $args['empty'] = !$ea['required'];
+                if($ea['required']) {
+                  $args['required'] = 'required';
+                }
+                $args['class'] = 'co-selectfield';
+                $args['aria-label'] = $m;
 
+                global $cm_lang, $cm_texts;
+
+                // Render the form field, label, and error (if any)
+                print $this->Form->select($fieldName, $cm_texts[ $cm_lang ]['en.country.codes'], $args);
+                if($this->Form->isFieldError($fieldName)) {
+                  print $this->Form->error($fieldName, array('class' => 'mdl-selectfield__error'));
+                }
+
+              } else {
+                // Render the form field, label, and error (if any)
+                // error is output by default with class "error-message"
+                print $this->Form->label($fieldName, filter_var($ea['label'], FILTER_SANITIZE_SPECIAL_CHARS) . $requiredSymbol, array('class' => 'mdl-textfield__label'));
+                print $this->Form->input($fieldName, $args);
+              }
               print "</div>" . PHP_EOL;
 
               if ($matchable) {

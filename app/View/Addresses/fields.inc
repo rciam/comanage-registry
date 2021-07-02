@@ -111,7 +111,30 @@
       <?php endif; // required_fields ?>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('country') : filter_var($addresses[0]['Address']['country'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+      <?php
+      global $cm_lang, $cm_texts;
+
+      $attrs = array();
+      $attrs['value'] = isset($addresses[0]['Address']['country'])
+                        ? filter_var($addresses[0]['Address']['country'],FILTER_SANITIZE_SPECIAL_CHARS)
+                        : "";
+      $attrs['empty'] = false;
+
+      if($e) {
+        print $this->Form->select(
+            'country',
+            $cm_texts[ $cm_lang ]['en.country.codes'],
+            $attrs
+          );
+
+        if($this->Form->isFieldError('country')) {
+          print $this->Form->error('country');
+        }
+      } else {
+        print _txt('en.country.codes', null, filter_var($addresses[0]['Address']['country'],
+                                                        FILTER_SANITIZE_SPECIAL_CHARS));
+      }
+      ?>
     </div>
   </li>
   <li>
