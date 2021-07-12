@@ -187,6 +187,26 @@
           <li>
             <div class="field-name">
               <div class="field-title">
+                  <?php print _txt('fd.xp.any.cou.cond'); ?>
+              </div>
+              <div class="field-desc"><?php print _txt('fd.xp.any.cou.cond.desc'); ?></div>
+            </div>
+            <div class="field-info checkbox">
+                <?php
+                if ($e) {
+                  $attrs = array();
+                  $attrs['value'] = $co_expiration_policies[0]['CoExpirationPolicy']['cond_any_cou'];
+
+                  print $this->Form->checkbox('cond_any_cou', $attrs) . ' ' . $this->Form->label('cond_any_cou', _txt('fd.xp.any.cou.cond'));
+                } else {
+                  print ($co_expiration_policies[0]['CoExpirationPolicy']['cond_any_cou']) ? _txt('fd.yes') : _txt('fd.no');
+                }
+                ?>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
+              <div class="field-title">
                 <?php print ($e ? $this->Form->label('cond_affiliation', _txt('fd.affiliation')) : _txt('fd.affiliation')); ?>
               </div>
               <div class="field-desc"><?php print _txt('fd.xp.affil.cond.desc'); ?></div>

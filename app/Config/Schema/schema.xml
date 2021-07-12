@@ -947,6 +947,7 @@
     <field name="cond_count" type="I" />
     <field name="cond_status" type="C" size="2" />
     <field name="cond_sponsor_invalid" type="L" />
+    <field name="cond_any_cou" type="L" />
     <field name="act_affiliation" type="C" size="32" />
     <field name="act_clear_expiry" type="L" />
     <field name="act_cou_id" type="I">

@@ -1523,6 +1523,8 @@ original notification at
   'fd.value' =>       'Value',
   'fd.visibility' =>  'Visibility',
   'fd.xp.actions' =>  'All of the following <b>actions</b> will be taken when the specified conditions match:',
+  'fd.xp.any.cou.cond' =>  'Any COU',
+  'fd.xp.any.cou.cond.desc' =>  'Apply an expiration policy for all COUs. This is mutually exclusive with single COU selection.',
   'fd.xp.conditions' => 'All of the following <b>conditions</b> must be met for this Expiration Policy to take effect:',
   'fd.xp.affil.act.desc' => 'CO Person Roles matching this Expiration Policy will be given this affiliation',
   'fd.xp.affil.cond.desc' => 'This Expiration Policy will only apply to CO Person Roles with this affiliation',
@@ -1533,7 +1535,7 @@ original notification at
   'fd.xp.clear_expiry.act' => 'Clear Expiration',
   'fd.xp.clear_expiry.act.desc' => 'The expiration date for the affected CO Person Role will be cleared when this Expiration Policy is applied',
   'fd.xp.cou.act.desc' => 'CO Person Roles matching this Expiration Policy will be moved to this COU',
-  'fd.xp.cou.cond.desc' => 'This Expiration Policy will only apply to CO Person Roles in this COU',
+  'fd.xp.cou.cond.desc' => 'This Expiration Policy will only apply to CO Person Roles in this COU. If not empty, this input will be preferred instead of ANY COU',
   'fd.xp.count.cond' => 'Max Execution Count',
   'fd.xp.count.cond.desc' => 'This Expiration Policy will apply up to the specified number of times',
   'fd.xp.disable' => 'Disable Expiration',
@@ -1930,7 +1932,9 @@ original notification at
   'rs.xp.match' =>    'Expiration Policy "%1$s" (%2$s) conditions matched',
   'rs.xp.role' =>     'Role Expired',
   'rs.xp.role-a' =>   '%1$s Role Expired',
-  
+  'rs.xp.enroll.url' => '- No Enrollment Flow available -',
+  'rs.xp.enroll.url.intro' => 'Please follow the link(s) below to request a new membership:',
+
   // Setup
   
   'se.already' =>         'Setup appears to have already run',
