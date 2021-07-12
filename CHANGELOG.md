@@ -10,11 +10,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Attribute Options at LDAP Provisioner
 - voPerson object class at LDAP Provisioner
 - Load entitlements configuration from file (local/Config)
+- (@COU_ENROLL_URL) Message Template placeholder. Contains the list of active Enrollment Flows for a COU
 
 ### Changed
 - Construct entitlements using LdapSyncEntitlements class
 - Use Country (ISO 3166-1) for CO Person Role Country attribute
 - Allow Country attribute to be the only required Address field during user registration
+- Expiration policies can be configured to apply to all COUs
 
 ### Fixed
 - Show stored values at LDAP Provisioner configuration page
