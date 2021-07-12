@@ -13,6 +13,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ### Changed
 - Construct entitlements using LdapSyncEntitlements class
+- Use Country (ISO 3166-1) for CO Person Role Country attribute
+- Allow Country attribute to be the only required Address field during user registration
 
 ### Fixed
 - Show stored values at LDAP Provisioner configuration page

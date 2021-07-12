@@ -585,6 +585,7 @@ class RequiredEnum
 class RequiredAddressFieldsEnum
 {
   const Street                       = "street";
+  const Country                      = "country";
   const StreetCityStatePostal        = "street,locality,state,postal_code";
   const StreetCityStatePostalCountry = "street,locality,state,postal_code,country";
 }

@@ -163,7 +163,11 @@
             
             // If $mvpa_format is a defined function, use that to render the display string
             if(!empty($mvpa_format) && function_exists($mvpa_format)) {
-              $displaystr = $mvpa_format($m);
+              $mob = $m;
+              if($mvpa_format === "formatAddress") {
+                  $mob['country'] = _txt('en.country.codes', null, $mob['country']);
+              }
+              $displaystr = $mvpa_format($mob);
             }
             
             // Render the text link
