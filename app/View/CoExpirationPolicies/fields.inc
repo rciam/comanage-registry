@@ -195,7 +195,7 @@
                 <?php
                 if ($e) {
                   $attrs = array();
-                  $attrs['value'] = $co_expiration_policies[0]['CoExpirationPolicy']['cond_any_cou'];
+                  $attrs['checked'] = filter_var($co_expiration_policies[0]['CoExpirationPolicy']['cond_any_cou'], FILTER_VALIDATE_BOOLEAN);
 
                   print $this->Form->checkbox('cond_any_cou', $attrs) . ' ' . $this->Form->label('cond_any_cou', _txt('fd.xp.any.cou.cond'));
                 } else {
