@@ -277,8 +277,7 @@ class CoExpirationPolicy extends AppModel {
         }
         if(!empty($p['CoExpirationPolicy']['cond_cou_id'])) {
           $args['conditions']['CoPersonRole.cou_id'] = $p['CoExpirationPolicy']['cond_cou_id'];
-        }
-        if(isset($p['CoExpirationPolicy']['cond_any_cou']) && $p['CoExpirationPolicy']['cond_any_cou'] === true) {
+        } elseif (isset($p['CoExpirationPolicy']['cond_any_cou']) && $p['CoExpirationPolicy']['cond_any_cou'] === true) {
           $args['conditions'][] = 'CoPersonRole.cou_id IS NOT NULL';
         }
         if(!empty($p['CoExpirationPolicy']['cond_status'])) {
