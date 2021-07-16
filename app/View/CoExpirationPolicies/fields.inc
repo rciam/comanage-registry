@@ -194,8 +194,12 @@
             <div class="field-info checkbox">
                 <?php
                 if ($e) {
+                  $checked = isset($co_expiration_policies[0]['CoExpirationPolicy']['cond_any_cou'])
+                             ? filter_var($co_expiration_policies[0]['CoExpirationPolicy']['cond_any_cou'], FILTER_VALIDATE_BOOLEAN)
+                             : false;
+
                   $attrs = array();
-                  $attrs['checked'] = filter_var($co_expiration_policies[0]['CoExpirationPolicy']['cond_any_cou'], FILTER_VALIDATE_BOOLEAN);
+                  $attrs['checked'] = $checked;
 
                   print $this->Form->checkbox('cond_any_cou', $attrs) . ' ' . $this->Form->label('cond_any_cou', _txt('fd.xp.any.cou.cond'));
                 } else {
