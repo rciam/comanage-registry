@@ -107,7 +107,7 @@ class ProvisionerBehavior extends ModelBehavior {
       // The save requested we skip provisioning
       return true;
     }
-    
+
     return $this->determineProvisioning($model, $created);
   }
   
@@ -189,7 +189,7 @@ class ProvisionerBehavior extends ModelBehavior {
   public function beforeSave(Model $model, $options = array()) {
     // Cache a copy of the current data for comparison in afterSave. Currently only
     // used to detect if a person or group goes to or from Active status.
-    
+
     if(($model->name == 'CoGroup'
         || $model->name == 'CoPerson'
         || $model->name == 'Identifier')
@@ -200,6 +200,28 @@ class ProvisionerBehavior extends ModelBehavior {
       $args['contain'] = false;
       
       $model->cacheData = $model->find('first', $args);
+    }
+
+    if($model->name == 'CoPersonRole'
+       && ( !empty($model->data[ $model->alias ]['id']) || !empty($model->id) )) {
+      $model_id = !empty($model->data[ $model->alias ]['id'])
+        ? $model->data[ $model->alias ]['id']
+        : $model->id;
+
+      $args = array();
+      $args['conditions'][ $model->alias.'.id'] = $model_id;
+      $args['contain'] = false;
+
+      $current_data = $model->find('first', $args);
+
+      $mdata = Hash::flatten($model->data);
+      $current_data = Hash::flatten($current_data);
+      $model->cachedSaveChange = array(
+        'model' => $model->name,
+        'id' => $model_id,
+        'updated' => array_diff_assoc($mdata, $current_data),
+        'current' => $current_data,
+      );
     }
     
     return true;
@@ -457,20 +479,23 @@ class ProvisionerBehavior extends ModelBehavior {
     // since if a person's identifier changes we may need the provisioner to update
     // its references (eg: DNs) before the group updates fire, and vice versa.
     // The order depends on which model we were called via.
-    
+
+    $originChange = (!empty($model->cachedSaveChange)) ? $model->cachedSaveChange : array();
+
+
     if($model->name == 'CoGroup') {
       if($gmodel) {
-        $this->provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction, $copid);
+        $this->provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction, $copid, $originChange);
       }
       // else we could be CoGroupMember being promoted to afterSave in the middle of
       // a CoGroup being deleted. In that scenario, we don't actually need to try
       // to re-provision the CoGroup, so just move on to the person.
       if($pmodel) {
-        $this->provisionPeople($model, $pmodel, $coPersonIds, $created, $provisioningAction);
+        $this->provisionPeople($model, $pmodel, $coPersonIds, $created, $provisioningAction, $originChange);
       }
     } else {
       if($pmodel) {
-        $this->provisionPeople($model, $pmodel, $coPersonIds, $created, $provisioningAction);
+        $this->provisionPeople($model, $pmodel, $coPersonIds, $created, $provisioningAction, $originChange);
       }
       if($gmodel) {
         // If $provisioningAction is CoPersonReprovisionRequested, switch the action
@@ -483,7 +508,7 @@ class ProvisionerBehavior extends ModelBehavior {
                                ($provisioningAction == ProvisioningActionEnum::CoPersonReprovisionRequested
                                 ? ProvisioningActionEnum::CoGroupReprovisionRequested
                                 : $provisioningAction), 
-                               $copid);
+                               $copid, $originChange);
       }
     }
     
@@ -1129,7 +1154,7 @@ class ProvisionerBehavior extends ModelBehavior {
    * @throws InvalidArgumentException
    */
   
-  protected function provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction, $coPersonId=null) {
+  protected function provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction, $coPersonId=null, $originChange=array()) {
     foreach($coGroupIds as $coGroupId) {
       try {
         $pdata = $this->marshallCoGroupData($gmodel, $coGroupId, $coPersonId);
@@ -1148,6 +1173,7 @@ class ProvisionerBehavior extends ModelBehavior {
       // Invoke all provisioning plugins
       
       try {
+        $pdata['originChange'] = $originChange;
         $this->invokePlugins($gmodel,
                              $pdata,
                              $paction);
@@ -1185,7 +1211,7 @@ class ProvisionerBehavior extends ModelBehavior {
    * @throws InvalidArgumentException
    */
   
-  protected function provisionPeople($model, $pmodel, $coPersonIds, $created, $provisioningAction) {
+  protected function provisionPeople($model, $pmodel, $coPersonIds, $created, $provisioningAction, $originChange=array()) {
     foreach($coPersonIds as $cpid) {
       // $cpid could be null during a delete operation. If so, we're probably
       // in the process of removing a related model, so just skip it.
@@ -1240,10 +1266,11 @@ class ProvisionerBehavior extends ModelBehavior {
       // Invoke all provisioning plugins
       
       try {
+        $pdata['originChange'] = $originChange;
         $this->invokePlugins($pmodel,
                              $pdata,
                              $paction);
-      }    
+      }
       // What we really want to do here is catch the result (success or exception)
       // and set the appropriate session flash message, but we don't have access to
       // the current session, and anyway that doesn't cover RESTful interactions.
